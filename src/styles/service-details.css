@@ -1,0 +1,489 @@
+
+/* =========================================
+   SERVICE DETAILS PAGE
+========================================= */
+
+.service-details,
+.service-details-related {
+  overflow-x: clip;
+}
+
+/* =========================================
+   SHARED HEADINGS
+========================================= */
+
+.service-details .eyebrow,
+.service-details-related .eyebrow {
+  margin: 0 0 16px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+
+.service-details .heading,
+.service-details-related .heading {
+  margin: 0 0 22px;
+  color: var(--navy);
+  font-family: var(--font-serif, "Playfair Display", Georgia, serif);
+  font-size: clamp(30px, 3.6vw, 48px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.01em;
+}
+
+.service-details .text-red,
+.service-details-related .text-red {
+  color: var(--red);
+}
+
+/* =========================================
+   SERVICE OVERVIEW
+   CONTENT LEFT - IMAGE RIGHT
+========================================= */
+
+.service-details {
+  width: 100%;
+  padding: 0;
+  background: var(--cream);
+}
+
+.service-details-container {
+  display: grid;
+  grid-template-columns: minmax(0, 56%) minmax(0, 44%);
+  align-items: stretch;
+
+  width: 100%;
+  max-width: none;
+  min-height: 650px;
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+  background: var(--cream);
+  color: var(--navy);
+}
+
+/* Content stays on the LEFT */
+
+.service-details-main {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 55px 30px 55px clamp(30px, 5vw, 75px);
+}
+
+.service-details-inner {
+  width: 100%;
+  max-width: 650px;
+  margin-right: auto;
+}
+
+.service-details-main .heading {
+  margin-bottom: 22px;
+}
+
+.service-description {
+  max-width: 540px;
+  margin: 0 0 13px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* Features checklist */
+
+.service-details-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 30px 0 36px;
+  padding: 26px 0;
+  border-top: 1px solid rgba(11, 22, 38, .12);
+  border-bottom: 1px solid rgba(11, 22, 38, .12);
+}
+
+.service-details-features > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.service-details-features svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+}
+
+/* Contact button */
+
+.service-details-main .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 28px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Image on the RIGHTMOST edge */
+
+.service-details-image {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 650px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  clip-path: polygon(
+    13% 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.service-details-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* =========================================
+   RELATED SERVICES
+========================================= */
+
+.service-details-related {
+  padding: 84px 0 92px;
+  background: #fff;
+}
+
+.service-details-related-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 44px;
+}
+
+.service-details-related-header .heading {
+  margin-bottom: 0;
+}
+
+/* All services link */
+
+.service-details-back {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--red);
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-fast, .2s);
+}
+
+.service-details-back:hover {
+  color: var(--red);
+}
+
+/* Related service cards */
+
+.service-details-related-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.service-details-related-card {
+  display: flex;
+  flex: 0 0 calc((100% - 48px) / 3);
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(11, 22, 38, .08);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--navy);
+  text-decoration: none;
+  transition:
+    transform var(--transition-fast, .2s),
+    box-shadow var(--transition-fast, .2s);
+}
+
+.service-details-related-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(11, 22, 38, .12);
+}
+
+.service-details-related-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+
+.service-details-related-card:hover img {
+  transform: scale(1.05);
+}
+
+.service-details-related-card > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 22px;
+  background: #fff;
+}
+
+.service-details-related-card h3 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.service-details-related-card > div svg {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border: 1px solid rgba(11, 22, 38, .4);
+  border-radius: 50%;
+  transition:
+    background .2s,
+    color .2s,
+    border-color .2s;
+}
+
+.service-details-related-card:hover > div svg {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+/* Focus states */
+
+.service-details-related-card:focus-visible,
+.service-details-back:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   LARGE LAPTOPS
+========================================= */
+
+@media (max-width: 1200px) {
+  .service-details-container {
+    grid-template-columns: minmax(0, 54%) minmax(0, 46%);
+    min-height: 600px;
+  }
+
+  .service-details-main {
+    padding: 50px 24px 50px 40px;
+  }
+
+  .service-details-image,
+  .service-details-image img {
+    min-height: 600px;
+  }
+
+  .service-details-features {
+    gap: 14px 16px;
+  }
+
+  .service-details-related-card > div {
+    padding: 18px;
+  }
+
+  .service-details-related-card h3 {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   TABLETS
+========================================= */
+
+@media (max-width: 900px) {
+  .service-details-container {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+    gap: 0;
+  }
+
+  .service-details-image {
+    grid-row: 1;
+    width: 100%;
+    min-height: 0;
+    height: 420px;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 100%,
+      0 88%
+    );
+  }
+
+  .service-details-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .service-details-main {
+    grid-row: 2;
+    justify-content: flex-start;
+    padding: 55px 40px 65px;
+  }
+
+  .service-details-inner {
+    max-width: 720px;
+  }
+
+  .service-details-related {
+    padding: 60px 0 68px;
+  }
+
+  .service-details-related-card {
+    flex-basis: calc((100% - 24px) / 2);
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .service-details-image {
+    height: 300px;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 100%,
+      0 92%
+    );
+  }
+
+  .service-details-main {
+    padding: 38px 24px 48px;
+  }
+
+  .service-details .eyebrow,
+  .service-details-related .eyebrow {
+    margin-bottom: 13px;
+    font-size: 11px;
+    letter-spacing: .22em;
+  }
+
+  .service-details .heading,
+  .service-details-related .heading {
+    margin-bottom: 16px;
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .service-description {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .service-details-features {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin: 24px 0 28px;
+    padding: 22px 0;
+  }
+
+  .service-details-main .btn {
+    width: 100%;
+  }
+
+  .service-details-related {
+    padding: 48px 0 54px;
+  }
+
+  .service-details-related-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 30px;
+  }
+
+  .service-details-related-grid {
+    gap: 18px;
+  }
+
+  .service-details-related-card {
+    flex-basis: 100%;
+  }
+}
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 360px) {
+  .service-details-image {
+    height: 250px;
+  }
+
+  .service-details-main {
+    padding: 32px 18px 42px;
+  }
+
+  .service-details .heading,
+  .service-details-related .heading {
+    font-size: 27px;
+  }
+
+  .service-details-related-card > div {
+    padding: 16px 14px;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .service-details-related-card,
+  .service-details-related-card img {
+    transition: none;
+  }
+
+  .service-details-related-card:hover {
+    transform: none;
+  }
+
+  .service-details-related-card:hover img {
+    transform: none;
+  }
+}

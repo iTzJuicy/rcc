@@ -1,0 +1,874 @@
+/* =========================================
+   ABOUT PAGE
+========================================= */
+
+/* =========================================
+   1. OUR STORY
+========================================= */
+
+.about-intro {
+  display: grid;
+  grid-template-columns: 44% minmax(0, 56%);
+  align-items: stretch;
+  min-height: 650px;
+  overflow: hidden;
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.about-intro-image {
+  position: relative;
+  min-width: 0;
+  min-height: 650px;
+  overflow: hidden;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    87% 100%,
+    0 100%
+  );
+}
+
+.about-intro-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.about-intro-content {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 55px clamp(30px, 5vw, 75px) 55px 20px;
+}
+
+.about-intro-inner {
+  width: 100%;
+  max-width: 650px;
+}
+
+.about-intro-content .eyebrow {
+  margin: 0 0 16px;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.about-intro-content .heading {
+  margin: 0 0 22px;
+  color: var(--navy);
+  font-family: var(--font-serif, "Playfair Display", Georgia, serif);
+  font-size: clamp(34px, 3.4vw, 49px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+}
+
+.about-intro-content .text-red {
+  color: var(--red);
+}
+
+.about-intro-description {
+  max-width: 540px;
+  margin: 0 0 13px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.about-intro-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+/* =========================================
+   INTRO STATISTICS
+========================================= */
+
+.about-intro-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(11, 22, 38, .14);
+}
+
+.about-intro-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.about-intro-stat strong {
+  color: var(--red);
+  font-family: var(--font-sans);
+  font-size: clamp(23px, 2.2vw, 30px);
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.about-intro-stat span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =========================================
+   2. VISION & MISSION
+   ARCHITECTURAL BANNER
+========================================= */
+
+.about-vision-mission {
+  position: relative;
+  isolation: isolate;
+  min-height: 400px;
+  margin: 55px 0;
+  padding: 100px 0;
+  overflow: hidden;
+  color: #fff;
+
+  background:
+    linear-gradient(
+      105deg,
+      rgba(3, 25, 55, 0.96) 0%,
+      rgba(5, 43, 79, 0.91) 50%,
+      rgba(3, 22, 49, 0.82) 100%
+    ),
+    url("/images/vision-mission-bg.jpeg");
+
+  background-size: cover;
+  background-position: center 45%;
+  background-repeat: no-repeat;
+
+  /* Symmetrical inward points */
+  clip-path: polygon(
+    0 0,
+    50% 16%,
+    100% 0,
+    100% 100%,
+    50% 84%,
+    0 100%
+  );
+}
+
+/* Background pattern */
+
+.about-vm-bg-pattern {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  width: 38%;
+  height: 100%;
+  opacity: 0.16;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 28px,
+      rgba(255, 255, 255, 0.3) 29px,
+      transparent 30px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 38px,
+      rgba(255, 255, 255, 0.2) 39px,
+      transparent 40px
+    );
+
+  pointer-events: none;
+}
+
+/* Main layout */
+
+.about-vm-inner {
+  display: grid;
+
+  /* Equal columns keep the divider at the exact centre */
+  grid-template-columns:
+    minmax(0, 1fr)
+    1px
+    minmax(0, 1fr);
+
+  align-items: center;
+  gap: clamp(30px, 5vw, 65px);
+
+  width: 100%;
+  max-width: 1150px;
+  min-height: 200px;
+  margin: 0 auto;
+}
+
+/* Left heading */
+
+.about-vm-heading {
+  width: 100%;
+  max-width: 440px;
+  justify-self: end;
+}
+
+.about-vm-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 15px;
+
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.about-vm-eyebrow span {
+  width: 28px;
+  height: 2px;
+  background: var(--red);
+}
+
+.about-vm-heading h2 {
+  margin: 0 0 15px;
+  color: #fff;
+
+  font-family: var(
+    --font-serif,
+    "Playfair Display",
+    Georgia,
+    serif
+  );
+
+  font-size: clamp(34px, 3.5vw, 46px);
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.about-vm-intro {
+  max-width: 390px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* Centre divider */
+
+.about-vm-divider {
+  width: 1px;
+  height: 180px;
+  justify-self: center;
+  align-self: center;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Right content */
+
+.about-vm-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  min-width: 0;
+}
+
+.about-vm-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 17px;
+  min-width: 0;
+}
+
+.about-vm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  font-size: 24px;
+}
+
+.about-vm-text h3 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.about-vm-text p {
+  max-width: 420px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   3. OUR VALUES
+========================================= */
+
+.about-values {
+  padding: 55px 0 85px;
+  background: var(--cream);
+  color: var(--navy);
+}
+
+/* Centered heading */
+
+.about-values-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.about-values-heading .eyebrow {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 14px;
+  padding: 0;
+  color: var(--red);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  line-height: 1.5;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.about-values-heading .heading {
+  width: 100%;
+  margin: 0 0 15px;
+  color: var(--navy);
+  font-family: var(--font-serif, "Playfair Display", Georgia, serif);
+  font-size: clamp(35px, 4vw, 49px);
+  font-weight: 400;
+  line-height: 1.12;
+  text-align: center;
+}
+
+.about-values-heading .text-red {
+  color: var(--red);
+}
+
+.about-values-heading > p:last-child {
+  max-width: 500px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* Value grid */
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.about-value-item {
+  min-width: 0;
+  padding: 12px 26px 10px;
+  border-right: 1px solid rgba(11, 22, 38, .12);
+  text-align: center;
+}
+
+.about-value-item:last-child {
+  border-right: 0;
+}
+
+/* Icons */
+
+.about-value-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  color: var(--red);
+}
+
+.about-value-icon i {
+  font-size: 29px;
+  line-height: 1;
+}
+
+.about-value-item h3 {
+  margin: 0 0 9px;
+  color: var(--navy);
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.about-value-item p {
+  max-width: 250px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   LAPTOP
+========================================= */
+
+@media (max-width: 1200px) {
+  .about-intro {
+    grid-template-columns: 42% minmax(0, 58%);
+    min-height: 620px;
+  }
+
+  .about-intro-image,
+  .about-intro-image img {
+    min-height: 620px;
+  }
+
+  .about-intro-content {
+    padding: 42px 30px 42px 12px;
+  }
+
+  .about-intro-stats {
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .about-intro-stat span {
+    font-size: 9px;
+  }
+
+  .about-value-item {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .about-vm-inner {
+    gap: 40px;
+    padding: 0 25px;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+  .about-intro {
+    grid-template-columns: 40% minmax(0, 60%);
+    min-height: 0;
+  }
+
+  .about-intro-image,
+  .about-intro-image img {
+    min-height: 600px;
+  }
+
+  .about-intro-content {
+    padding: 38px 24px 38px 8px;
+  }
+
+  .about-intro-content .heading {
+    font-size: clamp(29px, 4vw, 38px);
+  }
+
+  .about-intro-description {
+    font-size: 12px;
+  }
+
+  .about-intro-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  /* Vision and Mission */
+
+  .about-vision-mission {
+    min-height: 380px;
+    margin: 40px 0;
+    padding: 85px 0;
+
+    clip-path: polygon(
+      0 0,
+      50% 12%,
+      100% 0,
+      100% 100%,
+      50% 88%,
+      0 100%
+    );
+  }
+
+  .about-vm-inner {
+    grid-template-columns:
+      minmax(0, 1fr)
+      1px
+      minmax(0, 1fr);
+
+    gap: 28px;
+    padding: 0 30px;
+  }
+
+  .about-vm-heading {
+    max-width: 100%;
+  }
+
+  .about-vm-heading h2 {
+    font-size: 35px;
+  }
+
+  .about-vm-intro {
+    max-width: 300px;
+  }
+
+  .about-vm-item {
+    grid-template-columns: 35px minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  .about-vm-text h3 {
+    font-size: 15px;
+  }
+
+  /* Values */
+
+  .about-values {
+    padding: 40px 0 65px;
+  }
+
+  .about-values-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 30px;
+  }
+
+  .about-value-item:nth-child(2) {
+    border-right: 0;
+  }
+}
+
+/* =========================================
+   SMALL TABLETS
+========================================= */
+
+@media (max-width: 700px) {
+  .about-vision-mission {
+    padding: 70px 0;
+
+    /* Remove all inward clipping */
+    clip-path: none;
+  }
+
+  .about-vm-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 25px;
+    padding: 0 25px;
+  }
+
+  .about-vm-heading {
+    max-width: 100%;
+    justify-self: start;
+  }
+
+  .about-vm-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .about-vm-content {
+    gap: 24px;
+  }
+
+  .about-vm-item {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 15px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  /* Our Story */
+
+  .about-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-intro-image {
+    min-height: 0;
+    height: 280px;
+
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 88%,
+      0 100%
+    );
+  }
+
+  .about-intro-image img {
+    min-height: 0;
+    height: 100%;
+    object-position: center 45%;
+  }
+
+  .about-intro-content {
+    padding: 25px 22px 36px;
+  }
+
+  .about-intro-content .eyebrow {
+    margin-bottom: 12px;
+  }
+
+  .about-intro-content .heading {
+    margin-bottom: 18px;
+    font-size: clamp(30px, 8vw, 38px);
+  }
+
+  .about-intro-description {
+    font-size: 12px;
+    line-height: 1.75;
+  }
+
+  .about-intro-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+    margin-top: 25px;
+    padding-top: 20px;
+  }
+
+  .about-intro-stat strong {
+    font-size: 25px;
+  }
+
+  .about-intro-stat span {
+    font-size: 10px;
+  }
+
+  /* Vision and Mission */
+
+  .about-vision-mission {
+    min-height: auto;
+    margin: 30px 0;
+    padding: 55px 0;
+
+    /* Straight edges on mobile */
+    clip-path: none;
+
+    background-position: center;
+  }
+
+  .about-vm-bg-pattern {
+    width: 65%;
+    opacity: 0.1;
+  }
+
+  .about-vm-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 25px;
+    min-height: auto;
+    padding: 0 22px;
+  }
+
+  .about-vm-heading {
+    max-width: 100%;
+    justify-self: start;
+  }
+
+  .about-vm-heading h2 {
+    font-size: 34px;
+  }
+
+  .about-vm-intro {
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  .about-vm-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .about-vm-content {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .about-vm-item {
+    grid-template-columns: 35px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .about-vm-icon {
+    font-size: 21px;
+  }
+
+  .about-vm-text h3 {
+    font-size: 15px;
+  }
+
+  .about-vm-text p {
+    font-size: 11px;
+  }
+
+  /* Values */
+
+  .about-values {
+    padding: 35px 0 55px;
+  }
+
+  .about-values-heading {
+    margin: 0 auto 32px;
+    padding: 0 15px;
+  }
+
+  .about-values-heading .eyebrow {
+    margin: 0 auto 12px;
+    text-align: center;
+  }
+
+  .about-values-heading .heading {
+    font-size: 34px;
+    text-align: center;
+  }
+
+  .about-values-heading > p:last-child {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .about-values-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 28px;
+  }
+
+  .about-value-item {
+    padding: 5px 12px 8px;
+  }
+
+  .about-value-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+
+  .about-value-icon i {
+    font-size: 25px;
+  }
+
+  .about-value-item h3 {
+    font-size: 14px;
+  }
+
+  .about-value-item p {
+    font-size: 10px;
+    line-height: 1.65;
+  }
+}
+
+/* =========================================
+   VERY SMALL PHONES
+========================================= */
+
+@media (max-width: 380px) {
+  .about-intro-image {
+    height: 240px;
+  }
+
+  .about-intro-content {
+    padding: 23px 18px 30px;
+  }
+
+  .about-intro-content .heading {
+    font-size: 29px;
+  }
+
+  .about-intro-stats {
+    gap: 16px 10px;
+  }
+
+  .about-intro-stat strong {
+    font-size: 23px;
+  }
+
+  /* Vision and Mission */
+
+  .about-vision-mission {
+    margin: 25px 0;
+    padding: 48px 0;
+    clip-path: none;
+  }
+
+  .about-vm-inner {
+    gap: 22px;
+    padding: 0 18px;
+  }
+
+  .about-vm-heading h2 {
+    font-size: 30px;
+  }
+
+  .about-vm-item {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .about-vm-icon {
+    font-size: 19px;
+  }
+
+  /* Values */
+
+  .about-values-heading .heading {
+    font-size: 30px;
+  }
+
+  .about-value-item {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+}
+
+/* =========================================
+   VERY NARROW PHONES
+========================================= */
+
+@media (max-width: 320px) {
+  .about-vision-mission {
+    padding: 42px 0;
+    clip-path: none;
+  }
+
+  .about-vm-inner {
+    padding: 0 15px;
+  }
+
+  .about-vm-heading h2 {
+    font-size: 28px;
+  }
+
+  .about-vm-item {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+  }
+}

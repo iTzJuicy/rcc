@@ -1,0 +1,483 @@
+
+/* =========================================
+   PROJECTS PAGE
+========================================= */
+
+.projects-page {
+  background: #fff;
+  overflow-x: clip;
+  width: 100%;
+}
+
+/* =========================================
+   PAGE HEADER - CENTERED
+========================================= */
+
+.projects-page-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 38px;
+  text-align: center;
+}
+
+.projects-page-header .section-heading {
+  max-width: 700px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* =========================================
+   PROJECT FILTERS - CENTERED
+========================================= */
+
+.projects-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 38px;
+}
+
+.projects-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 20px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+
+  color: var(--navy);
+  background: transparent;
+
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast, 0.2s),
+    background var(--transition-fast, 0.2s),
+    border-color var(--transition-fast, 0.2s);
+}
+
+.projects-filter:hover,
+.projects-filter.active {
+  border-color: var(--red);
+  color: #fff;
+  background: var(--red);
+}
+
+.projects-filter:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   PROJECT GRID
+========================================= */
+
+.projects-page .projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+  align-items: stretch;
+}
+
+/* =========================================
+   PROJECT CARDS
+========================================= */
+
+.projects-page .project-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+
+  border: 1px solid rgba(11, 22, 38, 0.08);
+  border-radius: 12px;
+
+  background: #fff;
+  color: var(--navy);
+}
+
+/* Project image */
+
+.projects-page .project-card-image {
+  display: block;
+  width: 100%;
+  height: 320px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.projects-page .project-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.projects-page .project-card:hover .project-card-image img {
+  transform: scale(1.05);
+}
+
+/* Project content */
+
+.projects-page .project-card-content {
+  flex: 1;
+  padding: 26px;
+  background: #fff;
+}
+
+.projects-page .project-card-content h3 {
+  margin: 8px 0 12px;
+  color: var(--navy);
+  font-size: 23px;
+  line-height: 1.3;
+}
+
+.projects-page .project-card-content h3 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast, 0.2s);
+}
+
+.projects-page .project-card-content h3 a:hover {
+  color: var(--red);
+}
+
+.projects-page .project-card-content > p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* =========================================
+   EMPTY PROJECT STATE
+========================================= */
+
+.projects-empty {
+  padding: 60px 24px;
+  background: #fff;
+  text-align: center;
+  border: 1px solid rgba(11, 22, 38, 0.08);
+}
+
+.projects-empty h3 {
+  margin: 0 0 24px;
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* =========================================
+   LARGE DESKTOPS
+   1600px and above
+========================================= */
+
+@media (min-width: 1600px) {
+  .projects-page .projects-grid {
+    gap: 36px;
+  }
+
+  .projects-page .project-card-image {
+    height: 360px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 30px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 25px;
+  }
+
+  .projects-page .project-card-content > p {
+    font-size: 15px;
+  }
+}
+
+/* =========================================
+   DESKTOPS AND LAPTOPS
+   1201px - 1599px
+========================================= */
+
+@media (min-width: 1201px) and (max-width: 1599px) {
+  .projects-page .projects-grid {
+    gap: 28px;
+  }
+
+  .projects-page .project-card-image {
+    height: 310px;
+  }
+}
+
+/* =========================================
+   SMALL LAPTOPS
+   901px - 1200px
+========================================= */
+
+@media (max-width: 1200px) {
+  .projects-page .projects-grid {
+    gap: 24px;
+  }
+
+  .projects-page .project-card-image {
+    height: 280px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 24px;
+  }
+}
+
+/* =========================================
+   TABLETS
+   601px - 900px
+========================================= */
+
+@media (max-width: 900px) {
+  .projects-page-header {
+    margin-bottom: 32px;
+  }
+
+  .projects-filters {
+    gap: 9px;
+    margin-bottom: 32px;
+  }
+
+  .projects-page .projects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .projects-page .project-card-image {
+    height: 250px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 22px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 20px;
+  }
+
+  .projects-page .project-card-content > p {
+    font-size: 13px;
+  }
+}
+
+/* =========================================
+   LARGE MOBILE
+   481px - 600px
+========================================= */
+
+@media (max-width: 600px) {
+  .projects-page-header {
+    margin-bottom: 28px;
+  }
+
+  .projects-page-header .section-heading {
+    width: 100%;
+  }
+
+  .projects-filters {
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .projects-filter {
+    min-height: 38px;
+    padding: 9px 15px;
+    font-size: 11px;
+  }
+
+  .projects-page .projects-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .projects-page .project-card-image {
+    height: 260px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 22px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 21px;
+  }
+
+  .projects-page .project-card-content > p {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .projects-empty {
+    padding: 42px 20px;
+  }
+
+  .projects-empty h3 {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   MOBILE PHONES
+   361px - 480px
+========================================= */
+
+@media (max-width: 480px) {
+  .projects-page .project-card-image {
+    height: 230px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 20px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 20px;
+  }
+
+  .projects-filter {
+    min-height: 36px;
+    padding: 8px 13px;
+  }
+}
+
+/* =========================================
+   SMALL PHONES
+   320px - 360px
+========================================= */
+
+@media (max-width: 360px) {
+  .projects-page-header {
+    margin-bottom: 24px;
+  }
+
+  .projects-filters {
+    gap: 7px;
+    margin-bottom: 24px;
+  }
+
+  .projects-filter {
+    min-height: 34px;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+
+  .projects-page .projects-grid {
+    gap: 18px;
+  }
+
+  .projects-page .project-card-image {
+    height: 210px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 18px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 18px;
+  }
+
+  .projects-page .project-card-content > p {
+    font-size: 12px;
+  }
+
+  .projects-empty {
+    padding: 35px 16px;
+  }
+}
+
+/* =========================================
+   VERY SMALL SCREENS
+   Below 320px
+========================================= */
+
+@media (max-width: 319px) {
+  .projects-filter {
+    min-height: 32px;
+    padding: 7px 10px;
+    font-size: 9px;
+  }
+
+  .projects-page .project-card-image {
+    height: 185px;
+  }
+
+  .projects-page .project-card-content {
+    padding: 15px;
+  }
+
+  .projects-page .project-card-content h3 {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   TOUCH DEVICES
+========================================= */
+
+@media (hover: none) {
+  .projects-page .project-card:hover .project-card-image img {
+    transform: none;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-page .project-card-image img,
+  .projects-page .project-card-content h3 a,
+  .projects-filter {
+    transition: none;
+  }
+
+  .projects-page .project-card:hover .project-card-image img {
+    transform: none;
+  }
+}
+
+/* =========================================
+   CENTER PROJECT SECTION EYEBROW
+========================================= */
+
+.projects-page-header .section-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.projects-page-header .section-heading .eyebrow {
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.projects-page-header .section-heading h2 {
+  width: 100%;
+  text-align: center;
+}
+
+.projects-page-header .section-heading > p {
+  width: 100%;
+  text-align: center;
+}
