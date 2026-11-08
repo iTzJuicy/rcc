@@ -1,0 +1,46 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da70",
+    "name": "Residential",
+    "slug": "residential",
+    "type": "project",
+    "description": "",
+    "order": 1,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.477Z",
+    "updatedAt": "2026-11-07T18:42:27.477Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da71",
+    "name": "Commercial",
+    "slug": "commercial",
+    "type": "project",
+    "description": "",
+    "order": 2,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.477Z",
+    "updatedAt": "2026-11-07T18:42:27.477Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da72",
+    "name": "Renovation",
+    "slug": "renovation",
+    "type": "project",
+    "description": "",
+    "order": 3,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.477Z",
+    "updatedAt": "2026-11-07T18:42:27.477Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da73",
+    "name": "Construction",
+    "slug": "construction",
+    "type": "project",
+    "description": "",
+    "order": 4,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.478Z",
+    "updatedAt": "2026-11-07T18:42:27.478Z"
+  }
+]

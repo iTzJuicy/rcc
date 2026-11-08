@@ -8,7 +8,7 @@ const projects = [
     location: "Mangalore, Karnataka",
     description:
       "A thoughtfully planned residential project focused on quality construction, functional spaces, and lasting durability.",
-    image: "/images/card1.png",
+    image: "/images/card1.webp",
     year: "",
     status: "Completed",
   },
@@ -20,7 +20,7 @@ const projects = [
     location: "Mangalore, Karnataka",
     description:
       "A modern commercial development designed around efficient space utilisation and dependable construction.",
-    image: "/images/card2.png",
+    image: "/images/card2.webp",
     year: "",
     status: "Completed",
   },
@@ -32,7 +32,7 @@ const projects = [
     location: "Mangalore, Karnataka",
     description:
       "A renovation project focused on improving functionality, refreshing existing spaces, and maintaining structural integrity.",
-    image: "/images/card3.png",
+    image: "/images/card3.webp",
     year: "",
     status: "Completed",
   },
@@ -44,7 +44,7 @@ const projects = [
     location: "Mangalore, Karnataka",
     description:
       "A construction project emphasising practical design, careful execution, and attention to detail.",
-    image: "/images/card4.png",
+    image: "/images/card4.webp",
     year: "",
     status: "Completed",
   },

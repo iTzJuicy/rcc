@@ -25,10 +25,10 @@ export default function Services() {
   return (
     <>
       <PageHero
+        pageKey="services"
         eyebrow="What We Do"
         title="Our Services"
         description="Comprehensive construction solutions delivered with quality, precision, and care."
-        image="/images/impact.png"
         breadcrumb={[{ label: "Home", to: "/" }, { label: "Services" }]}
       />
 

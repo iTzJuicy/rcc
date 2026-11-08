@@ -33,6 +33,168 @@
   overflow-x: clip;
 }
 
+/* Scroll reveals and restrained interaction motion */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .7s ease, transform .7s ease;
+  transition-delay: calc(var(--reveal-index, 0) * 90ms);
+}
+
+.is-visible .reveal-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-load-item {
+  animation: heroFadeUp .7s ease both;
+}
+
+.hero-load-item:nth-child(1) { animation-delay: 0ms; }
+.hero-load-item:nth-child(2) { animation-delay: 100ms; }
+.hero-load-item:nth-child(3) { animation-delay: 200ms; }
+.hero-load-item:nth-child(4) { animation-delay: 300ms; }
+.hero-load-item:nth-child(5) { animation-delay: 400ms; }
+
+.hero-image {
+  animation: heroImageFade .9s ease both;
+}
+
+.services-preview .service-card-image img,
+.featured-project-image img {
+  transition: transform .45s ease;
+}
+
+.services-preview .service-card:hover .service-card-image img,
+.featured-project-card:hover .featured-project-image img {
+  transform: scale(1.05);
+}
+
+.services-preview .service-card-link,
+.featured-project-arrow,
+.contact-banner-button,
+.site-footer-socials a {
+  transition: transform .25s ease, background-color .25s ease, color .25s ease;
+}
+
+.services-preview .service-card-link:hover,
+.featured-project-arrow:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+.services-preview .service-card-link:hover svg,
+.featured-project-arrow:hover svg,
+.contact-banner-button:hover svg,
+.site-footer-cta:hover svg {
+  transform: translateX(4px);
+}
+
+.featured-projects-grid.filter-changing .featured-project-card {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.featured-projects-grid .featured-project-card {
+  transition: opacity .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+
+.about-preview-image.reveal-item {
+  transform: translateX(-28px);
+}
+
+.about-preview-content.reveal-item {
+  transform: translateX(28px);
+}
+
+.about-preview.is-visible .about-preview-image.reveal-item,
+.about-preview.is-visible .about-preview-content.reveal-item {
+  transform: translateX(0);
+}
+
+.process-timeline-track {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .9s ease;
+}
+
+.process-preview.is-visible .process-timeline-track {
+  transform: scaleX(1);
+}
+
+.testimonial-card {
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.testimonials-swiper .swiper-slide-active .testimonial-card {
+  opacity: 1;
+}
+
+.why-choose-us-icon {
+  opacity: 0;
+  transform: scale(.8);
+  transition: opacity .65s ease, transform .65s ease;
+}
+
+.why-choose-us.is-visible .why-choose-us-icon {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: calc(var(--reveal-index, 0) * 90ms);
+}
+
+.contact-banner-button:hover,
+.site-footer-cta:hover {
+  transform: translateY(-2px);
+}
+
+.site-footer {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .75s ease, transform .75s ease;
+}
+
+.site-footer.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroImageFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 820px) {
+  .about-preview-image.reveal-item,
+  .about-preview-content.reveal-item {
+    transform: translateY(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+
+  .reveal-item,
+  .about-preview-image.reveal-item,
+  .about-preview-content.reveal-item,
+  .site-footer,
+  .why-choose-us-icon {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Shared serif headings */
 .impact-intro .heading,
 .services-preview-title,
@@ -468,7 +630,7 @@
     min-height: 0;
     height: auto;
     background-color: var(--cream);
-    background-image: url("/images/hero_mobile.png");
+    background-image: url("/images/hero_mobile.webp");
     background-repeat: no-repeat;
     background-position: right -8px bottom -12px;
     background-size: 115% auto;
@@ -2179,6 +2341,34 @@
   font-size: clamp(32px, 3.6vw, 50px);
 }
 
+.testimonials-swiper {
+  width: 100%;
+  max-width: 426px;
+  min-width: 0;
+  padding: 16px 8px;
+  margin: -16px -8px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.testimonials-swiper .swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.testimonials-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.testimonials-swiper .testimonial-card {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .testimonial-card {
   position: relative;
   display: grid;
@@ -2711,7 +2901,7 @@
   min-height: 320px;
   padding: 56px 0;
   color: #fff;
-  background: #061b24 url("/images/contact.png") center/cover no-repeat;
+  background: #061b24 url("/images/contact.webp") center/cover no-repeat;
 }
 
 .contact-banner-overlay {

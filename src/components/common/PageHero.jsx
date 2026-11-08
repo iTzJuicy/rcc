@@ -1,18 +1,27 @@
 
 import { Link } from "react-router-dom";
+import { useSiteContent } from "../../hooks/useSiteContent";
 
 export default function PageHero({
   eyebrow,
   title,
   description,
   image,
+  pageKey,
   breadcrumb = [],
   className = "",
 }) {
+  const { content } = useSiteContent();
+
+  const banners = content?.pageBanners || {};
+  const defaultBanner = banners.default || "/images/banner.webp";
+  const customBanner = pageKey ? banners[pageKey] : null;
+  const resolvedImage = image || customBanner || defaultBanner;
+
   return (
     <section
       className={`page-hero ${className}`.trim()}
-      style={image ? { backgroundImage: `url("${image}")` } : undefined}
+      style={resolvedImage ? { backgroundImage: `url("${resolvedImage}")` } : undefined}
     >
       <div className="page-hero-overlay" />
 

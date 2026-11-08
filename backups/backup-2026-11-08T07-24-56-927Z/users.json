@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da52",
+    "name": "RCC Administrator",
+    "email": "admin@rcc.com",
+    "password": "$2a$10$e.q0zzt10KbGTopnOt9wte7/x0f2lJW9DkG818mSTkHol.vBiGiGW",
+    "role": "superadmin",
+    "createdAt": "2026-11-07T18:42:27.359Z",
+    "updatedAt": "2026-11-08T07:24:50.404Z",
+    "__v": 0,
+    "lastLogin": "2026-11-07T18:43:23.609Z",
+    "permissions": {
+      "services": true,
+      "projects": true,
+      "categories": true,
+      "testimonials": true,
+      "stats": true,
+      "enquiries": true,
+      "media": true,
+      "settings": true,
+      "users": true
+    },
+    "tokenVersion": 0
+  }
+]

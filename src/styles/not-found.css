@@ -1,0 +1,117 @@
+.not-found {
+  position: relative;
+  display: grid;
+  min-height: calc(100vh - var(--navbar-height, 88px));
+  place-items: center;
+  overflow: hidden;
+  padding: 96px 0;
+  color: var(--navy);
+  background:
+    radial-gradient(circle at 82% 18%, rgb(183 34 44 / 10%), transparent 28%),
+    linear-gradient(135deg, var(--cream) 0%, #fff 62%, #f5f0e9 100%);
+}
+
+.not-found::before,
+.not-found::after {
+  position: absolute;
+  border: 1px solid rgb(183 34 44 / 14%);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.not-found::before {
+  width: 420px;
+  height: 420px;
+  right: -170px;
+  bottom: -180px;
+}
+
+.not-found::after {
+  width: 260px;
+  height: 260px;
+  top: -130px;
+  left: -100px;
+}
+
+.not-found-container {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 720px;
+  text-align: center;
+}
+
+.not-found-code {
+  display: block;
+  color: var(--red);
+  font-size: clamp(88px, 16vw, 180px);
+  font-weight: 700;
+  letter-spacing: -.09em;
+  line-height: .8;
+  opacity: .14;
+}
+
+.not-found .eyebrow {
+  margin: 30px 0 18px;
+  color: var(--red);
+}
+
+.not-found .heading {
+  max-width: 620px;
+  font-size: clamp(36px, 5vw, 64px);
+}
+
+.not-found-description {
+  max-width: 480px;
+  margin: 24px auto 30px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.not-found .btn {
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.not-found .btn:hover {
+  transform: translateY(-2px);
+  background: var(--red-dark);
+}
+
+.not-found .btn svg {
+  transition: transform var(--transition-fast);
+}
+
+.not-found .btn:hover svg {
+  transform: translateX(4px);
+}
+
+@media (max-width: 600px) {
+  .not-found {
+    min-height: calc(100vh - var(--navbar-height, 80px));
+    padding: 72px 0;
+  }
+
+  .not-found-code {
+    font-size: clamp(84px, 27vw, 140px);
+  }
+
+  .not-found .eyebrow {
+    margin-top: 24px;
+    font-size: 10px;
+  }
+
+  .not-found-description {
+    margin-top: 18px;
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found .btn,
+  .not-found .btn svg {
+    transition: none;
+  }
+}

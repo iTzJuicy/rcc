@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "server": "node backend/server.js",
+    "server:dev": "node --watch backend/server.js",
+    "seed": "node backend/scripts/seed.js"
   },
   "dependencies": {
+    "@sentry/react": "^11.11.0",
     "lucide-react": "^1.65.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

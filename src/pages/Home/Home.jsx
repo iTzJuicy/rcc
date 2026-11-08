@@ -11,7 +11,7 @@ import ContactCTA from "../../components/sections/home/ContactCTA";
 
 export default function Home() {
   return (
-    <>
+    <div className="home-page-wrapper">
       <Hero />
       <Impact />
       <ServicesPreview />
@@ -21,6 +21,6 @@ export default function Home() {
       <Testimonials />
       <WhyChooseUs />
       <ContactCTA />
-    </>
+    </div>
   );
 }

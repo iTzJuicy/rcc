@@ -1,3 +1,11 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
 # Logs
 logs
 *.log
@@ -7,11 +15,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and build outputs
 node_modules
 dist
 dist-ssr
 *.local
 .vercel
+public/uploads/*
+!public/uploads/.gitkeep
 
 # Editor directories and files
 .vscode/*

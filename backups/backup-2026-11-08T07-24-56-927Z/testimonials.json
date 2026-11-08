@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da7c",
+    "name": "Client, Mangaluru",
+    "location": "Mangaluru",
+    "role": "Residential Client",
+    "rating": 5,
+    "text": "RCC Infrastructure delivered our dream home on time with excellent quality. Their team was professional, responsive and easy to work with. Highly recommended!",
+    "quote": "RCC Infrastructure delivered our dream home on time with excellent quality. Their team was professional, responsive and easy to work with. Highly recommended!",
+    "photo": "",
+    "isApproved": true,
+    "order": 1,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.484Z",
+    "updatedAt": "2026-11-07T18:42:27.484Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da7d",
+    "name": "Residential Client, Mangaluru",
+    "location": "Mangaluru",
+    "role": "Commercial Client",
+    "rating": 5,
+    "text": "The entire construction process was handled professionally. The team maintained good communication and paid attention to quality at every stage.",
+    "quote": "The entire construction process was handled professionally. The team maintained good communication and paid attention to quality at every stage.",
+    "photo": "",
+    "isApproved": true,
+    "order": 2,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.484Z",
+    "updatedAt": "2026-11-07T18:42:27.484Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da7e",
+    "name": "Project Client, Mangaluru",
+    "location": "Mangaluru",
+    "role": "Project Partner",
+    "rating": 5,
+    "text": "We appreciated the team's commitment, timely updates and quality workmanship. The project was managed with care from start to finish.",
+    "quote": "We appreciated the team's commitment, timely updates and quality workmanship. The project was managed with care from start to finish.",
+    "photo": "",
+    "isApproved": true,
+    "order": 3,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.484Z",
+    "updatedAt": "2026-11-07T18:42:27.484Z"
+  }
+]

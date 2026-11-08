@@ -6,7 +6,7 @@ const services = [
     title: "Residential Building Construction",
     description:
       "Thoughtfully designed residential spaces built with quality materials, precision, and lasting durability.",
-    image: "/images/card1.png",
+    image: "/images/card1.webp",
     icon: "home",
   },
   {
@@ -15,7 +15,7 @@ const services = [
     title: "Commercial Building Construction",
     description:
       "Functional and modern commercial spaces designed to support business growth and long-term performance.",
-    image: "/images/card2.png",
+    image: "/images/card2.webp",
     icon: "building",
   },
   {
@@ -24,7 +24,7 @@ const services = [
     title: "Civil & Infrastructure Works",
     description:
       "Infrastructure and civil engineering solutions delivered with reliable execution and quality workmanship.",
-    image: "/images/impact.png",
+    image: "/images/impact.webp",
     icon: "construction",
   },
   {
@@ -33,7 +33,7 @@ const services = [
     title: "Apartment & Residential Development",
     description:
       "Residential developments designed for functionality, durability, and modern living.",
-    image: "/images/card1.png",
+    image: "/images/card1.webp",
     icon: "building",
   },
   {
@@ -42,7 +42,7 @@ const services = [
     title: "Renovation & Remodelling",
     description:
       "Transforming existing spaces through careful planning, skilled workmanship, and quality execution.",
-    image: "/images/card3.png",
+    image: "/images/card3.webp",
     icon: "hammer",
   },
   {
@@ -51,7 +51,7 @@ const services = [
     title: "Structural & Civil Engineering Works",
     description:
       "Reliable structural construction focused on strength, stability, safety, and long-term performance.",
-    image: "/images/impact.png",
+    image: "/images/impact.webp",
     icon: "construction",
   },
   {
@@ -60,7 +60,7 @@ const services = [
     title: "Project Management & Turnkey Construction",
     description:
       "Coordinating every stage of construction to maintain quality, timelines, and efficient delivery.",
-    image: "/images/card4.png",
+    image: "/images/card4.webp",
     icon: "clipboard",
   },
 ];

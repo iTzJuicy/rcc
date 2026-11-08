@@ -1,0 +1,66 @@
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+      maxlength: [100, "Name cannot exceed 100 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
+      index: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
+    },
+    role: {
+      type: String,
+      enum: ["superadmin", "admin", "editor"],
+      default: "admin",
+    },
+    permissions: {
+      services: { type: Boolean, default: true },
+      projects: { type: Boolean, default: true },
+      categories: { type: Boolean, default: true },
+      testimonials: { type: Boolean, default: true },
+      stats: { type: Boolean, default: true },
+      enquiries: { type: Boolean, default: true },
+      media: { type: Boolean, default: true },
+      settings: { type: Boolean, default: false },
+      users: { type: Boolean, default: false },
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
+    lastLogin: {
+      type: Date,
+    },
+  },
+  { timestamps: true }
+);
+
+// Hash password with 12 salt rounds before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
+};
+
+export default mongoose.models.User || mongoose.model("User", userSchema);

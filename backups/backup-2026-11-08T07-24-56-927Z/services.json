@@ -1,0 +1,149 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da5d",
+    "title": "Residential Building Construction",
+    "slug": "residential-construction",
+    "shortDescription": "Thoughtfully designed residential spaces built with quality materials, precision, and lasting durability.",
+    "longDescription": "Our residential construction services cater to standalone homes, luxury villas, and multi-family residential buildings. We take care of structural integrity, aesthetic finishing, MEP fittings, and strict quality compliance at every phase.",
+    "image": "/images/card1.png",
+    "icon": "home",
+    "gallery": [],
+    "order": 1,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da5e",
+    "title": "Commercial Building Construction",
+    "slug": "commercial-construction",
+    "shortDescription": "Functional and modern commercial spaces designed to support business growth and long-term performance.",
+    "longDescription": "We engineer commercial retail centres, corporate offices, and mixed-use complexes with optimized spatial efficiency, modern facade treatments, and comprehensive fire & safety standards.",
+    "image": "/images/card2.png",
+    "icon": "building",
+    "gallery": [],
+    "order": 2,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da5f",
+    "title": "Civil & Infrastructure Works",
+    "slug": "civil-infrastructure-works",
+    "shortDescription": "Infrastructure and civil engineering solutions delivered with reliable execution and quality workmanship.",
+    "longDescription": "Heavy civil projects including retaining walls, reinforced concrete pavements, stormwater drainage systems, and foundational earthworks.",
+    "image": "/images/impact.png",
+    "icon": "construction",
+    "gallery": [],
+    "order": 3,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da60",
+    "title": "Apartment & Residential Development",
+    "slug": "apartment-residential-development",
+    "shortDescription": "Residential developments designed for functionality, durability, and modern living.",
+    "longDescription": "End-to-end multi-storey apartment project development with parking structures, amenities, and robust structural safety.",
+    "image": "/images/card1.png",
+    "icon": "building",
+    "gallery": [],
+    "order": 4,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da61",
+    "title": "Renovation & Remodelling",
+    "slug": "renovation-remodelling",
+    "shortDescription": "Transforming existing spaces through careful planning, skilled workmanship, and quality execution.",
+    "longDescription": "Modernizing aging structures, structural retrofitting, interior redesign, and exterior facade upgrades.",
+    "image": "/images/card3.png",
+    "icon": "hammer",
+    "gallery": [],
+    "order": 5,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da62",
+    "title": "Structural & Civil Engineering Works",
+    "slug": "structural-civil-engineering",
+    "shortDescription": "Reliable structural construction focused on strength, stability, safety, and long-term performance.",
+    "longDescription": "Specialized reinforced concrete works, load-bearing frames, columns, and structural inspection services.",
+    "image": "/images/impact.png",
+    "icon": "construction",
+    "gallery": [],
+    "order": 6,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da63",
+    "title": "Project Management & Turnkey Construction",
+    "slug": "project-management-turnkey-construction",
+    "shortDescription": "End-to-end project management ensuring on-time delivery, cost control, and uncompromising quality.",
+    "longDescription": "Comprehensive turnkey delivery from architectural drawings and municipal approvals to turnkey key handover.",
+    "image": "/images/card4.png",
+    "icon": "shield",
+    "gallery": [],
+    "order": 7,
+    "showOnHome": true,
+    "isActive": true,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.460Z",
+    "updatedAt": "2026-11-07T18:42:27.460Z"
+  }
+]

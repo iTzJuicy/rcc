@@ -1,57 +1,99 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import Icon from "../../components/common/Icon";
+import SEO from "../../components/common/SEO";
+import api from "../../services/api";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 import "../../styles/contact.css";
 
 export default function Contact() {
+  const navigate = useNavigate();
+  const settings = useSiteSettings();
+
+  const phone = settings.phone || "+91 98765 43210";
+  const phoneClean = phone.replace(/[^0-9+]/g, "");
+  const email = settings.email || "info@rccinfrastructure.com";
+  const address = settings.address || "Mangaluru, Karnataka, India";
+  const whatsappUrl =
+    settings.socialLinks?.whatsapp || `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
+  const mapEmbedUrl =
+    settings.mapEmbedUrl ||
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124442.27439162986!2d74.78201948956942!3d12.922983196901844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba35a4c37bf488f%3A0x827bbc7a74fcfe15!2sMangaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin";
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     subject: "",
     message: "",
+    _gotcha: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormData((previous) => ({
       ...previous,
       [name]: value,
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const subject = encodeURIComponent(
-      formData.subject || `Website Enquiry - ${formData.name}`
-    );
+    // Check honeypot
+    if (formData._gotcha) {
+      return;
+    }
 
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\n` +
-      `Email: ${formData.email}\n` +
-      `Phone: ${formData.phone || "Not provided"}\n\n` +
-      `Message:\n${formData.message}`
-    );
+    setSubmitting(true);
+    setStatusMessage({ type: "", text: "" });
 
-    window.location.href =
-      `mailto:info@rccinfrastructure.com?subject=${subject}&body=${body}`;
+    try {
+      await api.submitEnquiry({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject || "Website General Enquiry",
+        message: formData.message,
+        _gotcha: formData._gotcha,
+      });
+
+      navigate("/thank-you", {
+        state: {
+          title: "Thank You for Contacting Us",
+          message:
+            "Your enquiry has been recorded successfully. Our team will review your project requirements and reach out to you within 24 to 48 hours.",
+        },
+      });
+    } catch (err) {
+      setStatusMessage({
+        type: "error",
+        text: `Unable to submit enquiry: ${err.message || "Network error"}. Please reach us directly at ${phone} or via WhatsApp.`,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <main className="contact-page">
+      <SEO
+        title="Contact Us"
+        description={`Get in touch with RCC Infrastructure in ${address}. Send us an inquiry for your residential, commercial, or civil construction project.`}
+      />
 
       {/* Page Hero */}
       <PageHero
         eyebrow="Let's Connect"
         title="Contact Us"
         description="Tell us about your project. We'd love to hear your ideas and discuss how we can help."
-        image="/images/contact.png"
+        image="/images/contact.webp"
         breadcrumb={[
-          { label: "Home", path: "/" },
+          { label: "Home", to: "/" },
           { label: "Contact" },
         ]}
       />
@@ -60,10 +102,8 @@ export default function Contact() {
       <section className="section contact-page-section">
         <Container>
           <div className="contact-page-grid">
-
             {/* Contact Information */}
             <div className="contact-page-info">
-
               <p className="eyebrow">Get in Touch</p>
 
               <h2 className="heading">
@@ -81,7 +121,6 @@ export default function Contact() {
 
               {/* Contact Details */}
               <div className="contact-info-list">
-
                 {/* Location */}
                 <div className="contact-info-item">
                   <div className="contact-info-icon">
@@ -90,7 +129,7 @@ export default function Contact() {
 
                   <div className="contact-info-content">
                     <h3>Our Location</h3>
-                    <p>Mangalore, Karnataka, India</p>
+                    <p>{address}</p>
                   </div>
                 </div>
 
@@ -102,8 +141,8 @@ export default function Contact() {
 
                   <div className="contact-info-content">
                     <h3>Email Us</h3>
-                    <a href="mailto:info@rccinfrastructure.com">
-                      info@rccinfrastructure.com
+                    <a href={`mailto:${email}`}>
+                      {email}
                     </a>
                   </div>
                 </div>
@@ -116,50 +155,63 @@ export default function Contact() {
 
                   <div className="contact-info-content">
                     <h3>Call Us</h3>
-                    <a href="tel:+919876543210">
-                      +91 98765 43210
-                    </a>
+                    <a href={`tel:${phoneClean}`}>{phone}</a>
                   </div>
                 </div>
-
               </div>
 
               {/* Separate WhatsApp Button */}
               <div className="contact-whatsapp-wrapper">
                 <a
-                  href="https://wa.me/919876543210"
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="contact-whatsapp-btn"
                 >
-                  <i className="fa-brands fa-whatsapp"></i>
-                  Chat on WhatsApp
+                  <Icon name="whatsapp" size={20} />
+                  <span>Chat on WhatsApp</span>
                 </a>
               </div>
-
             </div>
 
             {/* Contact Form */}
             <div className="contact-form-wrapper">
-
               <div className="contact-form-header">
                 <span className="eyebrow">Get in Touch</span>
-
                 <h2>Send Us a Message</h2>
-
                 <p>
                   Have a question or something in mind? We'd love to hear
                   from you.
                 </p>
               </div>
 
-              <form
-                className="contact-form"
-                onSubmit={handleSubmit}
-              >
+              {statusMessage.text && (
+                <div className={`alert alert-${statusMessage.type}`} style={{
+                  padding: "12px 16px",
+                  borderRadius: "6px",
+                  marginBottom: "20px",
+                  backgroundColor: statusMessage.type === "error" ? "rgba(220, 38, 38, 0.1)" : "rgba(34, 197, 94, 0.1)",
+                  color: statusMessage.type === "error" ? "#dc2626" : "#16a34a",
+                  border: `1px solid ${statusMessage.type === "error" ? "#dc2626" : "#16a34a"}`
+                }}>
+                  {statusMessage.text}
+                </div>
+              )}
+
+              <form className="contact-form" onSubmit={handleSubmit}>
+                {/* Honeypot field for anti-spam */}
+                <div style={{ display: "none" }} aria-hidden="true">
+                  <input
+                    type="text"
+                    name="_gotcha"
+                    tabIndex="-1"
+                    autoComplete="off"
+                    value={formData._gotcha}
+                    onChange={handleChange}
+                  />
+                </div>
 
                 <div className="contact-form-row">
-
                   <div className="form-group">
                     <label htmlFor="name">Full Name *</label>
                     <input
@@ -187,11 +239,9 @@ export default function Contact() {
                       required
                     />
                   </div>
-
                 </div>
 
                 <div className="contact-form-row">
-
                   <div className="form-group">
                     <label htmlFor="phone">Phone Number</label>
                     <input
@@ -216,7 +266,6 @@ export default function Contact() {
                       onChange={handleChange}
                     />
                   </div>
-
                 </div>
 
                 <div className="form-group">
@@ -235,23 +284,50 @@ export default function Contact() {
                 <button
                   type="submit"
                   className="btn contact-form-submit"
+                  disabled={submitting}
                 >
-                  Send Enquiry
+                  {submitting ? "Sending..." : "Send Enquiry"}
                   <Icon name="arrowUpRight" size={18} />
                 </button>
 
                 <p className="contact-form-note">
-                  Submitting opens your default email application with
-                  your enquiry details.
+                  Submitting directly sends your message to our project
+                  management team for a prompt response.
                 </p>
-
               </form>
             </div>
-
           </div>
         </Container>
       </section>
 
+      {/* Map Section */}
+      <section className="section contact-map-section">
+        <Container>
+          <div className="contact-map-header">
+            <p className="eyebrow">Our Location</p>
+            <h2 className="heading">
+              Find Us in <span className="text-red">Mangalore.</span>
+            </h2>
+            <p className="contact-page-description">
+              Conveniently located to serve projects across Mangalore and the
+              coastal Karnataka region.
+            </p>
+          </div>
+
+          <div className="contact-map-frame">
+            <iframe
+              title="RCC Infrastructure Location Map"
+              src={mapEmbedUrl}
+              width="100%"
+              height="450"
+              style={{ border: 0, borderRadius: "6px" }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </Container>
+      </section>
     </main>
   );
 }

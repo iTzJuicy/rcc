@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import { useSiteContent } from "../../hooks/useSiteContent";
 
 import "../../styles/process.css";
 
@@ -24,7 +25,7 @@ const steps = [
       "Initial scope and estimate",
     ],
     timeframe: "Typically 1 to 2 weeks",
-    image: "/images/card1.png",
+    image: "/images/card1.webp",
   },
   {
     number: "02",
@@ -42,7 +43,7 @@ const steps = [
       "Project schedule and cost plan",
     ],
     timeframe: "Typically 3 to 6 weeks",
-    image: "/images/card2.png",
+    image: "/images/card2.webp",
   },
   {
     number: "03",
@@ -59,7 +60,7 @@ const steps = [
       "Stage-wise quality inspections",
     ],
     timeframe: "Depends on project size",
-    image: "/images/card3.png",
+    image: "/images/card3.webp",
   },
   {
     number: "04",
@@ -74,7 +75,7 @@ const steps = [
       "Post-handover support",
     ],
     timeframe: "Typically 1 to 2 weeks",
-    image: "/images/card4.png",
+    image: "/images/card4.webp",
   },
 ];
 
@@ -161,13 +162,41 @@ const faqs = [
 ];
 
 export default function Process() {
+  const { content } = useSiteContent();
+
+  const faqs =
+    Array.isArray(content?.faqs) && content.faqs.length > 0
+      ? content.faqs.map((f) => ({ q: f.question, a: f.answer }))
+      : [
+          {
+            q: "How early should I get in touch?",
+            a: "As early as possible. Involving us before design is finished helps catch budget or buildability issues early.",
+          },
+          {
+            q: "Can you work with my architect?",
+            a: "Yes. We regularly work alongside external architects, engineers and interior designers.",
+          },
+          {
+            q: "How do you manage changes during construction?",
+            a: "Every change is reviewed, costed and approved with you before work on it begins, so you are never surprised.",
+          },
+          {
+            q: "Who handles permits and approvals?",
+            a: "We guide you through the approvals the project requires and coordinate the documentation with you.",
+          },
+          {
+            q: "Will I get regular updates?",
+            a: "Yes. We keep you informed throughout execution with progress updates and site visits where needed.",
+          },
+        ];
+
   return (
     <>
       <PageHero
+        pageKey="process"
         eyebrow="How We Work"
         title="Our Process"
         description="A clear, structured path from your first idea to the day we hand over the keys."
-        image="/images/impact.png"
         breadcrumb={[
           { label: "Home", to: "/" },
           { label: "Our Process" },

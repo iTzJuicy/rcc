@@ -1,0 +1,46 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da76",
+    "value": "10",
+    "suffix": "+",
+    "label": "Years of Experience",
+    "icon": "shield",
+    "order": 1,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.481Z",
+    "updatedAt": "2026-11-07T18:42:27.481Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da77",
+    "value": "50",
+    "suffix": "+",
+    "label": "Projects Completed",
+    "icon": "building",
+    "order": 2,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.481Z",
+    "updatedAt": "2026-11-07T18:42:27.481Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da78",
+    "value": "30",
+    "suffix": "+",
+    "label": "Happy Clients",
+    "icon": "users",
+    "order": 3,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.481Z",
+    "updatedAt": "2026-11-07T18:42:27.481Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da79",
+    "value": "100",
+    "suffix": "%",
+    "label": "Commitment to Quality",
+    "icon": "check",
+    "order": 4,
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.481Z",
+    "updatedAt": "2026-11-07T18:42:27.481Z"
+  }
+]

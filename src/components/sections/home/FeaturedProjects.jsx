@@ -1,17 +1,18 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
+import api from "../../../services/api";
+import useReveal from "../../../hooks/useReveal";
 
-const projects = [
+const initialProjects = [
   {
     id: 1,
     title: "Residential Apartments",
     category: "Residential",
     status: "Completed",
     location: "Mangaluru",
-    image: "/images/card1.png",
+    image: "/images/card1.webp",
     slug: "residential-apartments",
   },
   {
@@ -20,7 +21,7 @@ const projects = [
     category: "Commercial",
     status: "Ongoing",
     location: "Mangaluru",
-    image: "/images/card2.png",
+    image: "/images/card2.webp",
     slug: "commercial-complex",
   },
   {
@@ -29,7 +30,7 @@ const projects = [
     category: "Infrastructure",
     status: "Ongoing",
     location: "Mangaluru",
-    image: "/images/impact.png",
+    image: "/images/impact.webp",
     slug: "infrastructure-project",
   },
   {
@@ -38,7 +39,7 @@ const projects = [
     category: "Residential",
     status: "Upcoming",
     location: "Mangaluru",
-    image: "/images/card4.png",
+    image: "/images/card4.webp",
     slug: "villa-project",
   },
 ];
@@ -46,16 +47,52 @@ const projects = [
 const filters = ["All", "Residential", "Commercial", "Infrastructure", "Ongoing"];
 
 export default function FeaturedProjects() {
+  const [projectList, setProjectList] = useState(initialProjects);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [filterChanging, setFilterChanging] = useState(false);
+  const { ref, isVisible } = useReveal();
 
-  const filteredProjects = projects.filter((project) => {
-    if (activeFilter === "All") return true;
-    if (activeFilter === "Ongoing") return project.status === "Ongoing";
-    return project.category === activeFilter;
-  });
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await api.getProjects({ limit: 12 });
+        const data = res?.data || res;
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized = data.map((p) => ({
+            id: p.id || p._id,
+            title: p.title,
+            category: p.category || "Residential",
+            status: p.status || "Completed",
+            location: p.location || "Mangaluru",
+            image: p.coverImage || p.image || "/images/card1.webp",
+            slug: p.slug || String(p.id || p._id),
+            featured: p.featured,
+          }));
+          setProjectList(normalized);
+        }
+      } catch {
+        // Fallback already initialized
+      }
+    }
+    load();
+  }, []);
+
+  const filteredProjects = projectList
+    .filter((project) => {
+      if (activeFilter === "All") return true;
+      if (activeFilter === "Ongoing") return project.status.toLowerCase() === "ongoing";
+      return project.category.toLowerCase() === activeFilter.toLowerCase();
+    })
+    .slice(0, 4);
+
+  const changeFilter = (filter) => {
+    setFilterChanging(true);
+    setActiveFilter(filter);
+    window.setTimeout(() => setFilterChanging(false), 80);
+  };
 
   return (
-    <section className="featured-projects">
+    <section ref={ref} className={`featured-projects ${isVisible ? "is-visible" : ""}`}>
       <Container className="featured-projects-container">
         <div className="featured-projects-intro">
           <p className="eyebrow">
@@ -93,7 +130,7 @@ export default function FeaturedProjects() {
                 className={`featured-project-filter ${
                   activeFilter === filter ? "active" : ""
                 }`}
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => changeFilter(filter)}
                 aria-pressed={activeFilter === filter}
               >
                 {filter}
@@ -101,9 +138,9 @@ export default function FeaturedProjects() {
             ))}
           </div>
 
-          <div className="featured-projects-grid">
-            {filteredProjects.map((project) => (
-              <article className="featured-project-card" key={project.id}>
+          <div className={`featured-projects-grid ${filterChanging ? "filter-changing" : ""}`}>
+            {filteredProjects.map((project, idx) => (
+              <article className="featured-project-card reveal-item" style={{ "--reveal-index": idx }} key={`${activeFilter}-${project.id}`}>
                 <Link
                   to={`/projects/${project.slug}`}
                   className="featured-project-image"
@@ -112,7 +149,7 @@ export default function FeaturedProjects() {
                   <img src={project.image} alt={project.title} loading="lazy" />
 
                   <span
-                    className={`featured-project-status status-${project.status.toLowerCase()}`}
+                    className={`featured-project-status status-${(project.status || "completed").toLowerCase()}`}
                   >
                     {project.status}
                   </span>

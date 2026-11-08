@@ -1,0 +1,122 @@
+[
+  {
+    "_id": "6aef7113aaeb97941e66da69",
+    "title": "Residential Development",
+    "slug": "residential-development",
+    "category": "Residential",
+    "status": "Completed",
+    "location": "Mangalore, Karnataka",
+    "year": "2024",
+    "area": "4,500 sq ft",
+    "client": "Private Client",
+    "description": "A thoughtfully planned residential project focused on quality construction, functional spaces, and lasting durability.",
+    "fullDescription": "",
+    "coverImage": "/images/card1.png",
+    "image": "/images/card1.png",
+    "gallery": [
+      "/images/card1.png",
+      "/images/card2.png",
+      "/images/card3.png"
+    ],
+    "isFeatured": true,
+    "order": 2,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.472Z",
+    "updatedAt": "2026-11-07T18:43:42.249Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da6a",
+    "title": "Commercial Complex",
+    "slug": "commercial-complex",
+    "category": "Commercial",
+    "status": "Completed",
+    "location": "Mangalore, Karnataka",
+    "year": "2023",
+    "area": "12,000 sq ft",
+    "client": "Retail Enterprise",
+    "description": "A modern commercial development designed around efficient space utilisation and dependable construction.",
+    "fullDescription": "",
+    "coverImage": "/images/card2.png",
+    "image": "/images/card2.png",
+    "gallery": [
+      "/images/card2.png",
+      "/images/card1.png",
+      "/images/impact.png"
+    ],
+    "isFeatured": true,
+    "order": 1,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.473Z",
+    "updatedAt": "2026-11-07T18:43:42.249Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da6b",
+    "title": "Building Renovation",
+    "slug": "building-renovation",
+    "category": "Renovation",
+    "status": "Completed",
+    "location": "Mangalore, Karnataka",
+    "year": "2024",
+    "area": "3,200 sq ft",
+    "client": "Commercial Partner",
+    "description": "A renovation project focused on improving functionality, refreshing existing spaces, and maintaining structural integrity.",
+    "fullDescription": "",
+    "coverImage": "/images/card3.png",
+    "image": "/images/card3.png",
+    "gallery": [
+      "/images/card3.png",
+      "/images/card4.png",
+      "/images/card1.png"
+    ],
+    "isFeatured": true,
+    "order": 0,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.473Z",
+    "updatedAt": "2026-11-07T18:43:42.249Z"
+  },
+  {
+    "_id": "6aef7113aaeb97941e66da6c",
+    "title": "Modern Building Project",
+    "slug": "modern-building-project",
+    "category": "Construction",
+    "status": "Ongoing",
+    "location": "Mangalore, Karnataka",
+    "year": "2025",
+    "area": "8,500 sq ft",
+    "client": "Developer Group",
+    "description": "A construction project emphasising practical design, careful execution, and attention to detail.",
+    "fullDescription": "",
+    "coverImage": "/images/card4.png",
+    "image": "/images/card4.png",
+    "gallery": [
+      "/images/card4.png",
+      "/images/card2.png",
+      "/images/card3.png"
+    ],
+    "isFeatured": true,
+    "order": 3,
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "ogImage": ""
+    },
+    "__v": 0,
+    "createdAt": "2026-11-07T18:42:27.473Z",
+    "updatedAt": "2026-11-07T18:43:42.249Z"
+  }
+]

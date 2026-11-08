@@ -11,6 +11,12 @@
   height: 88px;
   background: var(--cream);
   border-bottom: 1px solid rgba(11, 22, 38, 0.05);
+  transition: height .25s ease, box-shadow .25s ease, background-color .25s ease;
+}
+
+.navbar.navbar-scrolled {
+  height: 78px;
+  box-shadow: 0 8px 24px rgba(11, 22, 38, .08);
 }
 
 .navbar-container {

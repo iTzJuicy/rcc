@@ -2,124 +2,45 @@
 import { Link } from "react-router-dom";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
+import useReveal from "../../../hooks/useReveal";
 
 const highlights = [
   {
     title: "Quality",
     subtitle: "Assurance",
-    icon: "quality",
+    iconName: "award",
   },
   {
     title: "On-Time",
     subtitle: "Delivery",
-    icon: "delivery",
+    iconName: "clock",
   },
   {
     title: "Modern",
     subtitle: "Infrastructure",
-    icon: "infrastructure",
+    iconName: "city",
+  },
+  {
+    title: "Sustainable",
+    subtitle: "Development",
+    iconName: "leaf",
   },
 ];
 
-function HighlightIcon({ type }) {
-  if (type === "quality") {
-    return (
-      <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <path
-          d="M24 4 39 10V21C39 31 32.5 39 24 43 15.5 39 9 31 9 21V10L24 4Z"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        />
-        <path
-          d="m16 23 5.5 5.5L32 17"
-          stroke="currentColor"
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M17 11h14"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    );
-  }
-
-  if (type === "delivery") {
-    return (
-      <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <circle
-          cx="24"
-          cy="25"
-          r="16"
-          stroke="currentColor"
-          strokeWidth="2.2"
-        />
-        <path
-          d="M24 15V25L31 29"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M18 4h12M24 4v5"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-        <path
-          d="m17 36 4 4 10-10"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <path
-        d="M5 42h38M9 42V18H21V42M27 42V7H39V42"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13 23h4M13 29h4M13 35h4M31 13h4M31 20h4M31 27h4M31 34h4"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="m22 12 3-5 3 5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export default function WhyChooseUs() {
+  const { ref, isVisible } = useReveal();
   return (
-    <section className="why-choose-us" id="why-choose-us">
+    <section ref={ref} className={`why-choose-us ${isVisible ? "is-visible" : ""}`} id="why-choose-us">
       <div className="why-choose-us-image">
         <img
-          src="/images/card4.png"
+          src="/images/card4.webp"
           alt="Construction professionals working on a project"
           loading="lazy"
         />
       </div>
 
       <Container className="why-choose-us-container">
-        <div className="why-choose-us-content">
+        <div className="why-choose-us-content reveal-item">
           <p className="eyebrow">Why Choose RCC</p>
 
           <h2 className="why-choose-us-title">
@@ -142,10 +63,10 @@ export default function WhyChooseUs() {
         </div>
 
         <div className="why-choose-us-highlights">
-          {highlights.map((item) => (
-            <div className="why-choose-us-highlight" key={item.icon}>
+          {highlights.map((item, idx) => (
+            <div className="why-choose-us-highlight reveal-item" style={{ "--reveal-index": idx }} key={item.subtitle}>
               <span className="why-choose-us-icon">
-                <HighlightIcon type={item.icon} />
+                <Icon name={item.iconName} size={32} />
               </span>
 
               <span className="why-choose-us-highlight-text">

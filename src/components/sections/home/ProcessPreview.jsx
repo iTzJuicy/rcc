@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
+import useReveal from "../../../hooks/useReveal";
 
 const processSteps = [
   {
@@ -27,8 +28,9 @@ const processSteps = [
 ];
 
 export default function ProcessPreview() {
+  const { ref, isVisible } = useReveal();
   return (
-    <section className="process-preview" id="process">
+    <section ref={ref} className={`process-preview ${isVisible ? "is-visible" : ""}`} id="process">
       <Container className="process-preview-container">
         <div className="process-preview-header">
           <div className="process-preview-heading">
@@ -61,7 +63,7 @@ export default function ProcessPreview() {
           <div className="process-timeline-track" />
 
           {processSteps.map((step, index) => (
-            <div className="process-step" key={step.number}>
+            <div className="process-step reveal-item" style={{ "--reveal-index": index }} key={step.number}>
               <span
                 className={`process-step-number ${
                   index === 0 ? "active" : ""

@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import Icon from "../common/Icon";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 
 const navLinks = [
   { label: "Home", to: "/", end: true },
@@ -13,7 +13,9 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const settings = useSiteSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { pathname } = useLocation();
 
   const closeMenu = () => setMenuOpen(false);
@@ -49,8 +51,15 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="navbar">
+    <header className={`navbar ${isScrolled ? "navbar-scrolled" : ""}`}>
       <div className="container navbar-container">
         <Link
           to="/"
@@ -59,8 +68,8 @@ export default function Navbar() {
           onClick={closeMenu}
         >
           <img
-            src="/images/logo.png"
-            alt="RCC Infrastructure"
+            src={settings.logoUrl || "/images/logo.webp"}
+            alt={settings.siteName || "RCC Infrastructure"}
             width="100"
             height="80"
           />
