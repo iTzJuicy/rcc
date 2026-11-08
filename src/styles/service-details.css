@@ -215,14 +215,13 @@
 
 .service-details-related-grid {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: stretch;
   gap: 24px;
 }
 
 .service-details-related-card {
   display: flex;
-  flex: 0 0 calc((100% - 48px) / 3);
+  flex: 1 1 0;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
@@ -241,52 +240,66 @@
   box-shadow: 0 18px 40px rgba(11, 22, 38, .12);
 }
 
-.service-details-related-card img {
+.service-details-related-card-image {
+  display: block;
+  height: 240px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.service-details-related-card-image img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 11;
+  height: 100%;
   object-fit: cover;
   transition: transform .45s ease;
 }
 
-.service-details-related-card:hover img {
+.service-details-related-card:hover .service-details-related-card-image img {
   transform: scale(1.05);
 }
 
-.service-details-related-card > div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 20px 22px;
+.service-details-related-card-content {
+  flex: 1;
+  padding: 24px;
   background: #fff;
 }
 
+.service-details-related-card-meta {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .service-details-related-card h3 {
-  margin: 0;
+  margin: 0 0 18px;
   color: var(--navy);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.35;
 }
 
-.service-details-related-card > div svg {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  padding: 9px;
-  border: 1px solid rgba(11, 22, 38, .4);
-  border-radius: 50%;
-  transition:
-    background .2s,
-    color .2s,
-    border-color .2s;
+.service-details-related-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.service-details-related-card:hover > div svg {
-  border-color: var(--red);
-  background: var(--red);
-  color: #fff;
+.service-details-related-card-link svg {
+  transition: transform var(--transition-fast, 0.2s);
+}
+
+.service-details-related-card:hover .service-details-related-card-link {
+  color: var(--red);
+}
+
+.service-details-related-card:hover .service-details-related-card-link svg {
+  transform: translate(3px, -3px);
 }
 
 /* Focus states */
@@ -320,7 +333,7 @@
     gap: 14px 16px;
   }
 
-  .service-details-related-card > div {
+  .service-details-related-card-content {
     padding: 18px;
   }
 
@@ -373,8 +386,17 @@
     padding: 60px 0 68px;
   }
 
+  .service-details-related-grid {
+    overflow-x: auto;
+    padding: 4px 2px 14px;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: var(--red) var(--cream);
+    scrollbar-width: thin;
+  }
+
   .service-details-related-card {
-    flex-basis: calc((100% - 24px) / 2);
+    flex: 0 0 calc((100% - 24px) / 2);
+    scroll-snap-align: start;
   }
 }
 
@@ -442,7 +464,7 @@
   }
 
   .service-details-related-card {
-    flex-basis: 100%;
+    flex-basis: 85%;
   }
 }
 
@@ -464,7 +486,7 @@
     font-size: 27px;
   }
 
-  .service-details-related-card > div {
+  .service-details-related-card-content {
     padding: 16px 14px;
   }
 }

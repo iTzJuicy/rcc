@@ -109,11 +109,17 @@ function RelatedServices({ services }) {
               className="service-details-related-card"
               key={item.id || item.slug}
             >
-              <img src={item.image} alt={item.title} loading="lazy" />
+              <div className="service-details-related-card-image">
+                <img src={item.image} alt={item.title} loading="lazy" />
+              </div>
 
-              <div>
+              <div className="service-details-related-card-content">
+                <div className="service-details-related-card-meta">RCC Infrastructure</div>
                 <h3>{item.title}</h3>
-                <Icon name="arrowUpRight" size={18} />
+                <span className="service-details-related-card-link">
+                  View Service
+                  <Icon name="arrowUpRight" size={18} />
+                </span>
               </div>
             </Link>
           ))}
@@ -207,7 +213,7 @@ export default function ServiceDetails() {
               <p className="project-gallery-hint">Click any photo to expand.</p>
             </div>
 
-            <div className="project-gallery-grid">
+            <div className="project-gallery-slider">
               {galleryImages.map((imgUrl, idx) => {
                 const url = typeof imgUrl === "string" ? imgUrl : imgUrl?.url;
                 return (

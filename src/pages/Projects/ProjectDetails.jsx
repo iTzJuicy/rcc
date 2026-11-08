@@ -260,7 +260,7 @@ export default function ProjectDetails() {
               <p className="project-gallery-hint">Click any photo to expand.</p>
             </div>
 
-            <div className="project-gallery-grid">
+            <div className="project-gallery-slider">
               {galleryImages.map((imgUrl, idx) => {
                 const url = typeof imgUrl === "string" ? imgUrl : imgUrl?.url;
                 return (
