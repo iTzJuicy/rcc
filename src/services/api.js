@@ -9,7 +9,9 @@ import fallbackServices from "../data/services";
 import fallbackStats from "../data/statistics";
 import fallbackTestimonials from "../data/testimonials";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
 function normalizeMediaRecord(record) {
   if (!record || typeof record !== "object") return record;

@@ -44,7 +44,7 @@ const initialProjects = [
   },
 ];
 
-const filters = ["All", "Residential", "Commercial", "Infrastructure", "Ongoing"];
+const filters = ["All", "Residential", "Commercial", "Renovation", "Construction"];
 
 export default function FeaturedProjects() {
   const [projectList, setProjectList] = useState(initialProjects);
@@ -80,7 +80,6 @@ export default function FeaturedProjects() {
   const filteredProjects = projectList
     .filter((project) => {
       if (activeFilter === "All") return true;
-      if (activeFilter === "Ongoing") return project.status.toLowerCase() === "ongoing";
       return project.category.toLowerCase() === activeFilter.toLowerCase();
     })
     .slice(0, 4);
