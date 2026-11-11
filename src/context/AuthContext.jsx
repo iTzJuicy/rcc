@@ -16,8 +16,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.removeItem("rcc_admin_token");
-
     async function verify() {
       try {
         const res = await api.adminGetProfile();
@@ -38,11 +36,13 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await api.adminLogin(email, password);
-    if (res?.user) {
-      setUser(res.user);
-      setAuthenticated(true);
-      localStorage.setItem("rcc_admin_user", JSON.stringify(res.user));
+    if (!res?.user || !res?.token) {
+      throw new Error("Sign-in response was incomplete. Please try again.");
     }
+
+    setUser(res.user);
+    setAuthenticated(true);
+    localStorage.setItem("rcc_admin_user", JSON.stringify(res.user));
     return res;
   };
 
@@ -54,6 +54,7 @@ export function AuthProvider({ children }) {
     }
     setAuthenticated(false);
     setUser(null);
+    localStorage.removeItem("rcc_admin_token");
     localStorage.removeItem("rcc_admin_user");
   };
 

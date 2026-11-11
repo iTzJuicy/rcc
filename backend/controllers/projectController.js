@@ -41,10 +41,27 @@ export async function getPublicProjects(req, res, next) {
     const skip = (pageNum - 1) * pageSize;
 
     const total = await Project.countDocuments(filter);
-    const projects = await Project.find(filter)
-      .sort({ order: 1, createdAt: -1 })
-      .skip(skip)
-      .limit(pageSize);
+    const projects = await Project.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          statusOrder: {
+            $switch: {
+              branches: [
+                { case: { $in: ["$status", ["Upcoming", "Planned"]] }, then: 0 },
+                { case: { $eq: ["$status", "Ongoing"] }, then: 1 },
+                { case: { $eq: ["$status", "Completed"] }, then: 2 },
+              ],
+              default: 3,
+            },
+          },
+        },
+      },
+      { $sort: { statusOrder: 1, order: 1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: pageSize },
+      { $project: { statusOrder: 0 } },
+    ]);
 
     res.json({
       success: true,

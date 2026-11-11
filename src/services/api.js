@@ -35,6 +35,13 @@ async function request(endpoint, options = {}) {
     "Content-Type": "application/json",
     ...options.headers,
   };
+  const isProtectedEndpoint =
+    endpoint.startsWith("/admin") ||
+    ["/auth/profile", "/auth/change-password"].includes(endpoint);
+  const token = isProtectedEndpoint ? localStorage.getItem("rcc_admin_token") : null;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   // If sending FormData (file uploads), let the browser set Content-Type with boundary
   if (options.body instanceof FormData) {
@@ -51,6 +58,7 @@ async function request(endpoint, options = {}) {
     const response = await fetch(url, config);
 
     if (response.status === 401 && endpoint.startsWith("/admin")) {
+      localStorage.removeItem("rcc_admin_token");
       localStorage.removeItem("rcc_admin_user");
       if (window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
         window.location.href = "/admin/login";
@@ -235,10 +243,14 @@ export const api = {
   // ==========================================
 
   async adminLogin(email, password) {
-    return request("/auth/login", {
+    const res = await request("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
+    if (res?.token) {
+      localStorage.setItem("rcc_admin_token", res.token);
+    }
+    return res;
   },
 
   async adminLogout() {
@@ -256,10 +268,14 @@ export const api = {
   },
 
   async adminChangePassword(currentPassword, newPassword) {
-    return request("/auth/change-password", {
+    const res = await request("/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword }),
     });
+    if (res?.token) {
+      localStorage.setItem("rcc_admin_token", res.token);
+    }
+    return res;
   },
 
   // ==========================================

@@ -25,10 +25,7 @@ export default function ChangePasswordPage() {
 
     setLoading(true);
     try {
-      const res = await api.post("/auth/change-password", {
-        currentPassword,
-        newPassword,
-      });
+      const res = await api.adminChangePassword(currentPassword, newPassword);
 
       if (res?.success) {
         setToast({ type: "success", message: "Password updated successfully!" });

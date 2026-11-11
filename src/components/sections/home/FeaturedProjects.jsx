@@ -45,6 +45,7 @@ const initialProjects = [
 ];
 
 const filters = ["All", "Residential", "Commercial", "Renovation", "Construction"];
+const projectStatusOrder = { upcoming: 0, planned: 0, ongoing: 1, completed: 2 };
 
 export default function FeaturedProjects() {
   const [projectList, setProjectList] = useState(initialProjects);
@@ -77,7 +78,12 @@ export default function FeaturedProjects() {
     load();
   }, []);
 
-  const filteredProjects = projectList
+  const filteredProjects = [...projectList]
+    .sort((a, b) => {
+      const aOrder = projectStatusOrder[a.status?.toLowerCase()] ?? 3;
+      const bOrder = projectStatusOrder[b.status?.toLowerCase()] ?? 3;
+      return aOrder - bOrder;
+    })
     .filter((project) => {
       if (activeFilter === "All") return true;
       return project.category.toLowerCase() === activeFilter.toLowerCase();
