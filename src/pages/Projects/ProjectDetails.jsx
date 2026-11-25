@@ -7,10 +7,13 @@ import Icon from "../../components/common/Icon";
 import Lightbox from "../../components/common/Lightbox";
 import SEO from "../../components/common/SEO";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import Model3DViewer from "../../components/common/Model3DViewer";
 
 import staticProjects from "../../data/projects";
+import MODEL_3D_TEMPLATES from "../../data/model3dTemplates";
 import api from "../../services/api";
 import "../../styles/project-details.css";
+import "../../styles/model3d.css";
 
 function isHttpUrl(value) {
   try {
@@ -197,13 +200,6 @@ export default function ProjectDetails() {
                   <strong>{project.location || "Mangalore, Karnataka"}</strong>
                 </div>
 
-                {project.year && (
-                  <div>
-                    <span>Year</span>
-                    <strong>{project.year}</strong>
-                  </div>
-                )}
-
                 <div>
                   <span>Status</span>
                   <strong>{project.status || "Completed"}</strong>
@@ -225,14 +221,16 @@ export default function ProjectDetails() {
               </div>
 
               <div className="project-details-cta-group">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setQuoteModalOpen(true)}
-                >
-                  Request Quotation / Booking
-                  <Icon name="arrowUpRight" size={18} />
-                </button>
+                {project.showQuotationButton !== false && (
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setQuoteModalOpen(true)}
+                  >
+                    Request Quotation / Booking
+                    <Icon name="arrowUpRight" size={18} />
+                  </button>
+                )}
                 {isHttpUrl(project.mapUrl) && (
                   <a
                     href={project.mapUrl}
@@ -318,8 +316,71 @@ export default function ProjectDetails() {
         onNavigate={(newIdx) => setLightboxIndex(newIdx)}
       />
 
+      {/* 3D Building Model Section */}
+      {(project.model3dUrl || project.model3dImage || project.model3dTemplate) && (() => {
+        const tmpl = MODEL_3D_TEMPLATES.find((t) => t.id === project.model3dTemplate);
+        const badgeLabel = project.model3dUrl
+          ? "3D Model"
+          : project.model3dImage
+          ? "Extracted 3D Model"
+          : tmpl
+          ? tmpl.label
+          : project.model3dTemplate;
+        return (
+          <section className="project-model3d-section">
+            <Container>
+              <div className="project-model3d-header">
+                <p className="eyebrow">3D Visualization</p>
+                <h2 className="heading">
+                  Explore the <span className="text-red">Structure.</span>
+                </h2>
+              </div>
+
+              <div className="project-model3d-viewer-wrap">
+                <div className="project-model3d-canvas">
+                  {badgeLabel && (
+                    <div className="project-model3d-badge">
+                      {badgeLabel}
+                    </div>
+                  )}
+                  <Model3DViewer
+                    modelUrl={project.model3dUrl || ""}
+                    imageUrl={project.model3dImage || ""}
+                    template={project.model3dTemplate || ""}
+                  />
+                </div>
+
+                <div className="project-model3d-hint">
+                  <span className="project-model3d-hint-item">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M10 3c-3.9 0-7 3.1-7 7s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7z"/>
+                      <path d="M10 7v6M7 10h6"/>
+                    </svg>
+                    Drag to rotate
+                  </span>
+                  <span className="project-model3d-hint-item">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M10 4v12M6 8l4-4 4 4M6 12l4 4 4-4"/>
+                    </svg>
+                    Scroll to zoom
+                  </span>
+                  <span className="project-model3d-hint-item">
+                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <rect x="3" y="7" width="6" height="6" rx="1"/>
+                      <rect x="11" y="7" width="6" height="6" rx="1"/>
+                      <path d="M9 10h2"/>
+                    </svg>
+                    Two-finger pan
+                  </span>
+                </div>
+              </div>
+            </Container>
+          </section>
+        );
+      })()}
+
       {/* Quotation Request Modal */}
-      {quoteModalOpen && (
+      {quoteModalOpen && project.showQuotationButton !== false && (
         <div
           className="modal-backdrop"
           onClick={() => setQuoteModalOpen(false)}

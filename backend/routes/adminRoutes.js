@@ -1,6 +1,10 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import crypto from "crypto";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
-import { upload } from "../middleware/upload.js";
+import { upload, processUpload } from "../middleware/upload.js";
 
 import {
   adminGetDashboard,
@@ -67,6 +71,41 @@ import {
 
 const router = express.Router();
 
+// ── 3D Model Upload (local storage, GLB/GLTF only) ──────────────────────────
+const model3dUploadDir = path.resolve("public/uploads/models");
+if (!fs.existsSync(model3dUploadDir)) {
+  fs.mkdirSync(model3dUploadDir, { recursive: true });
+}
+
+const model3dStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, model3dUploadDir),
+  filename: (_req, _file, cb) => {
+    const ext = path.extname(_file.originalname).toLowerCase();
+    cb(null, `${crypto.randomUUID()}${ext}`);
+  },
+});
+
+const MODEL_MIME_TYPES = [
+  "model/gltf-binary",
+  "model/gltf+json",
+  "application/octet-stream", // GLB is often sent as this
+];
+
+const upload3dModel = multer({
+  storage: model3dStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+  fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === ".glb" || ext === ".gltf" || MODEL_MIME_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      const err = new Error("Only .glb and .gltf files are allowed.");
+      err.status = 400;
+      cb(err, false);
+    }
+  },
+});
+
 // Require admin authentication for all routes
 router.use(protectAdmin);
 
@@ -117,6 +156,43 @@ router.delete("/enquiries/:id", requirePermission("enquiries"), adminDeleteEnqui
 router.get("/media", requirePermission("media"), adminGetMedia);
 router.post("/media/upload", requirePermission("media"), upload.single("file"), adminUploadMedia);
 router.delete("/media/:id", requirePermission("media"), adminDeleteMedia);
+
+// 3D Model Upload (GLB/GLTF, local disk only, max 50 MB)
+router.post(
+  "/media/upload-model",
+  requirePermission("projects"),
+  upload3dModel.single("file"),
+  (req, res, next) => {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded." });
+    }
+    const url = `/uploads/models/${req.file.filename}`;
+    res.json({ success: true, url, filename: req.file.originalname, bytes: req.file.size });
+  }
+);
+
+// Image-to-3D Preparation (stores image for 3D depth-extruded viewer; ready for external AI 3D API if configured)
+router.post(
+  "/projects/image-to-3d",
+  requirePermission("projects"),
+  upload.single("file"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: "No image uploaded." });
+      }
+      const uploaded = await processUpload(req.file.buffer, req.file.originalname, req.file.mimetype);
+      return res.json({
+        success: true,
+        mode: "image_relief",
+        model3dImage: uploaded.url,
+        message: "3D architectural depth model generated from image.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // Site Settings
 router.get("/settings", requirePermission("settings"), adminGetSettings);

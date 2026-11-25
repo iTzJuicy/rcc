@@ -727,6 +727,29 @@
   border-color: #cbd5e1;
 }
 
+.admin-btn-secondary {
+  padding: 8px 16px;
+  background: var(--admin-primary-light, #eef2ff);
+  color: var(--admin-primary);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: var(--admin-radius-md);
+  font-family: var(--admin-font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.admin-btn-secondary:hover {
+  background: var(--admin-primary);
+  color: #ffffff;
+  border-color: var(--admin-primary);
+}
+
 .admin-action-btn {
   padding: 6px 11px;
   border-radius: var(--admin-radius-sm);

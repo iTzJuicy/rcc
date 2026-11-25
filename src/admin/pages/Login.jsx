@@ -83,7 +83,7 @@ export default function Login() {
                   background: "none",
                   border: "none",
                   fontSize: "12px",
-                  color: "var(--red)",
+                  color: "#6366f1",
                   cursor: "pointer",
                 }}
               >

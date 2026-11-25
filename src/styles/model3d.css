@@ -1,0 +1,364 @@
+/* =========================================
+   3D MODEL VIEWER — PUBLIC PROJECT PAGE
+   Scoped: .project-model3d-*  &  .model3d-*
+   Does NOT touch any existing public vars.
+========================================= */
+
+/* ── Section wrapper ── */
+.project-model3d-section {
+  background: #0b1218;
+  padding: 72px 0 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Section heading ── */
+.project-model3d-header {
+  text-align: center;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.project-model3d-header .eyebrow {
+  color: var(--red, #e63329);
+  margin-bottom: 8px;
+}
+
+.project-model3d-header .heading {
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.project-model3d-header .heading span.text-red {
+  color: var(--red, #e63329);
+}
+
+/* ── Viewer container (borderless, model-focused) ── */
+.project-model3d-viewer-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: transparent;
+  z-index: 1;
+}
+
+.project-model3d-canvas {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 65vh, 680px);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-model3d-canvas > :not(.project-model3d-badge) {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Controls hint bar ── */
+.project-model3d-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px 16px 0;
+  background: transparent;
+}
+
+.project-model3d-hint-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.03em;
+  font-family: var(--font-body, sans-serif);
+}
+
+.project-model3d-hint-item svg {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* ── Template badge ── */
+.project-model3d-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Loading state ── */
+.model3d-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-family: var(--font-body, sans-serif);
+}
+
+.model3d-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--red, #e63329);
+  border-radius: 50%;
+  animation: model3d-spin 0.9s linear infinite;
+}
+
+@keyframes model3d-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error state ── */
+.model3d-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-family: var(--font-body, sans-serif);
+}
+
+.model3d-error svg {
+  color: rgba(230, 50, 41, 0.6);
+}
+
+/* =========================================
+   ADMIN — 3D MODEL CARD  (.admin-model3d-*)
+========================================= */
+
+.admin-model3d-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-model3d-tab {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  margin-bottom: -1px;
+}
+
+.admin-model3d-tab:hover {
+  color: var(--admin-text-main);
+}
+
+.admin-model3d-tab.active {
+  color: var(--admin-primary);
+  border-bottom-color: var(--admin-primary);
+}
+
+/* Upload zone */
+.admin-model3d-upload-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-model3d-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--admin-primary);
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+  width: fit-content;
+}
+
+.admin-model3d-upload-label:hover {
+  opacity: 0.88;
+}
+
+.admin-model3d-upload-label input[type="file"] {
+  display: none;
+}
+
+.admin-model3d-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--admin-text-main);
+}
+
+.admin-model3d-current svg {
+  color: var(--admin-primary);
+  flex-shrink: 0;
+}
+
+.admin-model3d-current-name {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.admin-model3d-clear-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--admin-danger);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.admin-model3d-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Template picker grid */
+.admin-model3d-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.admin-model3d-template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 12px;
+  border: 2px solid var(--admin-border);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--admin-surface, #ffffff);
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  text-align: center;
+  font-family: inherit;
+  color: var(--admin-text-main);
+}
+
+.admin-model3d-template-card:hover {
+  border-color: var(--admin-primary);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.admin-model3d-template-card.selected {
+  border-color: var(--admin-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.admin-model3d-template-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--admin-primary);
+}
+
+.admin-model3d-template-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.admin-model3d-template-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--admin-text-main);
+}
+
+.admin-model3d-template-desc {
+  font-size: 11px;
+  color: var(--admin-text-muted);
+  line-height: 1.4;
+}
+
+.admin-model3d-selected-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--admin-primary);
+  font-weight: 700;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+  .project-model3d-section {
+    padding: 56px 0;
+  }
+
+  .project-model3d-header {
+    margin-bottom: 24px;
+  }
+
+  .project-model3d-hint {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 16px;
+  }
+
+  .admin-model3d-template-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .project-model3d-hint-item:last-child {
+    display: none;
+  }
+
+  .admin-model3d-template-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .model3d-spinner {
+    animation: none;
+    border-top-color: var(--red, #e63329);
+  }
+}

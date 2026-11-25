@@ -9,8 +9,8 @@ const projects = [
     description:
       "A thoughtfully planned residential project focused on quality construction, functional spaces, and lasting durability.",
     image: "/images/card1.webp",
-    year: "",
     status: "Completed",
+    model3dTemplate: "villa",
   },
   {
     id: 2,
@@ -21,8 +21,8 @@ const projects = [
     description:
       "A modern commercial development designed around efficient space utilisation and dependable construction.",
     image: "/images/card2.webp",
-    year: "",
     status: "Completed",
+    model3dTemplate: "tower",
   },
   {
     id: 3,
@@ -33,8 +33,8 @@ const projects = [
     description:
       "A renovation project focused on improving functionality, refreshing existing spaces, and maintaining structural integrity.",
     image: "/images/card3.webp",
-    year: "",
     status: "Completed",
+    model3dTemplate: "apartment",
   },
   {
     id: 4,
@@ -45,8 +45,8 @@ const projects = [
     description:
       "A construction project emphasising practical design, careful execution, and attention to detail.",
     image: "/images/card4.webp",
-    year: "",
     status: "Completed",
+    model3dTemplate: "complex",
   },
 ];
 

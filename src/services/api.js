@@ -543,6 +543,24 @@ export const api = {
     });
   },
 
+  async adminUploadModel(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request("/admin/media/upload-model", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  async adminImageTo3d(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request("/admin/projects/image-to-3d", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
   async adminDeleteMedia(id) {
     return request(`/admin/media/${id}`, {
       method: "DELETE",

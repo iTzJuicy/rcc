@@ -36,10 +36,6 @@ const projectSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-    year: {
-      type: String,
-      default: "",
-    },
     area: {
       type: String,
       default: "",
@@ -73,6 +69,22 @@ const projectSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
       index: true,
+    },
+    showQuotationButton: {
+      type: Boolean,
+      default: true,
+    },
+    model3dUrl: {
+      type: String,
+      default: "",
+    },
+    model3dImage: {
+      type: String,
+      default: "",
+    },
+    model3dTemplate: {
+      type: String,
+      default: "",
     },
     order: {
       type: Number,

@@ -263,7 +263,7 @@ export default function StatsManager() {
                         <span className="admin-sl-badge">{(currentPage - 1) * pageSize + idx + 1}</span>
                       </td>
                       <td>
-                        <strong className="admin-table-title" style={{ fontSize: "16px", color: "var(--red)" }}>
+                        <strong className="admin-table-title" style={{ fontSize: "16px", color: "var(--admin-primary)" }}>
                           {st.value}{st.suffix || ""}
                         </strong>
                       </td>

@@ -157,7 +157,6 @@ export async function adminCreateProject(req, res, next) {
       status,
       location,
       mapUrl,
-      year,
       area,
       client,
       description,
@@ -167,6 +166,10 @@ export async function adminCreateProject(req, res, next) {
       isFeatured,
       order,
       seo,
+      model3dUrl,
+      model3dImage,
+      model3dTemplate,
+      showQuotationButton,
     } = req.body;
 
     if (!title || title.trim().length === 0) {
@@ -197,7 +200,6 @@ export async function adminCreateProject(req, res, next) {
       status: status || "Completed",
       location: location || "Mangalore, Karnataka",
       mapUrl: mapUrl?.trim() || "",
-      year: year || "",
       area: area || "",
       client: client || "",
       description: description || "",
@@ -206,8 +208,12 @@ export async function adminCreateProject(req, res, next) {
       image: coverImage || "/images/card1.webp",
       gallery: Array.isArray(gallery) ? gallery : [],
       isFeatured: Boolean(isFeatured),
+      showQuotationButton: showQuotationButton !== false,
       order: Number(order) || 0,
       seo: seo || {},
+      model3dUrl: model3dUrl || "",
+      model3dImage: model3dImage || "",
+      model3dTemplate: model3dTemplate || "",
     });
 
     res.status(201).json({ success: true, data: newProject });
@@ -220,9 +226,9 @@ export async function adminUpdateProject(req, res, next) {
   try {
     const { id } = req.params;
     const updates = pickFields(req.body, [
-      "title", "slug", "category", "status", "location", "mapUrl", "year", "area",
+      "title", "slug", "category", "status", "location", "mapUrl", "area",
       "client", "description", "fullDescription", "coverImage", "image",
-      "gallery", "isFeatured", "order",
+      "gallery", "isFeatured", "showQuotationButton", "order", "model3dUrl", "model3dImage", "model3dTemplate",
     ]);
     if (Object.prototype.hasOwnProperty.call(req.body, "seo")) {
       updates.seo = pickSeo(req.body.seo);

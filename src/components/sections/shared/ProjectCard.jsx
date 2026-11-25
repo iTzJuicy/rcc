@@ -22,7 +22,6 @@ export default function ProjectCard({ project }) {
       <div className="project-card-content">
         <div className="project-card-meta">
           {project.location && <span>{project.location}</span>}
-          {project.year && <span>{project.year}</span>}
         </div>
 
         <h3>

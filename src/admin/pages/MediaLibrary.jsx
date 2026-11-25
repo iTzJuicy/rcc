@@ -93,7 +93,7 @@ export default function MediaLibrary() {
     <div className="admin-page-container">
       <HowToUse title="How to use the Media Library" tips={["Upload optimized images in WebP, JPEG, PNG, AVIF format.", "Use Copy URL to reuse an image in a project, service, or page banner.", "System images are protected and cannot be deleted."]} />
       {alert.text && (
-        <div className={`admin-login-alert ${alert.type === "error" ? "error" : ""}`} style={{ marginBottom: "20px" }}>
+        <div className={`admin-toast-banner ${alert.type === "error" ? "error" : "success"}`} style={{ marginBottom: "20px" }}>
           {alert.text}
         </div>
       )}
@@ -139,7 +139,7 @@ export default function MediaLibrary() {
                     <div className="admin-media-title" title={item.filename}>
                       {item.filename}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--muted)", marginBottom: "8px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--admin-text-muted)", marginBottom: "8px" }}>
                       {item.format?.toUpperCase()} {kb && `• ${kb}`}
                     </div>
                     <div style={{ display: "flex", gap: "6px" }}>

@@ -98,7 +98,7 @@ export default function SiteSettings() {
     <div className="admin-page-container">
       <HowToUse title="How to use Site Settings" tips={["Update contact details and social links used across the public website.", "Use the branding fields to control the site identity and default SEO values.", "Save changes after editing; settings take effect immediately."]} />
       {alert.text && (
-        <div className={`admin-login-alert ${alert.type === "error" ? "error" : ""}`} style={{ marginBottom: "20px" }}>
+        <div className={`admin-toast-banner ${alert.type === "error" ? "error" : "success"}`} style={{ marginBottom: "20px" }}>
           {alert.text}
         </div>
       )}
@@ -291,7 +291,7 @@ export default function SiteSettings() {
             <div className="admin-card-body">
               {passAlert.text && (
                 <div
-                  className={`admin-login-alert ${passAlert.type === "error" ? "error" : ""}`}
+                  className={`admin-toast-banner ${passAlert.type === "error" ? "error" : "success"}`}
                   style={{
                     background: passAlert.type === "error" ? "#fde8e8" : "#def7ec",
                     color: passAlert.type === "error" ? "#9b1c1c" : "#03543f",
