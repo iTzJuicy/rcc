@@ -383,6 +383,18 @@ export default function ProjectEdit() {
               </div>
 
               <div className="admin-form-group">
+                <label htmlFor="client">Client</label>
+                <input
+                  id="client"
+                  name="client"
+                  type="text"
+                  value={form.client}
+                  onChange={handleChange}
+                  placeholder="e.g. Client or organization name"
+                />
+              </div>
+
+              <div className="admin-form-group">
                 <label htmlFor="mapUrl">Google Maps Link</label>
                 <input
                   id="mapUrl"
