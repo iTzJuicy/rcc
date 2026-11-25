@@ -12,6 +12,14 @@ function slugify(text) {
     .replace(/--+/g, "-");
 }
 
+function isHttpUrl(value) {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 export async function getPublicProjects(req, res, next) {
   try {
     const { category, status, search, page = 1, limit = 12 } = req.query;
@@ -148,6 +156,7 @@ export async function adminCreateProject(req, res, next) {
       category,
       status,
       location,
+      mapUrl,
       year,
       area,
       client,
@@ -175,6 +184,9 @@ export async function adminCreateProject(req, res, next) {
     if (Array.isArray(gallery) && gallery.length > 12) {
       return res.status(400).json({ success: false, message: `Gallery cannot exceed 12 images (currently ${gallery.length})` });
     }
+    if (mapUrl && !isHttpUrl(mapUrl)) {
+      return res.status(400).json({ success: false, message: "Map link must be a valid HTTP or HTTPS URL." });
+    }
 
     const finalSlug = slug ? slugify(slug) : slugify(title);
 
@@ -184,6 +196,7 @@ export async function adminCreateProject(req, res, next) {
       category: category || "Residential",
       status: status || "Completed",
       location: location || "Mangalore, Karnataka",
+      mapUrl: mapUrl?.trim() || "",
       year: year || "",
       area: area || "",
       client: client || "",
@@ -207,7 +220,7 @@ export async function adminUpdateProject(req, res, next) {
   try {
     const { id } = req.params;
     const updates = pickFields(req.body, [
-      "title", "slug", "category", "status", "location", "year", "area",
+      "title", "slug", "category", "status", "location", "mapUrl", "year", "area",
       "client", "description", "fullDescription", "coverImage", "image",
       "gallery", "isFeatured", "order",
     ]);
@@ -235,6 +248,13 @@ export async function adminUpdateProject(req, res, next) {
 
     if (Array.isArray(updates.gallery) && updates.gallery.length > 12) {
       return res.status(400).json({ success: false, message: `Gallery cannot exceed 12 images (currently ${updates.gallery.length})` });
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, "mapUrl")) {
+      if (updates.mapUrl && !isHttpUrl(updates.mapUrl)) {
+        return res.status(400).json({ success: false, message: "Map link must be a valid HTTP or HTTPS URL." });
+      }
+      updates.mapUrl = updates.mapUrl?.trim() || "";
     }
 
     if (updates.slug) {

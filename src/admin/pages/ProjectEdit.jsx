@@ -7,6 +7,7 @@ import api from "../../services/api";
 const DEFAULT_PROJECT = {
   title: "",
   slug: "",
+  mapUrl: "",
   category: "Residential",
   status: "Completed",
   location: "Mangaluru, Karnataka",
@@ -48,6 +49,7 @@ export default function ProjectEdit() {
             setForm({
               title: found.title || "",
               slug: found.slug || "",
+              mapUrl: found.mapUrl || "",
               category: found.category || "Residential",
               status: found.status || "Completed",
               location: found.location || "Mangaluru, Karnataka",
@@ -214,6 +216,21 @@ export default function ProjectEdit() {
               </div>
 
               <div className="admin-form-group">
+                <label htmlFor="slug">Project URL Slug</label>
+                <input
+                  id="slug"
+                  name="slug"
+                  type="text"
+                  value={form.slug}
+                  onChange={handleChange}
+                  placeholder="e.g. skyline-luxury-heights"
+                />
+                <div className="admin-input-hint">
+                  Used in the project page URL. Leave blank for a new project to generate it from the title.
+                </div>
+              </div>
+
+              <div className="admin-form-group">
                 <label htmlFor="category">Project Category <span className="admin-required">*</span></label>
                 <select
                   id="category"
@@ -255,6 +272,21 @@ export default function ProjectEdit() {
                   onChange={handleChange}
                   placeholder="e.g. Kadri, Mangaluru"
                 />
+              </div>
+
+              <div className="admin-form-group">
+                <label htmlFor="mapUrl">Google Maps Link</label>
+                <input
+                  id="mapUrl"
+                  name="mapUrl"
+                  type="url"
+                  value={form.mapUrl}
+                  onChange={handleChange}
+                  placeholder="https://maps.google.com/..."
+                />
+                <div className="admin-input-hint">
+                  Optional. This link is used by the View on Maps button on the project page.
+                </div>
               </div>
 
               <div className="admin-form-group">

@@ -12,6 +12,14 @@ import staticProjects from "../../data/projects";
 import api from "../../services/api";
 import "../../styles/project-details.css";
 
+function isHttpUrl(value) {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 export default function ProjectDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -225,9 +233,17 @@ export default function ProjectDetails() {
                   Request Quotation / Booking
                   <Icon name="arrowUpRight" size={18} />
                 </button>
-                <Link to="/contact" className="btn btn-outline">
-                  Discuss a Similar Project
-                </Link>
+                {isHttpUrl(project.mapUrl) && (
+                  <a
+                    href={project.mapUrl}
+                    className="btn btn-outline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on Maps
+                    <Icon name="arrowUpRight" size={18} />
+                  </a>
+                )}
               </div>
             </div>
           </div>

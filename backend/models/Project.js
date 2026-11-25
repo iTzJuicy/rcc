@@ -31,6 +31,11 @@ const projectSchema = new mongoose.Schema(
       default: "Mangalore, Karnataka",
       trim: true,
     },
+    mapUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     year: {
       type: String,
       default: "",
