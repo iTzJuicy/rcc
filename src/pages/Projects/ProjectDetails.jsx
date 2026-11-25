@@ -347,6 +347,7 @@ export default function ProjectDetails() {
                     modelUrl={project.model3dUrl || ""}
                     imageUrl={project.model3dImage || ""}
                     template={project.model3dTemplate || ""}
+                    fallbackImageUrl={project.image || ""}
                   />
                 </div>
 

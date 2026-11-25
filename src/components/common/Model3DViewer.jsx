@@ -562,13 +562,57 @@ function ThreeViewer({ template, imageUrl, onError }) {
 
 // ─── Main exported component ────────────────────────────────────────────────
 
-export default function Model3DViewer({ modelUrl, imageUrl, template }) {
+export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackImageUrl }) {
   const [mvReady, setMvReady] = useState(
     // model-viewer registers itself as a custom element
     typeof customElements !== "undefined" && customElements.get("model-viewer") !== undefined
   );
   const [threeReady, setThreeReady] = useState(typeof window !== "undefined" && Boolean(window.THREE));
   const [error, setError] = useState(null);
+  const [modelLoadFailed, setModelLoadFailed] = useState(false);
+  const [modelAvailability, setModelAvailability] = useState({ url: "", available: null });
+  const fallbackUrl = imageUrl || fallbackImageUrl;
+  const isLocalUpload = modelUrl?.startsWith("/uploads/");
+  const isCheckingModel =
+    isLocalUpload &&
+    (modelAvailability.url !== modelUrl || modelAvailability.available === null);
+
+  useEffect(() => {
+    setError(null);
+    setModelLoadFailed(false);
+  }, [modelUrl, imageUrl, template, fallbackImageUrl]);
+
+  useEffect(() => {
+    if (!modelUrl?.startsWith("/uploads/")) return undefined;
+
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL ||
+      (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
+    const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 8000);
+    let cancelled = false;
+
+    setModelAvailability({ url: modelUrl, available: null });
+    fetch(`${apiOrigin}${modelUrl}`, { method: "HEAD", signal: controller.signal })
+      .then((response) => {
+        if (!cancelled) {
+          setModelAvailability({ url: modelUrl, available: response.ok });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setModelAvailability({ url: modelUrl, available: false });
+        }
+      })
+      .finally(() => window.clearTimeout(timeoutId));
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [modelUrl]);
 
   // Poll for CDN libraries if not yet ready (they load async)
   useEffect(() => {
@@ -584,7 +628,7 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
   }, [modelUrl, mvReady]);
 
   useEffect(() => {
-    if ((template || imageUrl) && !threeReady) {
+    if ((template || fallbackUrl) && !threeReady) {
       const onReady = () => setThreeReady(true);
       window.addEventListener("three-ready", onReady);
       const id = setInterval(() => {
@@ -598,11 +642,30 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
         clearInterval(id);
       };
     }
-  }, [template, imageUrl, threeReady]);
+  }, [template, fallbackUrl, threeReady]);
 
-  if (!modelUrl && !imageUrl && !template) return null;
+  if (!modelUrl && !fallbackUrl && !template) return null;
+
+  if (isCheckingModel) {
+    return (
+      <div className="model3d-loading">
+        <div className="model3d-spinner" />
+        <span>Checking 3D model…</span>
+      </div>
+    );
+  }
 
   if (error) {
+    if (fallbackImageUrl) {
+      return (
+        <img
+          src={fallbackImageUrl}
+          alt="Project visualization"
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        />
+      );
+    }
+
     return (
       <div className="model3d-error">
         <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -614,7 +677,7 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
   }
 
   /* ── Uploaded GLB via <model-viewer> ── */
-  if (modelUrl) {
+  if (modelUrl && !modelLoadFailed && (!isLocalUpload || modelAvailability.available)) {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL ||
       (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
@@ -645,7 +708,7 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
         shadow-intensity="1"
         environment-image="neutral"
         style={{ width: "100%", height: "100%", background: "transparent" }}
-        onError={() => setError(true)}
+        onError={() => setModelLoadFailed(true)}
       />
     );
   }
@@ -660,5 +723,13 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
     );
   }
 
-  return <ThreeViewer template={template} imageUrl={imageUrl} onError={() => setError(true)} />;
+  if (!fallbackUrl && !template) return null;
+
+  return (
+    <ThreeViewer
+      template={template}
+      imageUrl={fallbackUrl}
+      onError={() => setError(true)}
+    />
+  );
 }
