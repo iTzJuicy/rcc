@@ -14,8 +14,8 @@ export default function Home() {
     <div className="home-page-wrapper">
       <Hero />
       <Impact />
-      <ServicesPreview />
       <FeaturedProjects />
+      <ServicesPreview />
       <AboutPreview />
       <ProcessPreview />
       <Testimonials />
