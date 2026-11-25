@@ -172,7 +172,12 @@ export default function ProjectEdit() {
           model3dImage: "",
           model3dTemplate: "",
         }));
-        setToast({ type: "success", message: "3D building model uploaded successfully!" });
+        setToast({
+          type: "success",
+          message: res.storage === "local"
+            ? "Model saved locally because Cloudinary rejected the file size. It is available only on this development server."
+            : "3D building model uploaded successfully!",
+        });
       }
     } catch (err) {
       setToast({ type: "error", message: err.message || "Failed to upload 3D model." });

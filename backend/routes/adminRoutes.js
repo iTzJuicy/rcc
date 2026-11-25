@@ -158,7 +158,7 @@ router.get("/media", requirePermission("media"), adminGetMedia);
 router.post("/media/upload", requirePermission("media"), upload.single("file"), adminUploadMedia);
 router.delete("/media/:id", requirePermission("media"), adminDeleteMedia);
 
-// 3D Model Upload (GLB/GLTF, local disk only, max 50 MB)
+// 3D Model Upload (GLB/GLTF, max 50 MB)
 router.post(
   "/media/upload-model",
   requirePermission("projects"),
@@ -184,11 +184,13 @@ router.post(
 
     try {
       const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
+        cloudinary.uploader.upload_large(
+          req.file.path,
           {
             folder: "rcc_infrastructure/models",
             public_id: req.file.filename,
             resource_type: "raw",
+            chunk_size: 6 * 1024 * 1024,
             use_filename: false,
             unique_filename: false,
           },
@@ -197,9 +199,6 @@ router.post(
             resolve(uploaded);
           }
         );
-        const source = fs.createReadStream(req.file.path);
-        source.on("error", reject);
-        source.pipe(stream);
       });
 
       await fs.promises.unlink(req.file.path);
@@ -210,6 +209,19 @@ router.post(
         bytes: req.file.size,
       });
     } catch (error) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          `[Storage] Cloudinary model upload failed (${error.http_code || error.message}); using local development storage.`
+        );
+        return res.json({
+          success: true,
+          url: `/uploads/models/${req.file.filename}`,
+          filename: req.file.originalname,
+          bytes: req.file.size,
+          storage: "local",
+        });
+      }
+
       try {
         await fs.promises.unlink(req.file.path);
       } catch (cleanupError) {
