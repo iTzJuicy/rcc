@@ -615,10 +615,13 @@ export default function Model3DViewer({ modelUrl, imageUrl, template }) {
 
   /* ── Uploaded GLB via <model-viewer> ── */
   if (modelUrl) {
-    const resolvedModelUrl =
-      modelUrl.startsWith("/uploads/") && !import.meta.env.PROD
-        ? `${(import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "")}${modelUrl}`
-        : modelUrl;
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL ||
+      (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
+    const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin;
+    const resolvedModelUrl = modelUrl.startsWith("/uploads/")
+      ? `${apiOrigin}${modelUrl}`
+      : modelUrl;
 
     if (!mvReady) {
       return (

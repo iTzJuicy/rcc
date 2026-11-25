@@ -5,6 +5,7 @@ import fs from "fs";
 import crypto from "crypto";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
 import { upload, processUpload } from "../middleware/upload.js";
+import { cloudinary, isConfigured } from "../config/cloudinary.js";
 
 import {
   adminGetDashboard,
@@ -161,13 +162,63 @@ router.delete("/media/:id", requirePermission("media"), adminDeleteMedia);
 router.post(
   "/media/upload-model",
   requirePermission("projects"),
-  upload3dModel.single("file"),
   (req, res, next) => {
+    if (process.env.NODE_ENV === "production" && !isConfigured) {
+      return res.status(503).json({
+        success: false,
+        message: "3D model uploads require persistent Cloudinary storage in production.",
+      });
+    }
+    next();
+  },
+  upload3dModel.single("file"),
+  async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No file uploaded." });
     }
-    const url = `/uploads/models/${req.file.filename}`;
-    res.json({ success: true, url, filename: req.file.originalname, bytes: req.file.size });
+
+    if (!isConfigured) {
+      const url = `/uploads/models/${req.file.filename}`;
+      return res.json({ success: true, url, filename: req.file.originalname, bytes: req.file.size });
+    }
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "rcc_infrastructure/models",
+            public_id: req.file.filename,
+            resource_type: "raw",
+            use_filename: false,
+            unique_filename: false,
+          },
+          (error, uploaded) => {
+            if (error) return reject(error);
+            resolve(uploaded);
+          }
+        );
+        const source = fs.createReadStream(req.file.path);
+        source.on("error", reject);
+        source.pipe(stream);
+      });
+
+      await fs.promises.unlink(req.file.path);
+      return res.json({
+        success: true,
+        url: result.secure_url,
+        filename: req.file.originalname,
+        bytes: req.file.size,
+      });
+    } catch (error) {
+      try {
+        await fs.promises.unlink(req.file.path);
+      } catch (cleanupError) {
+        if (cleanupError.code !== "ENOENT") {
+          return next(cleanupError);
+        }
+      }
+      return next(error);
+    }
   }
 );
 
