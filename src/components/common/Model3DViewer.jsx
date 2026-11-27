@@ -750,10 +750,10 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   useEffect(() => {
     if (!modelUrl || !mvReady || modelLoaded) return undefined;
     const timeoutId = window.setTimeout(() => {
-      console.warn("3D model did not initialize within 60 seconds. Check WebGL support, browser hardware acceleration, and model network requests.");
+      console.warn("3D model did not initialize within 180 seconds. Check model network requests and browser WebGL support.");
       setModelLoadFailureReason("timeout");
       setModelLoadFailed(true);
-    }, 60000);
+    }, 180000);
     return () => window.clearTimeout(timeoutId);
   }, [modelUrl, mvReady, modelLoaded]);
 
@@ -768,12 +768,13 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
     };
     viewer.addEventListener("load", onLoad);
     viewer.addEventListener("error", onError);
+    viewer.src = modelSource?.url || modelUrl;
     if (viewer.loaded) onLoad();
     return () => {
       viewer.removeEventListener("load", onLoad);
       viewer.removeEventListener("error", onError);
     };
-  }, [modelUrl, mvReady]);
+  }, [modelUrl, modelSource, mvReady]);
 
   useEffect(() => {
     if (!isLocalUpload || !modelSource) return undefined;
@@ -891,7 +892,6 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
         {viewerChrome}
         <model-viewer
           ref={modelViewerRef}
-          src={modelSource?.url || modelUrl}
           alt="3D building model"
           auto-rotate={autoRotate ? "" : undefined}
           auto-rotate-delay="0"
