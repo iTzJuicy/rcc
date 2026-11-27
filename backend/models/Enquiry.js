@@ -86,4 +86,16 @@ const enquirySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+enquirySchema.index({ createdAt: -1 });
+enquirySchema.index({ status: 1, createdAt: -1 });
+enquirySchema.index({
+  name: "text",
+  email: "text",
+  phone: "text",
+  subject: "text",
+  message: "text",
+  projectTitle: "text",
+  location: "text",
+});
+
 export default mongoose.models.Enquiry || mongoose.model("Enquiry", enquirySchema);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Sortable from "sortablejs";
 import HowToUse from "../components/HowToUse";
 import api from "../../services/api";
 
@@ -44,7 +45,7 @@ export default function ProjectsList() {
 
   // SortableJS drag-and-drop
   useEffect(() => {
-    if (!tableBodyRef.current || typeof window.Sortable === "undefined") return;
+    if (!tableBodyRef.current) return;
 
     try {
       if (sortableInstance.current) {
@@ -56,7 +57,7 @@ export default function ProjectsList() {
     }
 
     try {
-      sortableInstance.current = new window.Sortable(tableBodyRef.current, {
+      sortableInstance.current = new Sortable(tableBodyRef.current, {
         handle: ".admin-drag-handle",
         animation: 150,
         ghostClass: "sortable-ghost",

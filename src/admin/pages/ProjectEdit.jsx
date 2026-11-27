@@ -18,11 +18,11 @@ const DEFAULT_PROJECT = {
   description: "",
   fullDescription: "",
   coverImage: "/images/card1.webp",
+  bannerImage: "",
   gallery: [],
   isFeatured: false,
   showQuotationButton: true,
   model3dUrl: "",
-  model3dImage: "",
   model3dTemplate: "",
 };
 
@@ -36,15 +36,27 @@ export default function ProjectEdit() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingModel, setUploadingModel] = useState(false);
-  const [uploadingImage3d, setUploadingImage3d] = useState(false);
-  const [modelMode, setModelMode] = useState("image"); // 'image' | 'template' | 'upload'
+  const [modelAssets, setModelAssets] = useState([]);
+  const [loadingModels, setLoadingModels] = useState(true);
+  const [modelListError, setModelListError] = useState("");
+  const [modelMode, setModelMode] = useState("library");
   const [toast, setToast] = useState({ type: "", message: "" });
 
   useEffect(() => {
     async function init() {
       try {
+        try {
+          const modelsRes = await api.adminGetModels();
+          setModelAssets(Array.isArray(modelsRes?.data) ? modelsRes.data : []);
+        } catch (err) {
+          setModelListError(err.message || "Failed to load saved models.");
+        } finally {
+          setLoadingModels(false);
+        }
+
         const catRes = await api.get("/public/categories");
         if (catRes?.data && Array.isArray(catRes.data)) {
           setCategories(catRes.data.map((c) => c.name));
@@ -66,17 +78,15 @@ export default function ProjectEdit() {
               description: found.description || "",
               fullDescription: found.fullDescription || "",
               coverImage: found.coverImage || found.image || "/images/card1.webp",
+              bannerImage: found.bannerImage || "",
               gallery: Array.isArray(found.gallery) ? found.gallery : [],
               isFeatured: Boolean(found.isFeatured),
               showQuotationButton: found.showQuotationButton !== false,
               model3dUrl: found.model3dUrl || "",
-              model3dImage: found.model3dImage || "",
               model3dTemplate: found.model3dTemplate || "",
             });
             if (found.model3dUrl) {
-              setModelMode("upload");
-            } else if (found.model3dImage) {
-              setModelMode("image");
+              setModelMode("library");
             } else if (found.model3dTemplate) {
               setModelMode("template");
             }
@@ -85,7 +95,7 @@ export default function ProjectEdit() {
           }
         }
       } catch (err) {
-        setToast({ type: "error", message: "Failed to initialize form data" });
+        setToast({ type: "error", message: err.message || "Failed to initialize form data" });
       } finally {
         setLoading(false);
       }
@@ -118,6 +128,25 @@ export default function ProjectEdit() {
       setToast({ type: "error", message: err.message || "Failed to upload image" });
     } finally {
       setUploadingCover(false);
+    }
+  };
+
+  const handleBannerUpload = async (file) => {
+    if (!file) return;
+    setUploadingBanner(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.post("/admin/media/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (!res?.data?.url) throw new Error("Banner upload did not return an image URL.");
+      setForm((prev) => ({ ...prev, bannerImage: res.data.url }));
+      setToast({ type: "success", message: "Project page banner uploaded." });
+    } catch (err) {
+      setToast({ type: "error", message: err.message || "Failed to upload project banner." });
+    } finally {
+      setUploadingBanner(false);
     }
   };
 
@@ -166,12 +195,20 @@ export default function ProjectEdit() {
     try {
       const res = await api.adminUploadModel(file);
       if (res?.url) {
+        const uploadedModel = {
+          url: res.url,
+          filename: res.filename || file.name,
+        };
+        setModelAssets((prev) => [
+          uploadedModel,
+          ...prev.filter((model) => model.url !== uploadedModel.url),
+        ]);
         setForm((prev) => ({
           ...prev,
           model3dUrl: res.url,
-          model3dImage: "",
           model3dTemplate: "",
         }));
+        setModelMode("library");
         setToast({
           type: "success",
           message: res.storage === "local"
@@ -186,44 +223,12 @@ export default function ProjectEdit() {
     }
   };
 
-  const handleImageTo3dUpload = async (file) => {
-    if (!file) return;
-    setUploadingImage3d(true);
-    try {
-      const res = await api.adminImageTo3d(file);
-      if (res?.model3dUrl) {
-        setForm((prev) => ({
-          ...prev,
-          model3dUrl: res.model3dUrl,
-          model3dImage: "",
-          model3dTemplate: "",
-        }));
-        setToast({ type: "success", message: res.message || "AI 3D model generated from image!" });
-      } else if (res?.model3dImage) {
-        setForm((prev) => ({
-          ...prev,
-          model3dImage: res.model3dImage,
-          model3dUrl: "",
-          model3dTemplate: "",
-        }));
-        setToast({ type: "success", message: res.message || "3D depth model generated from image!" });
-      }
-    } catch (err) {
-      setToast({ type: "error", message: err.message || "Failed to process image for 3D." });
-    } finally {
-      setUploadingImage3d(false);
-    }
-  };
-
-  const handleUseCoverFor3d = () => {
-    if (!form.coverImage) return;
+  const handleSelectModel = (url) => {
     setForm((prev) => ({
       ...prev,
-      model3dImage: prev.coverImage,
-      model3dUrl: "",
+      model3dUrl: url,
       model3dTemplate: "",
     }));
-    setToast({ type: "success", message: "Project cover image selected for 3D depth modeling!" });
   };
 
   const handleSelectTemplate = (templateId) => {
@@ -231,7 +236,6 @@ export default function ProjectEdit() {
       ...prev,
       model3dTemplate: prev.model3dTemplate === templateId ? "" : templateId,
       model3dUrl: "",
-      model3dImage: "",
     }));
   };
 
@@ -239,7 +243,6 @@ export default function ProjectEdit() {
     setForm((prev) => ({
       ...prev,
       model3dUrl: "",
-      model3dImage: "",
       model3dTemplate: "",
     }));
     setToast({ type: "success", message: "3D visualization removed from this project." });
@@ -283,6 +286,7 @@ export default function ProjectEdit() {
         tips={[
           "Short description appears on project cards across the website (max 160 chars).",
           "Full description appears on the Project Details page (max 1200 chars).",
+          "The project detail page uses the Default Site Banner unless you set an optional custom page banner.",
           "Upload up to 12 gallery photos for the interactive visual tour carousel.",
         ]}
       />
@@ -520,6 +524,38 @@ export default function ProjectEdit() {
           </div>
         </div>
 
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <div>
+              <h3>Project Page Banner</h3>
+              <p className="admin-card-subtitle">
+                Optional banner at the top of this project detail page. Leave blank to use the Default Site Banner.
+              </p>
+            </div>
+            {form.bannerImage && (
+              <button type="button" className="admin-action-btn delete" onClick={() => setForm((prev) => ({ ...prev, bannerImage: "" }))}>
+                <i className="fa-solid fa-rotate-left" /><span>Use Default Banner</span>
+              </button>
+            )}
+          </div>
+          <div className="admin-card-body">
+            <div className="admin-form-group">
+              <label>Banner Image URL</label>
+              <input name="bannerImage" value={form.bannerImage} onChange={handleChange} placeholder="Blank uses the Default Site Banner" />
+            </div>
+            <label className="admin-file-upload-btn" style={{ marginTop: "12px" }}>
+              <i className="fa-solid fa-cloud-arrow-up" />
+              <span>{uploadingBanner ? "Uploading..." : "Upload / Change Project Banner"}</span>
+              <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => handleBannerUpload(e.target.files?.[0])} disabled={uploadingBanner} />
+            </label>
+            {form.bannerImage && (
+              <div className="admin-banner-preview" style={{ marginTop: "16px" }}>
+                <img src={form.bannerImage} alt="Project page banner preview" />
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* GALLERY (MAX 12) */}
         <div className="admin-card">
           <div className="admin-card-header">
@@ -577,10 +613,10 @@ export default function ProjectEdit() {
             <div>
               <h3>3D Architectural Visualization (Optional)</h3>
               <p className="admin-card-subtitle">
-                Render an interactive 3D model on the project page. Upload your custom .glb model or select a pre-built template.
+                Render an interactive 3D model on the project page. Reuse a saved model, upload a new one, or choose a pre-built template.
               </p>
             </div>
-            {(form.model3dUrl || form.model3dImage || form.model3dTemplate) && (
+            {(form.model3dUrl || form.model3dTemplate) && (
               <button
                 type="button"
                 className="admin-model3d-clear-btn"
@@ -597,11 +633,11 @@ export default function ProjectEdit() {
             <div className="admin-model3d-tabs">
               <button
                 type="button"
-                className={`admin-model3d-tab ${modelMode === "image" ? "active" : ""}`}
-                onClick={() => setModelMode("image")}
+                className={`admin-model3d-tab ${modelMode === "library" ? "active" : ""}`}
+                onClick={() => setModelMode("library")}
               >
-                <i className="fa-solid fa-wand-magic-sparkles" style={{ marginRight: "6px" }} />
-                Image to 3D
+                <i className="fa-solid fa-cube" style={{ marginRight: "6px" }} />
+                Saved Models
               </button>
               <button
                 type="button"
@@ -621,53 +657,36 @@ export default function ProjectEdit() {
               </button>
             </div>
 
-            {modelMode === "image" && (
+            {modelMode === "library" && (
               <div className="admin-model3d-upload-zone">
                 <p className="admin-input-hint">
-                  Upload a building photo or architectural elevation to generate an interactive 3D depth-extruded scale model, or use the project's cover image.
+                  Select a previously uploaded 3D model to reuse it on this project.
                 </p>
-
-                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                  <label className="admin-model3d-upload-label">
-                    <i className="fa-solid fa-image" />
-                    <span>{uploadingImage3d ? "Building 3D Model..." : "Upload Image for 3D"}</span>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => handleImageTo3dUpload(e.target.files?.[0])}
-                      disabled={uploadingImage3d}
-                    />
-                  </label>
-
-                  {form.coverImage && (
-                    <button
-                      type="button"
-                      className="admin-btn-secondary"
-                      onClick={handleUseCoverFor3d}
-                      disabled={uploadingImage3d}
+                {loadingModels ? (
+                  <p className="admin-input-hint">Loading saved models...</p>
+                ) : (
+                  <div className="admin-form-group">
+                    <select
+                      value={form.model3dUrl}
+                      onChange={(e) => handleSelectModel(e.target.value)}
                     >
-                      <i className="fa-solid fa-clone" />
-                      <span>Use Cover Image</span>
-                    </button>
-                  )}
-                </div>
-
-                {form.model3dImage && (
-                  <div className="admin-model3d-current">
-                    <img
-                      src={form.model3dImage}
-                      alt="3D Source"
-                      style={{ width: "56px", height: "42px", objectFit: "cover", borderRadius: "6px", flexShrink: 0 }}
-                    />
-                    <div>
-                      <div className="admin-model3d-current-name">
-                        Active Image-to-3D Source
-                      </div>
-                      <div style={{ fontSize: "11px", color: "var(--admin-text-muted)" }}>
-                        Visitors can rotate, tilt, and zoom the 3D depth relief model on the project page.
-                      </div>
-                    </div>
+                      <option value="">Choose a saved model</option>
+                      {form.model3dUrl && !modelAssets.some((model) => model.url === form.model3dUrl) && (
+                        <option value={form.model3dUrl}>Current project model ({form.model3dUrl.split("/").pop()})</option>
+                      )}
+                      {modelAssets.map((model) => (
+                        <option key={model.url} value={model.url}>
+                          {model.filename}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+                )}
+                {modelListError && (
+                  <p className="admin-input-hint" role="alert">{modelListError}</p>
+                )}
+                {!loadingModels && !modelListError && modelAssets.length === 0 && !form.model3dUrl && (
+                  <p className="admin-input-hint">No saved models yet. Upload a GLB or GLTF model to add it to your reusable model storage.</p>
                 )}
               </div>
             )}
@@ -710,7 +729,7 @@ export default function ProjectEdit() {
             {modelMode === "upload" && (
               <div className="admin-model3d-upload-zone">
                 <p className="admin-input-hint">
-                  Upload a 3D model in GLB (binary glTF) or glTF format. Recommended format is <strong>.glb</strong> optimized for web (under 25MB).
+                  Upload a 3D model in GLB (binary glTF) or glTF format. New uploads are saved for reuse across projects. Recommended format is <strong>.glb</strong> optimized for web (under 25MB).
                 </p>
 
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
@@ -757,7 +776,7 @@ export default function ProjectEdit() {
           <button
             type="submit"
             className="admin-btn-primary"
-            disabled={saving}
+            disabled={saving || uploadingBanner}
           >
             <i className="fa-solid fa-floppy-disk" />
             <span>{saving ? "Saving..." : isNew ? "Create Project" : "Save Project Changes"}</span>

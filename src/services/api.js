@@ -31,9 +31,10 @@ function normalizeMediaRecord(record) {
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
+  const { responseType, ...fetchOptions } = options;
   const headers = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...fetchOptions.headers,
   };
   const isProtectedEndpoint =
     endpoint.startsWith("/admin") ||
@@ -44,40 +45,39 @@ async function request(endpoint, options = {}) {
   }
 
   // If sending FormData (file uploads), let the browser set Content-Type with boundary
-  if (options.body instanceof FormData) {
+  if (fetchOptions.body instanceof FormData) {
     delete headers["Content-Type"];
   }
 
   const config = {
     credentials: "include",
-    ...options,
+    ...fetchOptions,
     headers,
   };
 
-  try {
-    const response = await fetch(url, config);
+  const response = await fetch(url, config);
 
-    if (response.status === 401 && endpoint.startsWith("/admin")) {
-      localStorage.removeItem("rcc_admin_token");
-      localStorage.removeItem("rcc_admin_user");
-      if (window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
-        window.location.href = "/admin/login";
-      }
+  if (response.status === 401 && endpoint.startsWith("/admin")) {
+    localStorage.removeItem("rcc_admin_token");
+    localStorage.removeItem("rcc_admin_user");
+    if (window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
+      window.dispatchEvent(new Event("rcc:session-expired"));
     }
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      const error = new Error(data.message || `Request failed with status ${response.status}`);
-      error.status = response.status;
-      error.data = data;
-      throw error;
-    }
-
-    return data;
-  } catch (err) {
-    throw err;
   }
+
+  const data =
+    responseType === "blob" && response.ok
+      ? await response.blob()
+      : await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || `Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+
+  return data;
 }
 
 export const api = {
@@ -508,11 +508,9 @@ export const api = {
   },
 
   async adminExportEnquiries(format = "csv") {
-    const response = await fetch(`${API_BASE}/admin/enquiries/export?format=${format}`, {
-      credentials: "include",
+    const blob = await request(`/admin/enquiries/export?format=${encodeURIComponent(format)}`, {
+      responseType: "blob",
     });
-    if (!response.ok) throw new Error("Export failed");
-    const blob = await response.blob();
     const ext = format === "xlsx" || format === "excel" ? "xls" : "csv";
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -521,6 +519,7 @@ export const api = {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   },
 
   // ==========================================
@@ -552,13 +551,8 @@ export const api = {
     });
   },
 
-  async adminImageTo3d(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    return request("/admin/projects/image-to-3d", {
-      method: "POST",
-      body: formData,
-    });
+  async adminGetModels() {
+    return request("/admin/media/models");
   },
 
   async adminDeleteMedia(id) {

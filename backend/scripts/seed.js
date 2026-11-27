@@ -27,7 +27,7 @@ import Testimonial from "../models/Testimonial.js";
 import Stat from "../models/Stat.js";
 import SiteSetting from "../models/SiteSetting.js";
 import ContentBlock from "../models/ContentBlock.js";
-import { DEFAULT_CONTENT } from "../controllers/contentController.js";
+import { DEFAULT_CONTENT } from "../shared/contentDefaults.js";
 
 import { connectDB } from "../config/db.js";
 
@@ -171,7 +171,6 @@ async function seed() {
           client: "Private Client",
           description: "A thoughtfully planned residential project focused on quality construction, functional spaces, and lasting durability.",
           coverImage: "/images/card1.webp",
-          image: "/images/card1.webp",
           gallery: ["/images/card1.webp", "/images/card2.webp", "/images/card3.webp"],
           isFeatured: true,
           order: 1,
@@ -186,7 +185,6 @@ async function seed() {
           client: "Retail Enterprise",
           description: "A modern commercial development designed around efficient space utilisation and dependable construction.",
           coverImage: "/images/card2.webp",
-          image: "/images/card2.webp",
           gallery: ["/images/card2.webp", "/images/card1.webp", "/images/impact.webp"],
           isFeatured: true,
           order: 2,
@@ -201,7 +199,6 @@ async function seed() {
           client: "Commercial Partner",
           description: "A renovation project focused on improving functionality, refreshing existing spaces, and maintaining structural integrity.",
           coverImage: "/images/card3.webp",
-          image: "/images/card3.webp",
           gallery: ["/images/card3.webp", "/images/card4.webp", "/images/card1.webp"],
           isFeatured: true,
           order: 3,
@@ -216,7 +213,6 @@ async function seed() {
           client: "Developer Group",
           description: "A construction project emphasising practical design, careful execution, and attention to detail.",
           coverImage: "/images/card4.webp",
-          image: "/images/card4.webp",
           gallery: ["/images/card4.webp", "/images/card2.webp", "/images/card3.webp"],
           isFeatured: true,
           order: 4,

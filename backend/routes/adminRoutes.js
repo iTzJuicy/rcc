@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
-import { upload, processUpload } from "../middleware/upload.js";
+import { upload } from "../middleware/upload.js";
 import { cloudinary, isConfigured } from "../config/cloudinary.js";
 
 import {
@@ -159,6 +159,51 @@ router.post("/media/upload", requirePermission("media"), upload.single("file"), 
 router.delete("/media/:id", requirePermission("media"), adminDeleteMedia);
 
 // 3D Model Upload (GLB/GLTF, max 50 MB)
+router.get("/media/models", requirePermission("projects"), async (_req, res, next) => {
+  try {
+    const models = [];
+    const localFiles = await fs.promises.readdir(model3dUploadDir, { withFileTypes: true });
+
+    for (const file of localFiles) {
+      if (!file.isFile() || ![".glb", ".gltf"].includes(path.extname(file.name).toLowerCase())) continue;
+      models.push({
+        filename: file.name,
+        url: `/uploads/models/${encodeURIComponent(file.name)}`,
+      });
+    }
+
+    if (isConfigured) {
+      let nextCursor;
+      do {
+        const result = await cloudinary.api.resources({
+          resource_type: "raw",
+          type: "upload",
+          prefix: "rcc_infrastructure/models/",
+          max_results: 500,
+          ...(nextCursor ? { next_cursor: nextCursor } : {}),
+        });
+
+        for (const resource of result.resources || []) {
+          const extension = path.extname(resource.public_id).toLowerCase() || `.${resource.format || ""}`;
+          if (![".glb", ".gltf"].includes(extension)) continue;
+          const storedName = resource.original_filename || path.basename(resource.public_id);
+          models.push({
+            filename: path.extname(storedName) ? storedName : `${storedName}${extension}`,
+            url: resource.secure_url,
+          });
+        }
+        nextCursor = result.next_cursor;
+      } while (nextCursor);
+    }
+
+    const uniqueModels = [...new Map(models.map((model) => [model.url, model])).values()]
+      .sort((a, b) => a.filename.localeCompare(b.filename));
+    res.json({ success: true, data: uniqueModels });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post(
   "/media/upload-model",
   requirePermission("projects"),
@@ -230,29 +275,6 @@ router.post(
         }
       }
       return next(error);
-    }
-  }
-);
-
-// Image-to-3D Preparation (stores image for 3D depth-extruded viewer; ready for external AI 3D API if configured)
-router.post(
-  "/projects/image-to-3d",
-  requirePermission("projects"),
-  upload.single("file"),
-  async (req, res, next) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ success: false, message: "No image uploaded." });
-      }
-      const uploaded = await processUpload(req.file.buffer, req.file.originalname, req.file.mimetype);
-      return res.json({
-        success: true,
-        mode: "image_relief",
-        model3dImage: uploaded.url,
-        message: "3D architectural depth model generated from image.",
-      });
-    } catch (error) {
-      next(error);
     }
   }
 );

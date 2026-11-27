@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Sortable from "sortablejs";
 import HowToUse from "../components/HowToUse";
 import api from "../../services/api";
 import Pagination from "../components/Pagination";
@@ -56,7 +57,7 @@ export default function TestimonialsManager() {
 
   // SortableJS Drag & Drop
   useEffect(() => {
-    if (!tableBodyRef.current || typeof window.Sortable === "undefined") return;
+    if (!tableBodyRef.current) return;
 
     try {
       if (sortableInstance.current) {
@@ -68,7 +69,7 @@ export default function TestimonialsManager() {
     }
 
     try {
-      sortableInstance.current = new window.Sortable(tableBodyRef.current, {
+      sortableInstance.current = new Sortable(tableBodyRef.current, {
         handle: ".admin-drag-handle",
         animation: 150,
         ghostClass: "sortable-ghost",

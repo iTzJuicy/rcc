@@ -159,7 +159,7 @@ export default function ProjectDetails() {
         eyebrow={project.category}
         title={project.title}
         description={project.description}
-        image={project.image}
+        image={project.bannerImage || undefined}
         breadcrumb={[
           { label: "Home", to: "/" },
           { label: "Projects", to: "/projects" },
@@ -317,12 +317,10 @@ export default function ProjectDetails() {
       />
 
       {/* 3D Building Model Section */}
-      {(project.model3dUrl || project.model3dImage || project.model3dTemplate) && (() => {
+      {(project.model3dUrl || project.model3dTemplate) && (() => {
         const tmpl = MODEL_3D_TEMPLATES.find((t) => t.id === project.model3dTemplate);
         const badgeLabel = project.model3dUrl
           ? "3D Model"
-          : project.model3dImage
-          ? "Extracted 3D Model"
           : tmpl
           ? tmpl.label
           : project.model3dTemplate;
@@ -345,7 +343,6 @@ export default function ProjectDetails() {
                   )}
                   <Model3DViewer
                     modelUrl={project.model3dUrl || ""}
-                    imageUrl={project.model3dImage || ""}
                     template={project.model3dTemplate || ""}
                     fallbackImageUrl={project.image || ""}
                   />

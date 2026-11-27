@@ -18,12 +18,44 @@ function getSettingsUpdates(body) {
   return updates;
 }
 
+async function getSingletonSettings(updates = {}) {
+  let settings = await SiteSetting.findOne({ singleton: true });
+
+  if (!settings) {
+    try {
+      settings = await SiteSetting.findOneAndUpdate(
+        { singleton: { $exists: false } },
+        { $set: { singleton: true } },
+        { new: true, sort: { createdAt: 1 } }
+      );
+
+      if (!settings) {
+        settings = await SiteSetting.findOneAndUpdate(
+          { singleton: true },
+          { $setOnInsert: { singleton: true } },
+          { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+      }
+    } catch (error) {
+      if (error.code !== 11000) throw error;
+      settings = await SiteSetting.findOne({ singleton: true });
+      if (!settings) throw error;
+    }
+  }
+
+  if (Object.keys(updates).length) {
+    settings = await SiteSetting.findByIdAndUpdate(settings._id, updates, {
+      new: true,
+      runValidators: true,
+    });
+  }
+
+  return settings;
+}
+
 export async function getPublicSettings(req, res, next) {
   try {
-    let settings = await SiteSetting.findOne();
-    if (!settings) {
-      settings = await SiteSetting.create({});
-    }
+    const settings = await getSingletonSettings();
     res.json({ success: true, data: settings });
   } catch (error) {
     next(error);
@@ -32,10 +64,7 @@ export async function getPublicSettings(req, res, next) {
 
 export async function adminGetSettings(req, res, next) {
   try {
-    let settings = await SiteSetting.findOne();
-    if (!settings) {
-      settings = await SiteSetting.create({});
-    }
+    const settings = await getSingletonSettings();
     res.json({ success: true, data: settings });
   } catch (error) {
     next(error);
@@ -45,17 +74,7 @@ export async function adminGetSettings(req, res, next) {
 export async function adminUpdateSettings(req, res, next) {
   try {
     const updates = getSettingsUpdates(req.body);
-    let settings = await SiteSetting.findOne();
-
-    if (!settings) {
-      settings = await SiteSetting.create(updates);
-    } else {
-      settings = await SiteSetting.findByIdAndUpdate(settings._id, updates, {
-        new: true,
-        runValidators: true,
-      });
-    }
-
+    const settings = await getSingletonSettings(updates);
     res.json({ success: true, data: settings });
   } catch (error) {
     next(error);

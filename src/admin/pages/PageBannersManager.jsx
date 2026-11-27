@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import HowToUse from "../components/HowToUse";
 import api from "../../services/api";
+import { updateCachedSiteContent } from "../../hooks/useSiteContent";
 
 const PAGES_LIST = [
   { key: "default", label: "Default Site Banner (Used when no specific banner is set)" },
@@ -29,7 +30,7 @@ export default function PageBannersManager() {
           setBanners(res.data);
         }
       } catch (err) {
-        setToast({ type: "error", message: "Failed to load page banners" });
+        setToast({ type: "error", message: err.message || "Failed to load page banners" });
       } finally {
         setLoading(false);
       }
@@ -71,6 +72,7 @@ export default function PageBannersManager() {
     try {
       const res = await api.put("/admin/content/pageBanners", banners);
       if (res?.success) {
+        updateCachedSiteContent("pageBanners", banners);
         setToast({ type: "success", message: "Page banners updated successfully!" });
       } else {
         setToast({ type: "error", message: res?.message || "Failed to save banners" });
@@ -93,6 +95,7 @@ export default function PageBannersManager() {
         tips={[
           "Each inner page can have its own customized hero banner image.",
           "If a page has no specific banner image set, it will automatically fall back to the Default Site Banner.",
+          "Service and project detail pages use the Default Site Banner unless a custom banner is set in that individual editor.",
           "Recommended image dimensions: 1920x600px in JPG or WebP format for optimal loading speed.",
         ]}
       />

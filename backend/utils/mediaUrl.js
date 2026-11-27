@@ -5,10 +5,10 @@ function normalizeMediaUrl(value) {
 
 export function normalizeMediaDocument(document) {
   const data = document?.toObject ? document.toObject() : { ...document };
+  data.coverImage = normalizeMediaUrl(data.coverImage || data.image);
+  data.image = data.coverImage;
 
-  for (const field of ["image", "coverImage"]) {
-    data[field] = normalizeMediaUrl(data[field]);
-  }
+  data.bannerImage = normalizeMediaUrl(data.bannerImage);
 
   if (Array.isArray(data.gallery)) {
     data.gallery = data.gallery.map(normalizeMediaUrl);

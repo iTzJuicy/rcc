@@ -31,6 +31,10 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       default: "/images/impact.webp",
     },
+    bannerImage: {
+      type: String,
+      default: "",
+    },
     icon: {
       type: String,
       default: "building",

@@ -35,52 +35,12 @@
     <link rel="icon" type="image/png" href="/images/logo.png" />
 
     <!-- Performance Preloads -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="/images/hero.webp" type="image/webp" fetchpriority="high" />
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
-
-    <!-- Swiper CSS (CDN pinned v11.1.14) -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.css"
-    />
-
-    <!-- AOS (Animate On Scroll) CSS (CDN pinned v2.3.4) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
-    />
   </head>
 
   <body>
     <div id="root"></div>
-
-    <!-- CDN Pinned Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-
-    <!-- Three.js r169 + OrbitControls (for 3D building viewer) -->
-    <script>
-      Promise.all([
-        import("https://esm.sh/three@0.169.0"),
-        import("https://esm.sh/three@0.169.0/examples/jsm/controls/OrbitControls.js"),
-      ])
-        .then(([THREE, { OrbitControls }]) => {
-          window.THREE = Object.assign({}, THREE, { OrbitControls });
-          window.dispatchEvent(new Event("three-ready"));
-        })
-        .catch((err) => console.warn("Failed to load Three.js:", err));
-    </script>
-
-    <!-- model-viewer (for uploaded GLB/GLTF files) -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -6,6 +6,16 @@ import { initFrontendMonitoring } from "./services/sentry";
 
 initFrontendMonitoring();
 
+import "@fontsource/inter/latin-300.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "@fontsource/inter/latin-800.css";
+import "@fontsource/playfair-display/latin-400.css";
+import "@fontsource/playfair-display/latin-500.css";
+import "@fontsource/playfair-display/latin-600.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./styles/variables.css";
 import "./styles/global.css";
 import "./styles/typography.css";

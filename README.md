@@ -23,7 +23,7 @@ A responsive multi-page construction company website built with React, Vite, Rea
 - React Router DOM
 - JavaScript
 - Custom CSS
-- Google Fonts: Inter and Playfair Display
+- Locally bundled Inter and Playfair Display fonts
 
 ## Requirements
 
@@ -145,6 +145,9 @@ The project uses custom CSS organized by purpose:
 - Update contact details and email addresses before deployment.
 - Verify all image paths before building.
 - Configure your hosting provider to serve `index.html` for client-side routes.
+- The backend API is currently implicitly unversioned under `/api/auth`, `/api/public`, and `/api/admin`. Preserve those routes for compatibility; introduce a versioned prefix before making breaking API changes.
+- Admin project and enquiry search uses MongoDB text indexes; searches match indexed terms rather than arbitrary substrings.
+- The backend health endpoint is `GET /health`. Configure an external uptime monitor to request it every 10 minutes and alert when it does not return HTTP 200 with `status: "ok"`. Provider setup requires access to the hosting/monitoring accounts.
 
 ## License
 

@@ -10,6 +10,7 @@ const DEFAULT_SERVICE = {
   shortDescription: "",
   longDescription: "",
   image: "/images/card1.webp",
+  bannerImage: "",
   icon: "building",
   gallery: [],
   order: 0,
@@ -26,6 +27,7 @@ export default function ServiceEdit() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [toast, setToast] = useState({ type: "", message: "" });
 
@@ -42,6 +44,7 @@ export default function ServiceEdit() {
             shortDescription: found.shortDescription || found.description || "",
             longDescription: found.longDescription || "",
             image: found.image || "/images/card1.webp",
+            bannerImage: found.bannerImage || "",
             icon: found.icon || "building",
             gallery: Array.isArray(found.gallery) ? found.gallery : [],
             order: found.order || 0,
@@ -52,7 +55,7 @@ export default function ServiceEdit() {
           setToast({ type: "error", message: "Service not found" });
         }
       } catch (err) {
-        setToast({ type: "error", message: "Failed to load service details" });
+        setToast({ type: "error", message: err.message || "Failed to load service details" });
       } finally {
         setLoading(false);
       }
@@ -85,6 +88,25 @@ export default function ServiceEdit() {
       setToast({ type: "error", message: err.message || "Failed to upload image" });
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleBannerUpload = async (file) => {
+    if (!file) return;
+    setUploadingBanner(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.post("/admin/media/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (!res?.data?.url) throw new Error("Banner upload did not return an image URL.");
+      setForm((prev) => ({ ...prev, bannerImage: res.data.url }));
+      setToast({ type: "success", message: "Service page banner uploaded." });
+    } catch (err) {
+      setToast({ type: "error", message: err.message || "Failed to upload service banner." });
+    } finally {
+      setUploadingBanner(false);
     }
   };
 
@@ -160,6 +182,7 @@ export default function ServiceEdit() {
         tips={[
           "Short description appears on service cards (max 160 chars).",
           "Long description appears on the dedicated Service Details page (max 1200 chars).",
+          "The service detail page uses the Default Site Banner unless you set an optional custom page banner.",
           "Upload up to 10 photos in the gallery. On the public site, these render as a swipeable carousel.",
         ]}
       />
@@ -277,8 +300,40 @@ export default function ServiceEdit() {
             <div>
               <h3>Main Cover Image</h3>
               <p className="admin-card-subtitle">
-                Shown on catalog cards and the header of the Service Details page.
+                Shown on catalog cards and as the service image. This is separate from the page banner.
               </p>
+            </div>
+          </div>
+
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <div>
+                <h3>Service Page Banner</h3>
+                <p className="admin-card-subtitle">
+                  Optional banner at the top of this service detail page. Leave blank to use the Default Site Banner.
+                </p>
+              </div>
+              {form.bannerImage && (
+                <button type="button" className="admin-action-btn delete" onClick={() => setForm((prev) => ({ ...prev, bannerImage: "" }))}>
+                  <i className="fa-solid fa-rotate-left" /><span>Use Default Banner</span>
+                </button>
+              )}
+            </div>
+            <div className="admin-card-body">
+              <div className="admin-form-group">
+                <label>Banner Image URL</label>
+                <input name="bannerImage" value={form.bannerImage} onChange={handleChange} placeholder="Blank uses the Default Site Banner" />
+              </div>
+              <label className="admin-file-upload-btn" style={{ marginTop: "12px" }}>
+                <i className="fa-solid fa-cloud-arrow-up" />
+                <span>{uploadingBanner ? "Uploading..." : "Upload / Change Service Banner"}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => handleBannerUpload(e.target.files?.[0])} disabled={uploadingBanner} />
+              </label>
+              {form.bannerImage && (
+                <div className="admin-banner-preview" style={{ marginTop: "16px" }}>
+                  <img src={form.bannerImage} alt="Service page banner preview" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -374,7 +429,7 @@ export default function ServiceEdit() {
           <button
             type="submit"
             className="admin-btn-primary"
-            disabled={saving}
+            disabled={saving || uploadingBanner}
           >
             <i className="fa-solid fa-floppy-disk" />
             <span>{saving ? "Saving..." : isNew ? "Create Service" : "Save Service Changes"}</span>

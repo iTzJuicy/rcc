@@ -24,8 +24,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const startTime = Date.now();
 
-// Trust proxy for Render / Vercel rate limiting & client IP
-app.set("trust proxy", 1);
+function getTrustProxySetting(value) {
+  if (!value) return 1;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  if (/^\d+$/.test(value)) return Number(value);
+  return value.split(",").map((entry) => entry.trim());
+}
+
+app.set("trust proxy", getTrustProxySetting(process.env.TRUST_PROXY));
 
 // Initialize Sentry
 initSentry(app);
@@ -38,8 +45,8 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'", "data:"],
         imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://images.unsplash.com"],
         frameSrc: ["'self'", "https://www.google.com"],
         connectSrc: ["'self'", "https://*.sentry.io", process.env.FRONTEND_URL || "http://localhost:5173"],

@@ -57,9 +57,9 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: "/images/card1.webp",
     },
-    image: {
+    bannerImage: {
       type: String,
-      default: "/images/card1.webp",
+      default: "",
     },
     gallery: {
       type: [String],
@@ -78,10 +78,6 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    model3dImage: {
-      type: String,
-      default: "",
-    },
     model3dTemplate: {
       type: String,
       default: "",
@@ -97,7 +93,24 @@ const projectSchema = new mongoose.Schema(
       ogImage: { type: String, default: "" },
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+projectSchema.pre("init", function (document) {
+  if (!document.coverImage && document.image) {
+    document.coverImage = document.image;
+  }
+  delete document.image;
+});
+
+projectSchema.virtual("image")
+  .get(function () {
+    return this.coverImage;
+  })
+  .set(function (value) {
+    this.coverImage = value;
+  });
+
+projectSchema.index({ title: "text", description: "text", location: "text", category: "text" });
 
 export default mongoose.models.Project || mongoose.model("Project", projectSchema);

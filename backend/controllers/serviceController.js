@@ -62,7 +62,7 @@ export async function adminGetServices(req, res, next) {
 
 export async function adminCreateService(req, res, next) {
   try {
-    const { title, slug, shortDescription, longDescription, image, icon, gallery, order, showOnHome, isActive, seo } = req.body;
+    const { title, slug, shortDescription, longDescription, image, bannerImage, icon, gallery, order, showOnHome, isActive, seo } = req.body;
 
     if (!title || title.trim().length === 0) {
       return res.status(400).json({ success: false, message: "Service title is required." });
@@ -89,6 +89,7 @@ export async function adminCreateService(req, res, next) {
       longDescription: longDescription?.trim() || "",
       description: shortDescription?.trim() || longDescription?.trim() || "",
       image: image || "/images/impact.webp",
+      bannerImage: bannerImage || "",
       icon: icon || "building",
       gallery: Array.isArray(gallery) ? gallery : [],
       order: Number(order) || 0,
@@ -108,7 +109,7 @@ export async function adminUpdateService(req, res, next) {
     const { id } = req.params;
     const updates = pickFields(req.body, [
       "title", "slug", "shortDescription", "longDescription", "description",
-      "image", "icon", "gallery", "order", "showOnHome", "isActive",
+      "image", "bannerImage", "icon", "gallery", "order", "showOnHome", "isActive",
     ]);
     if (Object.prototype.hasOwnProperty.call(req.body, "seo")) {
       updates.seo = pickSeo(req.body.seo);

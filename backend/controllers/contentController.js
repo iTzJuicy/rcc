@@ -1,146 +1,10 @@
 import ContentBlock from "../models/ContentBlock.js";
-
-// Default content for fallback & seeding
-export const DEFAULT_CONTENT = {
-  home: {
-    heroHeading: "Building Spaces. Creating Legacies.",
-    heroDescription:
-      "Delivering exceptional residential, commercial, and infrastructure solutions across Mangaluru with a relentless commitment to quality and architectural integrity.",
-    heroButtonText: "Explore Projects",
-    aboutTitle: "Constructing Trust, Crafting Value",
-    aboutDescription:
-      "With over 15 years of excellence in the construction landscape of Mangaluru, RCC Infrastructure brings together skilled engineering, sustainable construction practices, and reliable project management.",
-  },
-  about: {
-    title: "Building Spaces That Stand the Test of Time",
-    description:
-      "Founded with a vision to redefine civil construction in coastal Karnataka, RCC Infrastructure has evolved from a boutique contractor into a trusted multi-disciplinary engineering and construction firm.",
-    vision:
-      "To be the premier construction partner recognized for engineering excellence, timely delivery, and transformative architectural quality that enriches communities.",
-    mission:
-      "To deliver superior residential, commercial, and industrial infrastructure with uncompromising safety, environmental sustainability, and authentic client trust.",
-    values: [
-      {
-        id: "v1",
-        icon: "fa-award",
-        title: "Quality Assurance",
-        description: "Rigorous ISO-certified quality benchmarks applied across all construction stages.",
-      },
-      {
-        id: "v2",
-        icon: "fa-clock",
-        title: "On-Time Delivery",
-        description: "Disciplined project scheduling and transparent milestone tracking on every build.",
-      },
-      {
-        id: "v3",
-        icon: "fa-city",
-        title: "Modern Infrastructure",
-        description: "Advanced engineering methods and contemporary architectural aesthetics.",
-      },
-      {
-        id: "v4",
-        icon: "fa-leaf",
-        title: "Sustainable Development",
-        description: "Eco-friendly materials, energy conservation, and responsible resource stewardship.",
-      },
-    ],
-  },
-  expertise: [
-    {
-      id: "exp-1",
-      number: "01",
-      title: "Residential Construction",
-      description: "Custom premium villas, luxury apartments, and sustainable private residences.",
-    },
-    {
-      id: "exp-2",
-      number: "02",
-      title: "Commercial Construction",
-      description: "Modern retail hubs, corporate headquarters, and multi-tenant office complexes.",
-    },
-    {
-      id: "exp-3",
-      number: "03",
-      title: "Planning & Coordination",
-      description: "Comprehensive blueprint development, municipal sanctions, and structural audits.",
-    },
-    {
-      id: "exp-4",
-      number: "04",
-      title: "Renovation & Remodelling",
-      description: "Heritage restoration, structural retrofits, and high-end modern interior makeovers.",
-    },
-    {
-      id: "exp-5",
-      number: "05",
-      title: "Interior Works",
-      description: "Precision turnkey interior execution, acoustic ceilings, and bespoke cabinetry.",
-    },
-    {
-      id: "exp-6",
-      number: "06",
-      title: "Project Management",
-      description: "End-to-end site supervision, supply chain optimization, and cost governance.",
-    },
-  ],
-  faqs: [
-    {
-      id: "faq-1",
-      question: "What types of construction projects does RCC Infrastructure handle?",
-      answer: "We specialize in residential villas, apartments, commercial complexes, interior turnkey renovations, and civil infrastructure projects across Mangaluru and coastal Karnataka.",
-    },
-    {
-      id: "faq-2",
-      question: "How do you ensure projects are completed on schedule?",
-      answer: "We establish detailed Gantt milestone schedules, dedicated on-site project managers, and digital daily logs to identify and resolve dependencies ahead of critical path bottlenecks.",
-    },
-    {
-      id: "faq-3",
-      question: "Can I customize the architectural plans during the construction process?",
-      answer: "Yes, our engineering team works directly with clients through controlled revision phases before structural milestones are finalized.",
-    },
-    {
-      id: "faq-4",
-      question: "What quality control standards and certifications do you follow?",
-      answer: "All materials undergo rigorous lab batch testing (IS standard cubes, steel tensile verification, certified waterproofing compounds) with third-party QA validation.",
-    },
-    {
-      id: "faq-5",
-      question: "How do you handle project budgets and cost overruns?",
-      answer: "We provide itemized, transparent Bill of Quantities (BOQ) with fixed-price contractual bounds so there are zero surprise escalations during construction.",
-    },
-    {
-      id: "faq-6",
-      question: "Do you assist with municipal sanctions and utility approvals?",
-      answer: "Yes, our liaison desk coordinates with local town planning authorities, MUDA/MESCOM/water boards to secure building sanctions and completion certificates.",
-    },
-    {
-      id: "faq-7",
-      question: "What warranties and post-handover support do you provide?",
-      answer: "We offer comprehensive structural warranties and a 12-month defect liability period with scheduled post-occupancy inspections.",
-    },
-    {
-      id: "faq-8",
-      question: "How do we get started with a site consultation or quotation?",
-      answer: "You can submit an enquiry via our Contact or Quote form, call us directly, or visit our Mangaluru office to arrange a free feasibility assessment.",
-    },
-  ],
-  pageBanners: {
-    default: "/images/banner.webp",
-    about: "/images/about.webp",
-    services: "/images/card2.webp",
-    projects: "/images/card1.webp",
-    expertise: "/images/card3.webp",
-    process: "/images/card4.webp",
-    contact: "/images/contact.webp",
-    privacy: "/images/banner.webp",
-    terms: "/images/banner.webp",
-  },
-};
+import { DEFAULT_CONTENT } from "../shared/contentDefaults.js";
 
 function normalizePageBanners(data) {
   const banners = { ...DEFAULT_CONTENT.pageBanners, ...(data || {}) };
+  if (banners.services === "/images/card2.webp") banners.services = "";
+  if (banners.projects === "/images/card1.webp") banners.projects = "";
   if (banners.default === "/images/hero.webp") {
     banners.default = DEFAULT_CONTENT.pageBanners.default;
   }
@@ -238,20 +102,105 @@ export function validateContentSection(key, payload) {
   }
 
   if (key === "expertise") {
-    if (!Array.isArray(payload) || payload.length !== 6) {
-      return "Expertise must have exactly 6 cards";
-    }
     const limits = CONTENT_LIMITS.expertise;
-    for (let i = 0; i < payload.length; i++) {
-      const item = payload[i];
-      if (!item.title || item.title.trim().length === 0) {
+    const items = Array.isArray(payload) ? payload : payload?.items;
+    if (!Array.isArray(items) || items.length > 20) {
+      return "Expertise items must be an array with no more than 20 cards";
+    }
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!item || typeof item.title !== "string" || !item.title.trim()) {
         return `Expertise card #${i + 1} must have a title`;
+      }
+      if (typeof item.description !== "string") {
+        return `Expertise card #${i + 1} description must be text`;
       }
       if (item.title.length > limits.title) {
         return `Expertise card #${i + 1} title cannot exceed ${limits.title} characters`;
       }
       if (item.description && item.description.length > limits.description) {
         return `Expertise card #${i + 1} description cannot exceed ${limits.description} characters`;
+      }
+    }
+    if (!Array.isArray(payload)) {
+      for (const [section, fields] of Object.entries({
+        hero: ["eyebrow", "title", "description"],
+        intro: ["eyebrow", "title", "buttonText"],
+        areas: ["eyebrow", "title", "description", "footerText", "footerLinkText"],
+        approach: ["eyebrow", "title", "buttonText", "image"],
+      })) {
+        if (!payload[section] || fields.some((field) => typeof payload[section][field] !== "string")) {
+          return `Expertise ${section} content is incomplete`;
+        }
+      }
+      for (const section of ["intro", "approach"]) {
+        if (!Array.isArray(payload[section].paragraphs) || payload[section].paragraphs.length > 8) {
+          return `Expertise ${section} paragraphs must be an array with no more than 8 items`;
+        }
+        if (payload[section].paragraphs.some((paragraph) => typeof paragraph !== "string")) {
+          return `Expertise ${section} paragraphs must contain text`;
+        }
+      }
+    }
+  }
+
+  if (key === "process") {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return "Process content must be an object";
+    }
+    const sections = ["hero", "overview", "support", "promise", "faq"];
+    if (sections.some((section) => !payload[section] || typeof payload[section] !== "object")) {
+      return "Process page section content is incomplete";
+    }
+    for (const [section, fields] of Object.entries({
+      hero: ["eyebrow", "title", "description"],
+      overview: ["eyebrow", "title", "description"],
+      support: ["eyebrow", "title"],
+      promise: ["eyebrow", "title"],
+      faq: ["eyebrow", "title", "description", "buttonText"],
+    })) {
+      if (fields.some((field) => typeof payload[section][field] !== "string")) {
+        return `Process ${section} content is incomplete`;
+      }
+    }
+    const lists = [
+      ["steps", payload.steps, 12],
+      ["support items", payload.support.items, 12],
+      ["promise items", payload.promise.items, 12],
+    ];
+    for (const [label, items, max] of lists) {
+      if (!Array.isArray(items) || items.length > max) {
+        return `Process ${label} must be an array with no more than ${max} items`;
+      }
+    }
+    for (const [index, step] of payload.steps.entries()) {
+      if (!step || typeof step !== "object") {
+        return `Process step #${index + 1} must be an object`;
+      }
+      if (typeof step.title !== "string" || !step.title.trim() ||
+        typeof step.summary !== "string" || !step.summary.trim() ||
+        typeof step.description !== "string" || !step.description.trim() ||
+        typeof step.timeframe !== "string" || typeof step.image !== "string") {
+        return `Process step #${index + 1} requires a title, summary, and description`;
+      }
+      if (!Array.isArray(step.provide) || !Array.isArray(step.receive) ||
+        step.provide.some((entry) => typeof entry !== "string") ||
+        step.receive.some((entry) => typeof entry !== "string")) {
+        return `Process step #${index + 1} lists must be arrays`;
+      }
+    }
+    for (const [index, item] of payload.support.items.entries()) {
+      if (!item || typeof item.title !== "string" || !item.title.trim() ||
+        typeof item.description !== "string" || !item.description.trim() || !Array.isArray(item.points) ||
+        item.points.some((entry) => typeof entry !== "string")) {
+        return `Process support item #${index + 1} requires a title, description, and points list`;
+      }
+    }
+    for (const [index, item] of payload.promise.items.entries()) {
+      if (!item || typeof item.title !== "string" || !item.title.trim() ||
+        typeof item.description !== "string" || !item.description.trim() ||
+        typeof item.icon !== "string" || !item.icon.trim()) {
+        return `Process promise item #${index + 1} requires an icon, title, and description`;
       }
     }
   }
@@ -327,6 +276,7 @@ export const updateContentByKey = async (req, res) => {
 // Get all content for initial public hydration
 export const getAllPublicContent = async (req, res) => {
   try {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=60");
     const blocks = await ContentBlock.find();
     const result = { ...DEFAULT_CONTENT };
     blocks.forEach((b) => {

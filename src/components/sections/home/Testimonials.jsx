@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import Swiper from "swiper/bundle";
+import "swiper/css/bundle";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
 import api from "../../../services/api";
@@ -55,15 +57,15 @@ export default function TestimonialsPreview() {
     load();
   }, []);
 
-  // Initialize Swiper from CDN when items are ready
+  // Initialize Swiper when testimonial content is ready.
   useEffect(() => {
-    if (!containerRef.current || typeof window.Swiper === "undefined") return;
+    if (!containerRef.current) return;
 
     if (swiperRef.current) {
       swiperRef.current.destroy(true, true);
     }
 
-    swiperRef.current = new window.Swiper(containerRef.current, {
+    swiperRef.current = new Swiper(containerRef.current, {
       slidesPerView: 1,
       spaceBetween: 24,
       grabCursor: true,

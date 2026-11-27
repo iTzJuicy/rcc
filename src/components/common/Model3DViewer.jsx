@@ -2,12 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * Model3DViewer
- * - If modelUrl is set  → renders uploaded GLB via <model-viewer> web component (CDN)
+ * - If modelUrl is set  → renders uploaded GLB via <model-viewer> web component
  * - If template is set  → renders a procedural Three.js building shape
  * - If neither           → renders nothing
- *
- * Three.js is loaded via CDN in index.html (window.THREE).
- * model-viewer is loaded via CDN in index.html as an ES module.
  */
 
 // ─── Procedural Three.js building shapes ───────────────────────────────────
@@ -427,13 +424,12 @@ function buildFromImage(THREE, imageUrl, onBuilt, onError) {
 
 // ─── Three.js Canvas Renderer ───────────────────────────────────────────────
 
-function ThreeViewer({ template, imageUrl, onError }) {
+function ThreeViewer({ THREE, template, imageUrl, onError }) {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
 
   useEffect(() => {
-    const THREE = window.THREE;
-    if (!THREE || !mountRef.current) return;
+    if (!mountRef.current) return;
 
     const mount = mountRef.current;
     const W = mount.clientWidth;
@@ -505,9 +501,8 @@ function ThreeViewer({ template, imageUrl, onError }) {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let autoRotateAngle = 0;
 
-    // OrbitControls (from CDN)
     let controls = null;
-    if (window.THREE?.OrbitControls) {
+    if (THREE.OrbitControls) {
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
@@ -555,23 +550,20 @@ function ThreeViewer({ template, imageUrl, onError }) {
         mount.removeChild(renderer.domElement);
       }
     };
-  }, [template, imageUrl, onError]);
+  }, [template, imageUrl, onError, THREE]);
 
   return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;
 }
 
 // ─── Main exported component ────────────────────────────────────────────────
 
-export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackImageUrl }) {
-  const [mvReady, setMvReady] = useState(
-    // model-viewer registers itself as a custom element
-    typeof customElements !== "undefined" && customElements.get("model-viewer") !== undefined
-  );
-  const [threeReady, setThreeReady] = useState(typeof window !== "undefined" && Boolean(window.THREE));
+export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) {
+  const [mvReady, setMvReady] = useState(false);
+  const [threeRuntime, setThreeRuntime] = useState(null);
   const [error, setError] = useState(null);
   const [modelLoadFailed, setModelLoadFailed] = useState(false);
   const [modelAvailability, setModelAvailability] = useState({ url: "", available: null });
-  const fallbackUrl = imageUrl || fallbackImageUrl;
+  const fallbackUrl = "";
   const isLocalUpload = modelUrl?.startsWith("/uploads/");
   const isCheckingModel =
     isLocalUpload &&
@@ -580,7 +572,7 @@ export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackIm
   useEffect(() => {
     setError(null);
     setModelLoadFailed(false);
-  }, [modelUrl, imageUrl, template, fallbackImageUrl]);
+  }, [modelUrl, template, fallbackImageUrl]);
 
   useEffect(() => {
     if (!modelUrl?.startsWith("/uploads/")) return undefined;
@@ -614,37 +606,42 @@ export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackIm
     };
   }, [modelUrl]);
 
-  // Poll for CDN libraries if not yet ready (they load async)
   useEffect(() => {
-    if (modelUrl && !mvReady) {
-      const id = setInterval(() => {
-        if (typeof customElements !== "undefined" && customElements.get("model-viewer") !== undefined) {
-          setMvReady(true);
-          clearInterval(id);
-        }
-      }, 300);
-      return () => clearInterval(id);
-    }
-  }, [modelUrl, mvReady]);
+    if (!modelUrl) return undefined;
+    let cancelled = false;
+    import("@google/model-viewer")
+      .then(() => {
+        if (!cancelled) setMvReady(true);
+      })
+      .catch((loadError) => {
+        console.error("Failed to load model-viewer:", loadError);
+        if (!cancelled) setError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [modelUrl]);
 
   useEffect(() => {
-    if ((template || fallbackUrl) && !threeReady) {
-      const onReady = () => setThreeReady(true);
-      window.addEventListener("three-ready", onReady);
-      const id = setInterval(() => {
-        if (window.THREE) {
-          setThreeReady(true);
-          clearInterval(id);
-        }
-      }, 200);
-      return () => {
-        window.removeEventListener("three-ready", onReady);
-        clearInterval(id);
-      };
-    }
-  }, [template, fallbackUrl, threeReady]);
+    if (!template) return undefined;
+    let cancelled = false;
+    Promise.all([
+      import("three"),
+      import("three/addons/controls/OrbitControls.js"),
+    ])
+      .then(([THREE, { OrbitControls }]) => {
+        if (!cancelled) setThreeRuntime({ ...THREE, OrbitControls });
+      })
+      .catch((loadError) => {
+        console.error("Failed to load Three.js:", loadError);
+        if (!cancelled) setError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [template]);
 
-  if (!modelUrl && !fallbackUrl && !template) return null;
+  if (!modelUrl && !template) return null;
 
   if (isCheckingModel) {
     return (
@@ -695,7 +692,6 @@ export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackIm
       );
     }
     return (
-      // eslint-disable-next-line react/no-unknown-property
       <model-viewer
         src={resolvedModelUrl}
         alt="3D building model"
@@ -714,7 +710,7 @@ export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackIm
   }
 
   /* ── Template via Three.js ── */
-  if (!threeReady) {
+  if (!threeRuntime) {
     return (
       <div className="model3d-loading">
         <div className="model3d-spinner" />
@@ -723,10 +719,11 @@ export default function Model3DViewer({ modelUrl, imageUrl, template, fallbackIm
     );
   }
 
-  if (!fallbackUrl && !template) return null;
+  if (!template) return null;
 
   return (
     <ThreeViewer
+      THREE={threeRuntime}
       template={template}
       imageUrl={fallbackUrl}
       onError={() => setError(true)}

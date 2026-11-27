@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import api from "../../services/api";
+import ErrorBoundary from "../../components/common/ErrorBoundary";
 
 const PAGE_TITLES = {
   "/admin": "Dashboard Overview",
@@ -18,8 +19,8 @@ const PAGE_TITLES = {
   "/admin/testimonials/new": "Add New Testimonial",
   "/admin/stats": "Impact Statistics",
   "/admin/stats/new": "Add New Stat",
-  "/admin/expertise": "Our Expertise (6 Cards)",
-  "/admin/process-faq": "Process FAQs (Max 8)",
+  "/admin/expertise": "Our Expertise Page",
+  "/admin/process-faq": "Our Process Page",
   "/admin/page-banners": "Page Banner Images",
   "/admin/media": "Media Library",
   "/admin/enquiries": "Client Enquiries & Quotations",
@@ -72,7 +73,16 @@ export default function AdminLayout() {
                 <span>{statsError}</span>
               </div>
             )}
-            <Outlet />
+            <ErrorBoundary
+              key={location.pathname}
+              fallback={
+                <div className="admin-toast-banner error" role="alert">
+                  This admin page encountered an error. Reload the page to try again.
+                </div>
+              }
+            >
+              <Outlet />
+            </ErrorBoundary>
           </main>
         </div>
       </div>

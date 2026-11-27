@@ -2,7 +2,6 @@ import Enquiry from "../models/Enquiry.js";
 import Project from "../models/Project.js";
 import Service from "../models/Service.js";
 import Testimonial from "../models/Testimonial.js";
-import { notifyNewLead } from "../services/emailService.js";
 
 // Helper to sanitize Excel / CSV cells against Formula Injection
 function sanitizeExcelCell(val) {
@@ -88,11 +87,6 @@ export async function submitPublicEnquiry(req, res, next) {
       ipAddress: String(ip).split(",")[0].trim(),
     });
 
-    // 3. Trigger email notification asynchronously (never blocks response)
-    notifyNewLead(enquiry).catch((err) =>
-      console.error("[Email Notification Trigger Error]", err)
-    );
-
     res.status(201).json({
       success: true,
       message: "Enquiry submitted successfully.",
@@ -114,15 +108,7 @@ export async function adminGetEnquiries(req, res, next) {
 
     if (search && search.trim()) {
       const q = search.trim();
-      filter.$or = [
-        { name: { $regex: q, $options: "i" } },
-        { email: { $regex: q, $options: "i" } },
-        { phone: { $regex: q, $options: "i" } },
-        { subject: { $regex: q, $options: "i" } },
-        { message: { $regex: q, $options: "i" } },
-        { projectTitle: { $regex: q, $options: "i" } },
-        { location: { $regex: q, $options: "i" } },
-      ];
+      filter.$text = { $search: q };
     }
 
     const pageNum = Math.max(1, parseInt(page, 10));
@@ -314,7 +300,10 @@ export async function adminGetDashboard(req, res, next) {
       Enquiry.countDocuments(),
       Enquiry.countDocuments({ status: "new" }),
       Testimonial.countDocuments(),
-      Enquiry.find().sort({ createdAt: -1 }).limit(6),
+      Enquiry.find()
+        .select("name email subject status createdAt projectTitle")
+        .sort({ createdAt: -1 })
+        .limit(6),
     ]);
 
     const activity = recentEnquiries.map((enq) => ({

@@ -12,6 +12,13 @@ import { publicFormLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  if (req.method === "GET") {
+    res.setHeader("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=300");
+  }
+  next();
+});
+
 router.get("/content", getAllPublicContent);
 router.get("/content/:key", getContentByKey);
 

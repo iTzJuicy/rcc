@@ -36,12 +36,7 @@ export async function getPublicProjects(req, res, next) {
 
     if (search && search.trim()) {
       const q = search.trim();
-      filter.$or = [
-        { title: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-        { location: { $regex: q, $options: "i" } },
-        { category: { $regex: q, $options: "i" } },
-      ];
+      filter.$text = { $search: q };
     }
 
     const pageNum = Math.max(1, parseInt(page, 10));
@@ -115,11 +110,7 @@ export async function adminGetProjects(req, res, next) {
 
     if (search && search.trim()) {
       const q = search.trim();
-      filter.$or = [
-        { title: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-        { location: { $regex: q, $options: "i" } },
-      ];
+      filter.$text = { $search: q };
     }
 
     const total = await Project.countDocuments(filter);
@@ -162,12 +153,13 @@ export async function adminCreateProject(req, res, next) {
       description,
       fullDescription,
       coverImage,
+      image,
+      bannerImage,
       gallery,
       isFeatured,
       order,
       seo,
       model3dUrl,
-      model3dImage,
       model3dTemplate,
       showQuotationButton,
     } = req.body;
@@ -204,19 +196,18 @@ export async function adminCreateProject(req, res, next) {
       client: client || "",
       description: description || "",
       fullDescription: fullDescription || "",
-      coverImage: coverImage || "/images/card1.webp",
-      image: coverImage || "/images/card1.webp",
+      coverImage: coverImage || image || "/images/card1.webp",
+      bannerImage: bannerImage || "",
       gallery: Array.isArray(gallery) ? gallery : [],
       isFeatured: Boolean(isFeatured),
       showQuotationButton: showQuotationButton !== false,
       order: Number(order) || 0,
       seo: seo || {},
       model3dUrl: model3dUrl || "",
-      model3dImage: model3dImage || "",
       model3dTemplate: model3dTemplate || "",
     });
 
-    res.status(201).json({ success: true, data: newProject });
+    res.status(201).json({ success: true, data: normalizeMediaDocument(newProject) });
   } catch (error) {
     next(error);
   }
@@ -227,8 +218,8 @@ export async function adminUpdateProject(req, res, next) {
     const { id } = req.params;
     const updates = pickFields(req.body, [
       "title", "slug", "category", "status", "location", "mapUrl", "area",
-      "client", "description", "fullDescription", "coverImage", "image",
-      "gallery", "isFeatured", "showQuotationButton", "order", "model3dUrl", "model3dImage", "model3dTemplate",
+      "client", "description", "fullDescription", "coverImage", "bannerImage", "image",
+      "gallery", "isFeatured", "showQuotationButton", "order", "model3dUrl", "model3dTemplate",
     ]);
     if (Object.prototype.hasOwnProperty.call(req.body, "seo")) {
       updates.seo = pickSeo(req.body.seo);
@@ -266,8 +257,11 @@ export async function adminUpdateProject(req, res, next) {
     if (updates.slug) {
       updates.slug = slugify(updates.slug);
     }
-    if (updates.coverImage) {
-      updates.image = updates.coverImage;
+    if (Object.prototype.hasOwnProperty.call(updates, "image")) {
+      if (!Object.prototype.hasOwnProperty.call(updates, "coverImage")) {
+        updates.coverImage = updates.image;
+      }
+      delete updates.image;
     }
 
     const project = await Project.findByIdAndUpdate(id, updates, {

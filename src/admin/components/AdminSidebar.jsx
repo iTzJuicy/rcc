@@ -38,7 +38,7 @@ export default function AdminSidebar({
         { to: "/admin/testimonials", label: "Testimonials", icon: "fa-solid fa-comment-dots", show: isSuper || perms.testimonials !== false },
         { to: "/admin/stats", label: "Stats", icon: "fa-solid fa-calculator", show: isSuper || perms.stats !== false },
         { to: "/admin/expertise", label: "Our Expertise", icon: "fa-solid fa-award", show: isSuper || perms.settings },
-        { to: "/admin/process-faq", label: "Process FAQ", icon: "fa-solid fa-circle-question", show: isSuper || perms.settings },
+        { to: "/admin/process-faq", label: "Our Process", icon: "fa-solid fa-list-check", show: isSuper || perms.settings },
       ],
     },
     {

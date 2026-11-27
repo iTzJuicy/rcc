@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem("rcc_admin_user");
@@ -14,6 +16,19 @@ export function AuthProvider({ children }) {
   });
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setAuthenticated(false);
+      setUser(null);
+      localStorage.removeItem("rcc_admin_token");
+      localStorage.removeItem("rcc_admin_user");
+      navigate("/admin/login", { replace: true });
+    };
+
+    window.addEventListener("rcc:session-expired", handleSessionExpired);
+    return () => window.removeEventListener("rcc:session-expired", handleSessionExpired);
+  }, [navigate]);
 
   useEffect(() => {
     async function verify() {

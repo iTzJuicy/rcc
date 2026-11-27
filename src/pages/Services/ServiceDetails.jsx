@@ -181,7 +181,7 @@ export default function ServiceDetails() {
         eyebrow="Our Services"
         title={service.title}
         description={service.description}
-        image={service.image}
+        image={service.bannerImage || undefined}
         breadcrumb={[
           { label: "Home", to: "/" },
           { label: "Services", to: "/services" },

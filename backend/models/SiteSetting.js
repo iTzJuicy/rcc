@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const siteSettingSchema = new mongoose.Schema(
   {
+    singleton: {
+      type: Boolean,
+      default: true,
+    },
     siteName: {
       type: String,
       default: "RCC Infrastructure",
@@ -77,6 +81,11 @@ const siteSettingSchema = new mongoose.Schema(
     },
   },
   { timestamps: true }
+);
+
+siteSettingSchema.index(
+  { singleton: 1 },
+  { unique: true, partialFilterExpression: { singleton: true } }
 );
 
 export default mongoose.models.SiteSetting ||
