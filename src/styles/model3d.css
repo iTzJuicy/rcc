@@ -7,8 +7,8 @@
 /* ── Section wrapper ── */
 .project-model3d-section {
   background:
-    radial-gradient(ellipse at 50% 70%, rgba(135, 157, 174, .1), transparent 52%),
-    linear-gradient(180deg, #171717 0%, #111 100%);
+    radial-gradient(ellipse at 50% 70%, rgba(53, 78, 111, .36), transparent 55%),
+    linear-gradient(180deg, var(--navy-2, #14233a) 0%, var(--navy, #0b1626) 100%);
   padding: 0;
   position: relative;
   overflow: hidden;
@@ -21,7 +21,7 @@
   max-width: none;
   margin: 0 auto;
   overflow: hidden;
-  background: #171717;
+  background: var(--navy, #0b1626);
   z-index: 1;
 }
 
@@ -31,9 +31,9 @@
   height: min(88vh, 1000px);
   min-height: 620px;
   background:
-    radial-gradient(ellipse at 50% 62%, rgba(140, 164, 184, .14), transparent 48%),
-    radial-gradient(ellipse at 50% 106%, rgba(111, 130, 146, .12), transparent 45%),
-    linear-gradient(180deg, #252729 0%, #1b1d1f 70%, #242526 100%);
+    radial-gradient(ellipse at 50% 62%, rgba(70, 99, 138, .24), transparent 50%),
+    radial-gradient(ellipse at 50% 106%, rgba(37, 61, 93, .3), transparent 48%),
+    linear-gradient(180deg, #14233a 0%, #0b1626 72%, #101d30 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,7 +57,7 @@
 .model3d-stage:fullscreen {
   width: 100vw;
   height: 100vh;
-  background: #1b1d1f;
+  background: var(--navy, #0b1626);
 }
 
 .model3d-chrome {
