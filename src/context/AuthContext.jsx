@@ -1,14 +1,17 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const loading = isAdminRoute && !authChecked;
 
   useEffect(() => {
     localStorage.removeItem("rcc_admin_token");
@@ -25,22 +28,32 @@ export function AuthProvider({ children }) {
   }, [navigate]);
 
   useEffect(() => {
+    if (!isAdminRoute || authChecked) return undefined;
+    let active = true;
+
     async function verify() {
       try {
         const res = await api.adminGetProfile();
-        if (res?.data) {
+        if (active && res?.data) {
           setUser(res.data);
           setAuthenticated(true);
         }
       } catch (err) {
-        console.warn("Session check failed or expired:", err.message);
-        logout();
+        if (active) {
+          console.warn("Session check failed or expired:", err.message);
+          setUser(null);
+          setAuthenticated(false);
+          localStorage.removeItem("rcc_admin_user");
+        }
       } finally {
-        setLoading(false);
+        if (active) setAuthChecked(true);
       }
     }
     verify();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [authChecked, isAdminRoute]);
 
   const login = async (email, password) => {
     const res = await api.adminLogin(email, password);
