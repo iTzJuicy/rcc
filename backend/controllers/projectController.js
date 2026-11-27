@@ -12,6 +12,10 @@ function slugify(text) {
     .replace(/--+/g, "-");
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function isHttpUrl(value) {
   try {
     return ["http:", "https:"].includes(new URL(value).protocol);
@@ -26,21 +30,21 @@ export async function getPublicProjects(req, res, next) {
 
     const filter = {};
 
-    if (category && category !== "All") {
-      filter.category = new RegExp(`^${category.trim()}$`, "i");
+    if (typeof category === "string" && category.trim() && category !== "All") {
+      filter.category = new RegExp(`^${escapeRegExp(category.trim())}$`, "i");
     }
 
-    if (status && status !== "All") {
-      filter.status = new RegExp(`^${status.trim()}$`, "i");
+    if (typeof status === "string" && status.trim() && status !== "All") {
+      filter.status = new RegExp(`^${escapeRegExp(status.trim())}$`, "i");
     }
 
-    if (search && search.trim()) {
+    if (typeof search === "string" && search.trim()) {
       const q = search.trim();
       filter.$text = { $search: q };
     }
 
-    const pageNum = Math.max(1, parseInt(page, 10));
-    const pageSize = Math.max(1, parseInt(limit, 10));
+    const pageNum = Math.max(1, Number.parseInt(page, 10) || 1);
+    const pageSize = Math.max(1, Number.parseInt(limit, 10) || 12);
     const skip = (pageNum - 1) * pageSize;
 
     const total = await Project.countDocuments(filter);
@@ -100,15 +104,15 @@ export async function adminGetProjects(req, res, next) {
     const { category, status, search, page, limit } = req.query;
     const filter = {};
 
-    if (category && category !== "All") {
-      filter.category = new RegExp(`^${category.trim()}$`, "i");
+    if (typeof category === "string" && category.trim() && category !== "All") {
+      filter.category = new RegExp(`^${escapeRegExp(category.trim())}$`, "i");
     }
 
-    if (status && status !== "All") {
-      filter.status = new RegExp(`^${status.trim()}$`, "i");
+    if (typeof status === "string" && status.trim() && status !== "All") {
+      filter.status = new RegExp(`^${escapeRegExp(status.trim())}$`, "i");
     }
 
-    if (search && search.trim()) {
+    if (typeof search === "string" && search.trim()) {
       const q = search.trim();
       filter.$text = { $search: q };
     }
@@ -118,8 +122,8 @@ export async function adminGetProjects(req, res, next) {
     let query = Project.find(filter).sort({ order: 1, createdAt: -1 });
 
     if (page && limit) {
-      const pageNum = Math.max(1, parseInt(page, 10));
-      const pageSize = Math.max(1, parseInt(limit, 10));
+      const pageNum = Math.max(1, Number.parseInt(page, 10) || 1);
+      const pageSize = Math.max(1, Number.parseInt(limit, 10) || 12);
       query = query.skip((pageNum - 1) * pageSize).limit(pageSize);
       const projects = await query;
       return res.json({

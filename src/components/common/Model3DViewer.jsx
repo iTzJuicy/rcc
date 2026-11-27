@@ -759,7 +759,7 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
 
   useEffect(() => {
     const viewer = modelViewerRef.current;
-    if (!modelUrl || !mvReady || !viewer) return undefined;
+    if (!modelUrl || !mvReady || isCheckingModel || !viewer) return undefined;
 
     const onLoad = () => setModelLoaded(true);
     const onError = () => {
@@ -768,13 +768,16 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
     };
     viewer.addEventListener("load", onLoad);
     viewer.addEventListener("error", onError);
-    viewer.src = modelSource?.url || modelUrl;
+    const resolvedSrc = modelSource?.url || modelUrl;
+    if (viewer.src !== resolvedSrc) {
+      viewer.src = resolvedSrc;
+    }
     if (viewer.loaded) onLoad();
     return () => {
       viewer.removeEventListener("load", onLoad);
       viewer.removeEventListener("error", onError);
     };
-  }, [modelUrl, modelSource, mvReady]);
+  }, [modelUrl, modelSource, mvReady, isCheckingModel, modelAvailability.available]);
 
   useEffect(() => {
     if (!isLocalUpload || !modelSource) return undefined;
@@ -892,6 +895,7 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
         {viewerChrome}
         <model-viewer
           ref={modelViewerRef}
+          src={modelSource?.url || modelUrl}
           alt="3D building model"
           auto-rotate={autoRotate ? "" : undefined}
           auto-rotate-delay="0"

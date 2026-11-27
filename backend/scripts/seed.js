@@ -345,4 +345,7 @@ async function seed() {
   }
 }
 
-seed();
+seed().catch((err) => {
+  console.error("[Seed Error]", err);
+  process.exit(1);
+});

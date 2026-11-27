@@ -67,7 +67,7 @@ export async function submitPublicEnquiry(req, res, next) {
       });
     }
 
-    const emailRegex = /^\S+@\S+\.\S+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return res.status(400).json({
         success: false,
@@ -144,17 +144,17 @@ export async function adminGetEnquiries(req, res, next) {
     const { status, search, page = 1, limit = 20 } = req.query;
     const filter = {};
 
-    if (status && status !== "All") {
-      filter.status = status.toLowerCase();
+    if (typeof status === "string" && status.trim() && status !== "All") {
+      filter.status = status.trim().toLowerCase();
     }
 
-    if (search && search.trim()) {
+    if (typeof search === "string" && search.trim()) {
       const q = search.trim();
       filter.$text = { $search: q };
     }
 
-    const pageNum = Math.max(1, parseInt(page, 10));
-    const pageSize = Math.max(1, parseInt(limit, 10));
+    const pageNum = Math.max(1, Number.parseInt(page, 10) || 1);
+    const pageSize = Math.max(1, Number.parseInt(limit, 10) || 20);
     const skip = (pageNum - 1) * pageSize;
 
     const total = await Enquiry.countDocuments(filter);

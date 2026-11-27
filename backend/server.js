@@ -189,6 +189,9 @@ async function start() {
   });
 }
 
-start();
+start().catch((err) => {
+  console.error("[Server] Startup failed:", err);
+  process.exit(1);
+});
 
 export default app;

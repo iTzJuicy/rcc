@@ -5,6 +5,7 @@ import fs from "fs";
 import crypto from "crypto";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
+import { cloudinary, isConfigured } from "../config/cloudinary.js";
 
 import {
   adminGetDashboard,
@@ -98,15 +99,23 @@ if (!fs.existsSync(model3dUploadDir)) {
   fs.mkdirSync(model3dUploadDir, { recursive: true });
 }
 
+function trimDashes(value) {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value[start] === "-") start++;
+  while (end > start && value[end - 1] === "-") end--;
+  return value.slice(start, end);
+}
+
 const model3dStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, model3dUploadDir),
   filename: (_req, _file, cb) => {
     const ext = path.extname(_file.originalname).toLowerCase() === ".gltf" ? ".gltf" : ".glb";
-    const originalBase = path.basename(_file.originalname, ext)
+    const sanitized = path.basename(_file.originalname, ext)
       .normalize("NFKC")
       .replace(/[^a-zA-Z0-9._-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 100) || "model";
+      .slice(0, 100);
+    const originalBase = trimDashes(sanitized) || "model";
     cb(null, `${crypto.randomUUID()}-${originalBase}${ext}`);
   },
 });
@@ -118,7 +127,7 @@ const MODEL_MIME_TYPES_BY_EXTENSION = {
 
 const upload3dModel = multer({
   storage: model3dStorage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+  limits: { fileSize: 8 * 1024 * 1024 }, // 8 MB safe limit
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (MODEL_MIME_TYPES_BY_EXTENSION[ext]?.includes(file.mimetype)) {
@@ -195,12 +204,25 @@ router.post(
       return res.status(400).json({ success: false, message: "No file uploaded." });
     }
 
-    const url = `/uploads/models/${encodeURIComponent(req.file.filename)}`;
+    let url = `/uploads/models/${encodeURIComponent(req.file.filename)}`;
+    let storage = "local";
+
     try {
+      if (isConfigured) {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "rcc_infrastructure/models",
+          resource_type: "raw",
+          public_id: path.basename(req.file.filename),
+        });
+        url = result.secure_url;
+        storage = "cloudinary";
+        await fs.promises.unlink(req.file.path).catch(() => {});
+      }
+
       const asset = await ModelAsset.create({
         url,
         filename: req.file.originalname,
-        storage: "local",
+        storage,
         bytes: req.file.size,
       });
       return res.status(201).json({

@@ -54,4 +54,7 @@ async function backup() {
   }
 }
 
-backup();
+backup().catch((err) => {
+  console.error("[Backup Error]", err);
+  process.exit(1);
+});

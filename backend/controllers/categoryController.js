@@ -15,7 +15,7 @@ function slugify(text) {
 export async function getCategories(req, res, next) {
   try {
     const { type, activeOnly } = req.query;
-    const filter = type ? { type } : {};
+    const filter = typeof type === "string" && type.trim() ? { type: type.trim() } : {};
     let categories = await Category.find(filter).sort({ order: 1, name: 1 });
 
     if (activeOnly === "true") {
