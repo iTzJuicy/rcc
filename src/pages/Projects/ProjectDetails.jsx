@@ -9,7 +9,6 @@ import SEO from "../../components/common/SEO";
 import ContactCTA from "../../components/sections/home/ContactCTA";
 import Model3DViewer from "../../components/common/Model3DViewer";
 
-import MODEL_3D_TEMPLATES from "../../data/model3dTemplates";
 import api from "../../services/api";
 import { useSiteSettings } from "../../context/SiteSettingsContext";
 import "../../styles/project-details.css";
@@ -84,7 +83,14 @@ export default function ProjectDetails() {
   if (projectState === "loading") {
     return (
       <div className="project-not-found-container" role="status" aria-live="polite">
-        <Container><p>Loading project...</p></Container>
+        <Container>
+          <div className="detail-loading-skeleton" aria-label="Loading project details">
+            <span className="detail-loading-line title" />
+            <span className="detail-loading-line" />
+            <span className="detail-loading-line short" />
+            <span className="detail-loading-image" />
+          </div>
+        </Container>
       </div>
     );
   }
@@ -354,61 +360,18 @@ export default function ProjectDetails() {
 
       {/* 3D Building Model Section */}
       {(project.model3dUrl || project.model3dTemplate) && (() => {
-        const tmpl = MODEL_3D_TEMPLATES.find((t) => t.id === project.model3dTemplate);
-        const badgeLabel = project.model3dUrl
-          ? "3D Model"
-          : tmpl
-          ? tmpl.label
-          : project.model3dTemplate;
         return (
           <section className="project-model3d-section">
-            <Container>
-              <div className="project-model3d-header">
-                <p className="eyebrow">3D Visualization</p>
-                <h2 className="heading">
-                  Explore the <span className="text-red">Structure.</span>
-                </h2>
+            <div className="project-model3d-viewer-wrap">
+              <div className="project-model3d-canvas">
+                <Model3DViewer
+                  modelUrl={project.model3dUrl || ""}
+                  template={project.model3dTemplate || ""}
+                  fallbackImageUrl={project.image || ""}
+                  projectTitle={project.title}
+                />
               </div>
-
-              <div className="project-model3d-viewer-wrap">
-                <div className="project-model3d-canvas">
-                  {badgeLabel && (
-                    <div className="project-model3d-badge">
-                      {badgeLabel}
-                    </div>
-                  )}
-                  <Model3DViewer
-                    modelUrl={project.model3dUrl || ""}
-                    template={project.model3dTemplate || ""}
-                    fallbackImageUrl={project.image || ""}
-                  />
-                </div>
-
-                <div className="project-model3d-hint">
-                  <span className="project-model3d-hint-item">
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M10 3c-3.9 0-7 3.1-7 7s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7z"/>
-                      <path d="M10 7v6M7 10h6"/>
-                    </svg>
-                    Drag to rotate
-                  </span>
-                  <span className="project-model3d-hint-item">
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M10 4v12M6 8l4-4 4 4M6 12l4 4 4-4"/>
-                    </svg>
-                    Scroll to zoom
-                  </span>
-                  <span className="project-model3d-hint-item">
-                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <rect x="3" y="7" width="6" height="6" rx="1"/>
-                      <rect x="11" y="7" width="6" height="6" rx="1"/>
-                      <path d="M9 10h2"/>
-                    </svg>
-                    Two-finger pan
-                  </span>
-                </div>
-              </div>
-            </Container>
+            </div>
           </section>
         );
       })()}

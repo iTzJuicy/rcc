@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 import Layout from "../components/layout/Layout";
+import Preloader from "../components/common/Preloader";
 
 const Home = lazy(() => import("../pages/Home/Home"));
 const About = lazy(() => import("../pages/About/About"));
@@ -42,73 +43,76 @@ const HelpPage = lazy(() => import("../admin/pages/HelpPage"));
 
 export default function AppRoutes() {
   return (
-    <Suspense fallback={<div className="route-loading" role="status">Loading page...</div>}>
-    <Routes>
-      {/* Public Pages with main site Layout */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+    <>
+      <Preloader />
+      <Suspense fallback={null}>
+        <Routes>
+          {/* Public Pages with main site Layout */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
 
-        <Route path="/services" element={<Services />} />
-        <Route path="/services/:slug" element={<ServiceDetails />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/:slug" element={<ServiceDetails />} />
 
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:slug" element={<ProjectDetails />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:slug" element={<ProjectDetails />} />
 
-        <Route path="/expertise" element={<Expertise />} />
-        <Route path="/process" element={<Process />} />
-        <Route path="/contact" element={<Contact />} />
+            <Route path="/expertise" element={<Expertise />} />
+            <Route path="/process" element={<Process />} />
+            <Route path="/contact" element={<Contact />} />
 
-        {/* Legal & Feedback Pages */}
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-and-conditions" element={<TermsConditions />} />
-        <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
-        <Route path="/t&c" element={<Navigate to="/terms-and-conditions" replace />} />
-        <Route path="/thank-you" element={<ThankYou />} />
+            {/* Legal & Feedback Pages */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsConditions />} />
+            <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
+            <Route path="/t&c" element={<Navigate to="/terms-and-conditions" replace />} />
+            <Route path="/thank-you" element={<ThankYou />} />
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Route>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
 
-      {/* Admin Authentication */}
-      <Route path="/admin/login" element={<Login />} />
+          {/* Admin Authentication */}
+          <Route path="/admin/login" element={<Login />} />
 
-      {/* Protected Admin Routes */}
-      <Route path="/admin" element={<ProtectedRoute />}>
-        <Route element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+          {/* Protected Admin Routes */}
+          <Route path="/admin" element={<ProtectedRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Navigate to="/admin" replace />} />
 
-          {/* Content Group */}
-          <Route path="home-content" element={<HomeContentManager />} />
-          <Route path="about-content" element={<AboutContentManager />} />
-          <Route path="services" element={<ServicesList />} />
-          <Route path="services/new" element={<ServiceEdit />} />
-          <Route path="services/edit/:id" element={<ServiceEdit />} />
-          <Route path="projects" element={<ProjectsList />} />
-          <Route path="projects/new" element={<ProjectEdit />} />
-          <Route path="projects/edit/:id" element={<ProjectEdit />} />
-          <Route path="categories" element={<CategoriesManager />} />
-          <Route path="testimonials" element={<TestimonialsManager />} />
-          <Route path="stats" element={<StatsManager />} />
-          <Route path="expertise" element={<ExpertiseManager />} />
-          <Route path="process-faq" element={<ProcessFaqManager />} />
+              {/* Content Group */}
+              <Route path="home-content" element={<HomeContentManager />} />
+              <Route path="about-content" element={<AboutContentManager />} />
+              <Route path="services" element={<ServicesList />} />
+              <Route path="services/new" element={<ServiceEdit />} />
+              <Route path="services/edit/:id" element={<ServiceEdit />} />
+              <Route path="projects" element={<ProjectsList />} />
+              <Route path="projects/new" element={<ProjectEdit />} />
+              <Route path="projects/edit/:id" element={<ProjectEdit />} />
+              <Route path="categories" element={<CategoriesManager />} />
+              <Route path="testimonials" element={<TestimonialsManager />} />
+              <Route path="stats" element={<StatsManager />} />
+              <Route path="expertise" element={<ExpertiseManager />} />
+              <Route path="process-faq" element={<ProcessFaqManager />} />
 
-          {/* Media Group */}
-          <Route path="page-banners" element={<PageBannersManager />} />
-          <Route path="media" element={<MediaLibrary />} />
+              {/* Media Group */}
+              <Route path="page-banners" element={<PageBannersManager />} />
+              <Route path="media" element={<MediaLibrary />} />
 
-          {/* Messages Group */}
-          <Route path="enquiries" element={<EnquiriesManager />} />
+              {/* Messages Group */}
+              <Route path="enquiries" element={<EnquiriesManager />} />
 
-          {/* Settings Group */}
-          <Route path="settings" element={<SiteSettings />} />
-          <Route path="users" element={<UsersManager />} />
-          <Route path="change-password" element={<ChangePasswordPage />} />
-          <Route path="help" element={<HelpPage />} />
-        </Route>
-      </Route>
-    </Routes>
-    </Suspense>
+              {/* Settings Group */}
+              <Route path="settings" element={<SiteSettings />} />
+              <Route path="users" element={<UsersManager />} />
+              <Route path="change-password" element={<ChangePasswordPage />} />
+              <Route path="help" element={<HelpPage />} />
+            </Route>
+          </Route>
+        </Routes>
+      </Suspense>
+    </>
   );
 }

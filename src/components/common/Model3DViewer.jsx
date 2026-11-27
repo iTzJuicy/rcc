@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Model3DViewer
@@ -424,9 +424,15 @@ function buildFromImage(THREE, imageUrl, onBuilt, onError) {
 
 // ─── Three.js Canvas Renderer ───────────────────────────────────────────────
 
-function ThreeViewer({ THREE, template, imageUrl, onError }) {
+function ThreeViewer({ THREE, template, imageUrl, autoRotate, onError, onReady, onControlsReady }) {
   const mountRef = useRef(null);
-  const sceneRef = useRef(null);
+  const controlsRef = useRef(null);
+  const autoRotateRef = useRef(autoRotate);
+
+  useEffect(() => {
+    autoRotateRef.current = autoRotate;
+    if (controlsRef.current) controlsRef.current.autoRotate = autoRotate;
+  }, [autoRotate]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -437,11 +443,10 @@ function ThreeViewer({ THREE, template, imageUrl, onError }) {
 
     // Scene (transparent background so only the 3D model is shown)
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
 
     // Camera (closer & tighter framing so the model is large and prominent)
     const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
-    camera.position.set(5.4, 3.8, 6.6);
+    camera.position.set(4.5, 3.2, 5.5);
     camera.lookAt(0, 1.8, 0);
 
     // Renderer
@@ -450,18 +455,36 @@ function ThreeViewer({ THREE, template, imageUrl, onError }) {
     renderer.setSize(W, H);
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
     // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+    const ambient = new THREE.HemisphereLight(0xdce9f5, 0x584b3b, 1.15);
     scene.add(ambient);
-    const dirLight = new THREE.DirectionalLight(0xfff8e7, 1.35);
+    const dirLight = new THREE.DirectionalLight(0xfff1dc, 3.2);
     dirLight.position.set(10, 15, 10);
     dirLight.castShadow = true;
+    dirLight.shadow.mapSize.set(2048, 2048);
+    dirLight.shadow.camera.left = -14;
+    dirLight.shadow.camera.right = 14;
+    dirLight.shadow.camera.top = 14;
+    dirLight.shadow.camera.bottom = -14;
+    dirLight.shadow.bias = -0.00015;
     scene.add(dirLight);
-    const fillLight = new THREE.DirectionalLight(0x8899cc, 0.55);
+    const fillLight = new THREE.DirectionalLight(0x8db8e8, 1.1);
     fillLight.position.set(-8, 5, -5);
     scene.add(fillLight);
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 100),
+      new THREE.MeshStandardMaterial({ color: 0x172630, roughness: 0.82, metalness: 0.06 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.04;
+    ground.receiveShadow = true;
+    scene.add(ground);
 
     // Build model (either from uploaded image or procedural template)
     let cancelled = false;
@@ -506,27 +529,36 @@ function ThreeViewer({ THREE, template, imageUrl, onError }) {
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.minDistance = 3;
-      controls.maxDistance = 18;
-      controls.maxPolarAngle = Math.PI / 2.05;
+      controls.enablePan = false;
+      controls.minDistance = 6;
+      controls.maxDistance = 9;
+      controls.minPolarAngle = (70 * Math.PI) / 180;
+      controls.maxPolarAngle = (92 * Math.PI) / 180;
       controls.target.set(0, 1.8, 0);
-      controls.autoRotate = !prefersReducedMotion;
+      controls.autoRotate = autoRotateRef.current;
       controls.autoRotateSpeed = 1.8;
+      controlsRef.current = controls;
+      onControlsReady?.(controls);
     }
 
     // Animation loop
     let animId;
+    let hasRendered = false;
     function animate() {
       animId = requestAnimationFrame(animate);
       if (controls) {
         controls.update();
-      } else if (!prefersReducedMotion) {
+      } else if (autoRotateRef.current && !prefersReducedMotion) {
         autoRotateAngle += 0.008;
         camera.position.x = Math.sin(autoRotateAngle) * 8.2;
         camera.position.z = Math.cos(autoRotateAngle) * 8.2;
         camera.lookAt(0, 1.8, 0);
       }
       renderer.render(scene, camera);
+      if (!hasRendered) {
+        hasRendered = true;
+        onReady?.();
+      }
     }
     animate();
 
@@ -545,26 +577,164 @@ function ThreeViewer({ THREE, template, imageUrl, onError }) {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
       if (controls) controls.dispose();
+      controlsRef.current = null;
+      onControlsReady?.(null);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) {
         mount.removeChild(renderer.domElement);
       }
     };
-  }, [template, imageUrl, onError, THREE]);
+  }, [template, imageUrl, onError, onReady, onControlsReady, THREE]);
 
   return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;
 }
 
+function ModelLoader({ label }) {
+  return (
+    <div className="model3d-loading model3d-loading-overlay" role="status" aria-live="polite">
+      <div className="model3d-loader-art" aria-hidden="true">
+        <svg viewBox="0 0 84 84">
+          <path className="model3d-loader-building" d="M22 66V35l20-15 20 15v31M16 66h52M29 66V43h10v23m8 0V43h10v23M28 37h.1M42 37h.1M56 37h.1" />
+          <path className="model3d-loader-ground" d="M12 72h60" />
+        </svg>
+      </div>
+      <span className="model3d-loader-caption">Preparing your model</span>
+      <span className="visually-hidden">{label}</span>
+    </div>
+  );
+}
+
+function ViewerChrome({ stageRef, modelViewerRef, threeControls, autoRotate, onToggleRotate, projectTitle }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const updateFullscreen = () => setIsFullscreen(document.fullscreenElement === stageRef.current);
+    document.addEventListener("fullscreenchange", updateFullscreen);
+    return () => document.removeEventListener("fullscreenchange", updateFullscreen);
+  }, [stageRef]);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement === stageRef.current) {
+      document.exitFullscreen().catch((error) => {
+        console.error("Could not exit 3D viewer fullscreen mode.", error);
+      });
+      return;
+    }
+    stageRef.current?.requestFullscreen().catch((error) => {
+      console.error("Could not open 3D viewer fullscreen mode.", error);
+    });
+  };
+
+  const resetView = () => {
+    if (modelViewerRef.current) {
+      modelViewerRef.current.cameraOrbit = "0deg 74deg 80%";
+      modelViewerRef.current.fieldOfView = "30deg";
+      modelViewerRef.current.jumpCameraToGoal();
+    }
+    threeControls?.reset();
+  };
+
+  return (
+    <div className="model3d-chrome">
+      <button
+        className="model3d-icon-control model3d-fullscreen-control"
+        type="button"
+        onClick={toggleFullscreen}
+        aria-label={isFullscreen ? "Exit fullscreen" : "View model fullscreen"}
+        title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+      >
+        {isFullscreen ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3m13 5v-5h5"/></svg>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
+        )}
+      </button>
+      <div className="model3d-info">
+        <h3 className="model3d-project-title">{projectTitle}</h3>
+        <span className="model3d-title-rule" aria-hidden="true" />
+        <p className="model3d-guidance">Drag to explore <span>·</span> Scroll to zoom</p>
+        <div className="model3d-control-group" aria-label="Model controls">
+          <button
+            className="model3d-icon-control"
+            type="button"
+            onClick={() => onToggleRotate(!autoRotate)}
+            aria-label={autoRotate ? "Pause auto-rotation" : "Start auto-rotation"}
+            aria-pressed={autoRotate}
+            title={autoRotate ? "Pause rotation" : "Auto-rotate"}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              {autoRotate
+                ? <path d="M9 5v14m6-14v14" />
+                : <path d="m8 5 11 7-11 7z" />}
+              <path d="M20 8a8.5 8.5 0 0 0-14-2L4 8m0-4v4h4" />
+            </svg>
+            <span>{autoRotate ? "Pause" : "Auto rotate"}</span>
+          </button>
+          <button
+            className="model3d-icon-control"
+            type="button"
+            onClick={resetView}
+            aria-label="Reset model view"
+            title="Reset view"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 11a9 9 0 1 1 2.6 6.4M3 4v7h7" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main exported component ────────────────────────────────────────────────
 
-export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) {
+export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, projectTitle }) {
   const [mvReady, setMvReady] = useState(false);
   const [threeRuntime, setThreeRuntime] = useState(null);
   const [error, setError] = useState(null);
   const [modelLoadFailed, setModelLoadFailed] = useState(false);
+  const [modelLoaded, setModelLoaded] = useState(false);
   const [modelAvailability, setModelAvailability] = useState({ url: "", available: null });
+  const [autoRotate, setAutoRotate] = useState(
+    () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+  const [threeControls, setThreeControls] = useState(null);
+  const stageRef = useRef(null);
+  const modelViewerRef = useRef(null);
+  const handleModelReady = useCallback(() => setModelLoaded(true), []);
+  const handleViewerError = useCallback(() => setError(true), []);
+  const toggleAutoRotate = useCallback((enabled) => {
+    setAutoRotate(enabled);
+    if (modelViewerRef.current) modelViewerRef.current.autoRotate = enabled;
+    if (threeControls) threeControls.autoRotate = enabled;
+  }, [threeControls]);
+  const viewerChrome = (
+    <ViewerChrome
+      stageRef={stageRef}
+      modelViewerRef={modelViewerRef}
+      threeControls={threeControls}
+      autoRotate={autoRotate}
+      onToggleRotate={toggleAutoRotate}
+      projectTitle={projectTitle}
+    />
+  );
   const fallbackUrl = "";
-  const isLocalUpload = modelUrl?.startsWith("/uploads/");
+  const apiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
+  const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin;
+  const modelSource = useMemo(() => {
+    if (!modelUrl) return null;
+    const url = new URL(modelUrl, apiOrigin);
+    return {
+      url: url.toString(),
+      isLocalUpload: url.pathname.startsWith("/uploads/models/"),
+    };
+  }, [apiOrigin, modelUrl]);
+  const isLocalUpload = modelSource?.isLocalUpload ?? false;
   const isCheckingModel =
     isLocalUpload &&
     (modelAvailability.url !== modelUrl || modelAvailability.available === null);
@@ -572,21 +742,40 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) 
   useEffect(() => {
     setError(null);
     setModelLoadFailed(false);
+    setModelLoaded(false);
   }, [modelUrl, template, fallbackImageUrl]);
 
   useEffect(() => {
-    if (!modelUrl?.startsWith("/uploads/")) return undefined;
+    if (!modelUrl || modelLoaded) return undefined;
+    const timeoutId = window.setTimeout(() => {
+      console.warn("3D model did not finish loading within 15 seconds.");
+      setModelLoadFailed(true);
+    }, 15000);
+    return () => window.clearTimeout(timeoutId);
+  }, [modelUrl, modelLoaded]);
 
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL ||
-      (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
-    const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin;
+  useEffect(() => {
+    const viewer = modelViewerRef.current;
+    if (!modelUrl || !mvReady || !viewer) return undefined;
+
+    const onLoad = () => setModelLoaded(true);
+    const onError = () => setModelLoadFailed(true);
+    viewer.addEventListener("load", onLoad);
+    viewer.addEventListener("error", onError);
+    return () => {
+      viewer.removeEventListener("load", onLoad);
+      viewer.removeEventListener("error", onError);
+    };
+  }, [modelUrl, mvReady]);
+
+  useEffect(() => {
+    if (!isLocalUpload || !modelSource) return undefined;
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 8000);
     let cancelled = false;
 
     setModelAvailability({ url: modelUrl, available: null });
-    fetch(`${apiOrigin}${modelUrl}`, { method: "HEAD", signal: controller.signal })
+    fetch(modelSource.url, { method: "HEAD", signal: controller.signal })
       .then((response) => {
         if (!cancelled) {
           setModelAvailability({ url: modelUrl, available: response.ok });
@@ -604,7 +793,7 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) 
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [modelUrl]);
+  }, [isLocalUpload, modelSource, modelUrl]);
 
   useEffect(() => {
     if (!modelUrl) return undefined;
@@ -641,13 +830,39 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) 
     };
   }, [template]);
 
+  const renderLoading = (label) => (
+    <div className="model3d-stage" ref={stageRef}>
+      {viewerChrome}
+      <ModelLoader label={label} />
+    </div>
+  );
+
   if (!modelUrl && !template) return null;
 
   if (isCheckingModel) {
+    return renderLoading("Checking 3D model availability");
+  }
+
+  if ((isLocalUpload && modelAvailability.available === false) || modelLoadFailed) {
+    if (fallbackImageUrl) {
+      return (
+        <div className="model3d-stage" ref={stageRef}>
+          {viewerChrome}
+          <img
+            src={fallbackImageUrl}
+            alt="Project visualization"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        </div>
+      );
+    }
+
     return (
-      <div className="model3d-loading">
-        <div className="model3d-spinner" />
-        <span>Checking 3D model…</span>
+      <div className="model3d-stage" ref={stageRef}>
+        {viewerChrome}
+        <div className="model3d-error" role="status">
+          <p>3D model is currently unavailable.</p>
+        </div>
       </div>
     );
   }
@@ -655,78 +870,87 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl }) 
   if (error) {
     if (fallbackImageUrl) {
       return (
-        <img
-          src={fallbackImageUrl}
-          alt="Project visualization"
-          style={{ width: "100%", height: "100%", objectFit: "contain" }}
-        />
+        <div className="model3d-stage" ref={stageRef}>
+          {viewerChrome}
+          <img
+            src={fallbackImageUrl}
+            alt="Project visualization"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        </div>
       );
     }
 
     return (
-      <div className="model3d-error">
-        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M12 9v4m0 4h.01M5.07 19h13.86a2 2 0 001.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16a2 2 0 001.73 3z"/>
-        </svg>
-        <p>3D viewer failed to load.</p>
+      <div className="model3d-stage" ref={stageRef}>
+        {viewerChrome}
+        <div className="model3d-error">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12 9v4m0 4h.01M5.07 19h13.86a2 2 0 001.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16a2 2 0 001.73 3z"/>
+          </svg>
+          <p>3D viewer failed to load.</p>
+        </div>
       </div>
     );
   }
 
   /* ── Uploaded GLB via <model-viewer> ── */
   if (modelUrl && !modelLoadFailed && (!isLocalUpload || modelAvailability.available)) {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL ||
-      (import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:5000/api");
-    const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin;
-    const resolvedModelUrl = modelUrl.startsWith("/uploads/")
-      ? `${apiOrigin}${modelUrl}`
-      : modelUrl;
-
     if (!mvReady) {
-      return (
-        <div className="model3d-loading">
-          <div className="model3d-spinner" />
-          <span>Loading 3D viewer…</span>
-        </div>
-      );
+      return renderLoading("Loading 3D viewer");
     }
     return (
-      <model-viewer
-        src={resolvedModelUrl}
-        alt="3D building model"
-        auto-rotate
-        auto-rotate-delay="0"
-        rotation-per-second="20deg"
-        camera-controls
-        bounds="tight"
-        field-of-view="30deg"
-        shadow-intensity="1"
-        environment-image="neutral"
-        style={{ width: "100%", height: "100%", background: "transparent" }}
-        onError={() => setModelLoadFailed(true)}
-      />
+      <div className="model3d-stage" ref={stageRef}>
+        {viewerChrome}
+        <model-viewer
+          ref={modelViewerRef}
+          src={modelSource?.url || modelUrl}
+          alt="3D building model"
+          auto-rotate={autoRotate ? "" : undefined}
+          auto-rotate-delay="0"
+          rotation-per-second="20deg"
+          camera-controls
+          bounds="tight"
+          camera-orbit="0deg 80deg 85%"
+          min-camera-orbit="auto 70deg 72%"
+          max-camera-orbit="auto 92deg 105%"
+          field-of-view="30deg"
+          shadow-intensity="1.25"
+          shadow-softness="0.9"
+          exposure="1.15"
+          tone-mapping="aces"
+          environment-image="neutral"
+          style={{ width: "100%", height: "100%", background: "transparent" }}
+        />
+        {!modelLoaded && (
+          <ModelLoader label="Loading 3D model" />
+        )}
+      </div>
     );
   }
 
   /* ── Template via Three.js ── */
   if (!threeRuntime) {
-    return (
-      <div className="model3d-loading">
-        <div className="model3d-spinner" />
-        <span>Building 3D model…</span>
-      </div>
-    );
+    return renderLoading("Building 3D model");
   }
 
   if (!template) return null;
 
   return (
-    <ThreeViewer
-      THREE={threeRuntime}
-      template={template}
-      imageUrl={fallbackUrl}
-      onError={() => setError(true)}
-    />
+    <div className="model3d-stage" ref={stageRef}>
+      {viewerChrome}
+      <ThreeViewer
+        THREE={threeRuntime}
+        template={template}
+        imageUrl={fallbackUrl}
+        autoRotate={autoRotate}
+        onError={handleViewerError}
+        onReady={handleModelReady}
+        onControlsReady={setThreeControls}
+      />
+      {!modelLoaded && (
+        <ModelLoader label="Building 3D model" />
+      )}
+    </div>
   );
 }

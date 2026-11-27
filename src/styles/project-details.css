@@ -8,6 +8,50 @@
   overflow-x: clip;
 }
 
+.detail-loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(100%, 620px);
+  min-height: 60vh;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.detail-loading-line,
+.detail-loading-image {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e8e6e1 25%, #f5f3ef 50%, #e8e6e1 75%);
+  background-size: 200% 100%;
+  animation: detail-loading-shimmer 1.4s ease-in-out infinite;
+}
+
+.detail-loading-line {
+  width: min(100%, 460px);
+  height: 16px;
+}
+
+.detail-loading-line.title {
+  width: min(80%, 380px);
+  height: 34px;
+  margin-bottom: 12px;
+}
+
+.detail-loading-line.short {
+  width: min(60%, 280px);
+}
+
+.detail-loading-image {
+  width: min(100%, 560px);
+  height: clamp(180px, 30vw, 320px);
+  margin-top: 18px;
+}
+
+@keyframes detail-loading-shimmer {
+  to { background-position: -200% 0; }
+}
+
 /* =========================================
    PROJECT OVERVIEW
    CONTENT LEFT - IMAGE RIGHT
@@ -704,6 +748,11 @@
 ========================================= */
 
 @media (prefers-reduced-motion: reduce) {
+  .detail-loading-line,
+  .detail-loading-image {
+    animation: none;
+  }
+
   .project-details-related .project-card-image img,
   .project-details-view-all,
   .project-details-related .project-card-content h3 a {

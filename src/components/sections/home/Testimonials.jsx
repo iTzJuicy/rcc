@@ -46,13 +46,14 @@ export default function TestimonialsPreview() {
 
   // Initialize Swiper when testimonial content is ready.
   useEffect(() => {
-    if (!containerRef.current) return;
+    const containerEl = containerRef.current;
+    if (loading || !containerEl?.querySelector(".swiper-wrapper")) return;
 
     if (swiperRef.current) {
       swiperRef.current.destroy(true, true);
     }
 
-    swiperRef.current = new Swiper(containerRef.current, {
+    swiperRef.current = new Swiper(containerEl, {
       slidesPerView: 1,
       spaceBetween: 24,
       grabCursor: true,
@@ -64,7 +65,6 @@ export default function TestimonialsPreview() {
       watchOverflow: true,
     });
 
-    const containerEl = containerRef.current;
     const handleContainerClick = (e) => {
       const prevBtn = e.target.closest('[data-control="prev"]');
       const nextBtn = e.target.closest('[data-control="next"]');
@@ -87,7 +87,7 @@ export default function TestimonialsPreview() {
         swiperRef.current.destroy(true, true);
       }
     };
-  }, [items]);
+  }, [items, loading]);
 
   const handlePrev = (e) => {
     e?.preventDefault?.();
@@ -135,7 +135,18 @@ export default function TestimonialsPreview() {
           {loadError ? (
             <p role="alert">Testimonials are temporarily unavailable.</p>
           ) : loading ? (
-            <p role="status" aria-live="polite">Loading testimonials...</p>
+            <div className="testimonial-loading-card" role="status" aria-label="Loading testimonials">
+              <span className="testimonial-loading-mark" />
+              <div className="testimonial-loading-content">
+                <span className="testimonial-loading-line" />
+                <span className="testimonial-loading-line" />
+                <span className="testimonial-loading-line short" />
+                <div className="testimonial-loading-footer">
+                  <span className="testimonial-loading-avatar" />
+                  <span className="testimonial-loading-name" />
+                </div>
+              </div>
+            </div>
           ) : items.length === 0 ? (
             <p>No testimonials are currently available.</p>
           ) : (

@@ -167,7 +167,16 @@ export default function ServiceDetails() {
   }, [slug]);
 
   if (serviceState === "loading") {
-    return <main className="project-not-found-container" role="status" aria-live="polite"><p>Loading service...</p></main>;
+    return (
+      <main className="project-not-found-container" role="status" aria-live="polite">
+        <div className="detail-loading-skeleton" aria-label="Loading service details">
+          <span className="detail-loading-line title" />
+          <span className="detail-loading-line" />
+          <span className="detail-loading-line short" />
+          <span className="detail-loading-image" />
+        </div>
+      </main>
+    );
   }
 
   if (serviceState === "error") {
