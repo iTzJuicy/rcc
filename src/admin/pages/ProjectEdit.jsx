@@ -22,6 +22,7 @@ const DEFAULT_PROJECT = {
   gallery: [],
   isFeatured: false,
   showQuotationButton: true,
+  showModel3dSection: true,
   model3dUrl: "",
   model3dTemplate: "",
 };
@@ -82,6 +83,7 @@ export default function ProjectEdit() {
               gallery: Array.isArray(found.gallery) ? found.gallery : [],
               isFeatured: Boolean(found.isFeatured),
               showQuotationButton: found.showQuotationButton !== false,
+              showModel3dSection: found.showModel3dSection !== false,
               model3dUrl: found.model3dUrl || "",
               model3dTemplate: found.model3dTemplate || "",
             });
@@ -478,6 +480,15 @@ export default function ProjectEdit() {
                   onChange={handleChange}
                 />
                 <span>Show Request Quotation / Booking button</span>
+              </label>
+              <label className="admin-toggle-label">
+                <input
+                  type="checkbox"
+                  name="showModel3dSection"
+                  checked={form.showModel3dSection}
+                  onChange={handleChange}
+                />
+                <span>Show 3D model section on project page</span>
               </label>
             </div>
           </div>

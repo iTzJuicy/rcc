@@ -696,6 +696,7 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   const [threeRuntime, setThreeRuntime] = useState(null);
   const [error, setError] = useState(null);
   const [modelLoadFailed, setModelLoadFailed] = useState(false);
+  const [modelLoadFailureReason, setModelLoadFailureReason] = useState("");
   const [modelLoaded, setModelLoaded] = useState(false);
   const [modelAvailability, setModelAvailability] = useState({ url: "", available: null });
   const [autoRotate, setAutoRotate] = useState(
@@ -742,13 +743,15 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   useEffect(() => {
     setError(null);
     setModelLoadFailed(false);
+    setModelLoadFailureReason("");
     setModelLoaded(false);
   }, [modelUrl, template, fallbackImageUrl]);
 
   useEffect(() => {
     if (!modelUrl || !mvReady || modelLoaded) return undefined;
     const timeoutId = window.setTimeout(() => {
-      console.warn("3D model did not finish loading within 60 seconds.");
+      console.warn("3D model did not initialize within 60 seconds. Check WebGL support, browser hardware acceleration, and model network requests.");
+      setModelLoadFailureReason("timeout");
       setModelLoadFailed(true);
     }, 60000);
     return () => window.clearTimeout(timeoutId);
@@ -759,7 +762,10 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
     if (!modelUrl || !mvReady || !viewer) return undefined;
 
     const onLoad = () => setModelLoaded(true);
-    const onError = () => setModelLoadFailed(true);
+    const onError = () => {
+      setModelLoadFailureReason("asset");
+      setModelLoadFailed(true);
+    };
     viewer.addEventListener("load", onLoad);
     viewer.addEventListener("error", onError);
     if (viewer.loaded) onLoad();
@@ -851,7 +857,9 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
         <div className="model3d-error" role="status">
           <p>
             {modelLoadFailed
-              ? "The 3D model could not be loaded. Please try again later."
+              ? modelLoadFailureReason === "timeout"
+                ? "The 3D viewer did not start. Check that WebGL and browser hardware acceleration are enabled, then reload."
+                : "The 3D model could not be read. Please check the model file and try again."
               : "3D model is currently unavailable."}
           </p>
         </div>

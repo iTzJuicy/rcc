@@ -74,6 +74,10 @@ const projectSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    showModel3dSection: {
+      type: Boolean,
+      default: true,
+    },
     model3dUrl: {
       type: String,
       default: "",

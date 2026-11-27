@@ -359,7 +359,7 @@ export default function ProjectDetails() {
       />
 
       {/* 3D Building Model Section */}
-      {(project.model3dUrl || project.model3dTemplate) && (() => {
+      {project.showModel3dSection !== false && (project.model3dUrl || project.model3dTemplate) && (() => {
         return (
           <section className="project-model3d-section">
             <div className="project-model3d-viewer-wrap">

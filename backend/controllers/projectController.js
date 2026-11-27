@@ -162,6 +162,7 @@ export async function adminCreateProject(req, res, next) {
       model3dUrl,
       model3dTemplate,
       showQuotationButton,
+      showModel3dSection,
     } = req.body;
 
     if (!title || title.trim().length === 0) {
@@ -201,6 +202,7 @@ export async function adminCreateProject(req, res, next) {
       gallery: Array.isArray(gallery) ? gallery : [],
       isFeatured: Boolean(isFeatured),
       showQuotationButton: showQuotationButton !== false,
+      showModel3dSection: showModel3dSection !== false,
       order: Number(order) || 0,
       seo: seo || {},
       model3dUrl: model3dUrl || "",
@@ -219,7 +221,7 @@ export async function adminUpdateProject(req, res, next) {
     const updates = pickFields(req.body, [
       "title", "slug", "category", "status", "location", "mapUrl", "area",
       "client", "description", "fullDescription", "coverImage", "bannerImage", "image",
-      "gallery", "isFeatured", "showQuotationButton", "order", "model3dUrl", "model3dTemplate",
+      "gallery", "isFeatured", "showQuotationButton", "showModel3dSection", "order", "model3dUrl", "model3dTemplate",
     ]);
     if (Object.prototype.hasOwnProperty.call(req.body, "seo")) {
       updates.seo = pickSeo(req.body.seo);
