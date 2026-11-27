@@ -746,13 +746,13 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   }, [modelUrl, template, fallbackImageUrl]);
 
   useEffect(() => {
-    if (!modelUrl || modelLoaded) return undefined;
+    if (!modelUrl || !mvReady || modelLoaded) return undefined;
     const timeoutId = window.setTimeout(() => {
-      console.warn("3D model did not finish loading within 15 seconds.");
+      console.warn("3D model did not finish loading within 60 seconds.");
       setModelLoadFailed(true);
-    }, 15000);
+    }, 60000);
     return () => window.clearTimeout(timeoutId);
-  }, [modelUrl, modelLoaded]);
+  }, [modelUrl, mvReady, modelLoaded]);
 
   useEffect(() => {
     const viewer = modelViewerRef.current;
@@ -762,6 +762,7 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
     const onError = () => setModelLoadFailed(true);
     viewer.addEventListener("load", onLoad);
     viewer.addEventListener("error", onError);
+    if (viewer.loaded) onLoad();
     return () => {
       viewer.removeEventListener("load", onLoad);
       viewer.removeEventListener("error", onError);
@@ -844,43 +845,21 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   }
 
   if ((isLocalUpload && modelAvailability.available === false) || modelLoadFailed) {
-    if (fallbackImageUrl) {
-      return (
-        <div className="model3d-stage" ref={stageRef}>
-          {viewerChrome}
-          <img
-            src={fallbackImageUrl}
-            alt="Project visualization"
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
-          />
-        </div>
-      );
-    }
-
     return (
       <div className="model3d-stage" ref={stageRef}>
         {viewerChrome}
         <div className="model3d-error" role="status">
-          <p>3D model is currently unavailable.</p>
+          <p>
+            {modelLoadFailed
+              ? "The 3D model could not be loaded. Please try again later."
+              : "3D model is currently unavailable."}
+          </p>
         </div>
       </div>
     );
   }
 
   if (error) {
-    if (fallbackImageUrl) {
-      return (
-        <div className="model3d-stage" ref={stageRef}>
-          {viewerChrome}
-          <img
-            src={fallbackImageUrl}
-            alt="Project visualization"
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
-          />
-        </div>
-      );
-    }
-
     return (
       <div className="model3d-stage" ref={stageRef}>
         {viewerChrome}
