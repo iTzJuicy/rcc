@@ -125,8 +125,8 @@ export default function UsersManager() {
     setSubmitting(true);
     setAlert({ type: "", text: "" });
 
-    if (!editingId && (!formData.password || formData.password.length < 8)) {
-      setAlert({ type: "error", text: "Password must be at least 8 characters long." });
+    if (!editingId && (!formData.password || formData.password.length < 12)) {
+      setAlert({ type: "error", text: "Password must be at least 12 characters long." });
       setSubmitting(false);
       return;
     }
@@ -180,6 +180,7 @@ export default function UsersManager() {
           </button>
         </div>
 
+        {loading && <p role="status">Loading users...</p>}
         <div className="admin-table-responsive">
           <table className="admin-table">
             <thead>

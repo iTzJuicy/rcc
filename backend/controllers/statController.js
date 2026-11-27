@@ -39,7 +39,13 @@ export async function adminCreateStat(req, res, next) {
 export async function adminUpdateStat(req, res, next) {
   try {
     const { id } = req.params;
-    const stat = await Stat.findByIdAndUpdate(id, req.body, {
+    const updates = {};
+    for (const field of ["value", "suffix", "label", "icon", "order"]) {
+      if (Object.prototype.hasOwnProperty.call(req.body || {}, field)) {
+        updates[field] = req.body[field];
+      }
+    }
+    const stat = await Stat.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     });

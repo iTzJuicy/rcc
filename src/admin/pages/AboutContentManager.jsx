@@ -42,7 +42,7 @@ export default function AboutContentManager() {
           });
         }
       } catch (err) {
-        setToast({ type: "error", message: "Failed to load About page content" });
+        setToast({ type: "error", message: err.message || "Failed to load About page content" });
       } finally {
         setLoading(false);
       }

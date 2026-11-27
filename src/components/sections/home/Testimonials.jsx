@@ -6,41 +6,20 @@ import Icon from "../../common/Icon";
 import api from "../../../services/api";
 import useReveal from "../../../hooks/useReveal";
 
-const fallbackTestimonials = [
-  {
-    quote:
-      "RCC Infrastructure delivered our dream home on time with excellent quality. Their team was professional, responsive and easy to work with. Highly recommended!",
-    name: "Client, Mangaluru",
-    rating: 5,
-    photo: "",
-  },
-  {
-    quote:
-      "The entire construction process was handled professionally. The team maintained good communication and paid attention to quality at every stage.",
-    name: "Residential Client, Mangaluru",
-    rating: 5,
-    photo: "",
-  },
-  {
-    quote:
-      "We appreciated the team's commitment, timely updates and quality workmanship. The project was managed with care from start to finish.",
-    name: "Project Client, Mangaluru",
-    rating: 5,
-    photo: "",
-  },
-];
-
 export default function TestimonialsPreview() {
-  const [items, setItems] = useState(fallbackTestimonials);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const { ref, isVisible } = useReveal();
   const swiperRef = useRef(null);
   const containerRef = useRef(null);
 
   useEffect(() => {
+    let active = true;
     async function load() {
       try {
         const data = await api.getTestimonials();
-        if (data && data.length > 0) {
+        if (data && active) {
           const normalized = data.map((t) => ({
             ...t,
             quote: t.quote || t.text,
@@ -50,11 +29,19 @@ export default function TestimonialsPreview() {
           }));
           setItems(normalized);
         }
-      } catch {
-        // Fallback already in place
+      } catch (error) {
+        if (active) {
+          setLoadError(true);
+          console.error("Failed to load testimonials.", error);
+        }
+      } finally {
+        if (active) setLoading(false);
       }
     }
     load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Initialize Swiper when testimonial content is ready.
@@ -145,6 +132,13 @@ export default function TestimonialsPreview() {
 
         {/* Swiper Slider Wrapper (Design unchanged) */}
         <div className="swiper testimonials-swiper" ref={containerRef}>
+          {loadError ? (
+            <p role="alert">Testimonials are temporarily unavailable.</p>
+          ) : loading ? (
+            <p role="status" aria-live="polite">Loading testimonials...</p>
+          ) : items.length === 0 ? (
+            <p>No testimonials are currently available.</p>
+          ) : (
           <div className="swiper-wrapper">
             {items.map((testimonial, idx) => (
               <div className="swiper-slide" key={testimonial._id || idx}>
@@ -225,6 +219,7 @@ export default function TestimonialsPreview() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </Container>
     </section>

@@ -1,11 +1,13 @@
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import SEO from "../../components/common/SEO";
 
-import services from "../../data/services";
+import api from "../../services/api";
 
 const reasons = [
   { icon: "fa-shield-halved", title: "Quality Construction", description: "Built to last with the highest standards." },
@@ -22,8 +24,32 @@ const processSteps = [
 ];
 
 export default function Services() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    api.getServices().then((items) => {
+      if (active) setServices(items);
+    }).catch((loadError) => {
+      if (!active) return;
+      console.error("Failed to load services.", loadError);
+      setError("Services are temporarily unavailable. Please try again.");
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
+
   return (
     <>
+      <SEO title="Our Services" description="Explore RCC Infrastructure's construction and development services in Mangaluru." />
       <PageHero
         pageKey="services"
         eyebrow="What We Do"
@@ -47,29 +73,40 @@ export default function Services() {
             </p>
           </header>
 
-          <div className="svc-grid">
-            {services.map((service, index) => {
-              const path = `/services/${service.slug ?? service.id}`;
-              const text = service.shortDescription ?? service.description;
+          {loading ? (
+            <p role="status" aria-live="polite">Loading services...</p>
+          ) : error ? (
+            <div role="alert">
+              <p>{error}</p>
+              <button type="button" className="btn" onClick={() => setReloadKey((key) => key + 1)}>Try Again</button>
+            </div>
+          ) : services.length === 0 ? (
+            <p>No services are currently available.</p>
+          ) : (
+            <div className="svc-grid">
+              {services.map((service, index) => {
+                const path = `/services/${service.slug ?? service.id}`;
+                const text = service.shortDescription ?? service.description;
 
-              return (
-                <article className="svc-card" key={service.id ?? service.slug ?? index}>
-                  <Link to={path} className="svc-card-image" aria-label={service.title}>
-                    <img src={service.image} alt={service.title} loading="lazy" />
-                    <span className="svc-card-number">{String(index + 1).padStart(2, "0")}</span>
-                  </Link>
-
-                  <div className="svc-card-body">
-                    <h3><Link to={path}>{service.title}</Link></h3>
-                    {text && <p>{text}</p>}
-                    <Link to={path} className="svc-card-link">
-                      Learn More <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                return (
+                  <article className="svc-card" key={service.id ?? service.slug ?? index}>
+                    <Link to={path} className="svc-card-image" aria-label={service.title}>
+                      <img src={service.image} alt={service.title} loading="lazy" />
+                      <span className="svc-card-number">{String(index + 1).padStart(2, "0")}</span>
                     </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+
+                    <div className="svc-card-body">
+                      <h3><Link to={path}>{service.title}</Link></h3>
+                      {text && <p>{text}</p>}
+                      <Link to={path} className="svc-card-link">
+                        Learn More <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </Container>
       </section>
 

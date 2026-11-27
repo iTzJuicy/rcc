@@ -13,8 +13,8 @@ export default function ChangePasswordPage() {
     e.preventDefault();
     setToast({ type: "", message: "" });
 
-    if (newPassword.length < 8) {
-      setToast({ type: "error", message: "New password must be at least 8 characters long." });
+    if (newPassword.length < 12) {
+      setToast({ type: "error", message: "New password must be at least 12 characters long." });
       return;
     }
 
@@ -47,7 +47,7 @@ export default function ChangePasswordPage() {
       <HowToUse
         title="Password Security Advice"
         tips={[
-          "Choose a strong password with at least 8 characters.",
+          "Choose a strong password with at least 12 characters.",
           "Use a combination of upper and lowercase letters, numbers, and symbols.",
           "Keep your administrator credentials confidential and do not share your login.",
         ]}

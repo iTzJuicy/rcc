@@ -3,6 +3,7 @@ import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import Icon from "../../components/common/Icon";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import SEO from "../../components/common/SEO";
 import { useStats } from "../../hooks/useStats";
 import { useSiteContent } from "../../hooks/useSiteContent";
 
@@ -76,6 +77,7 @@ export default function About() {
 
   return (
     <>
+      <SEO title="About RCC Infrastructure" description="Learn about RCC Infrastructure, our approach, and our commitment to construction in Mangaluru." />
       {/* PAGE HERO */}
       <PageHero
         eyebrow="Who We Are"

@@ -2,9 +2,12 @@
 import { Link } from "react-router-dom";
 import Container from "../../components/common/Container";
 import Icon from "../../components/common/Icon";
+import SEO from "../../components/common/SEO";
 
 export default function NotFound() {
   return (
+    <>
+    <SEO title="Page Not Found" description="The page you requested could not be found." noIndex />
     <section className="not-found">
       <Container className="not-found-container">
         <span className="not-found-code">404</span>
@@ -28,5 +31,6 @@ export default function NotFound() {
         </Link>
       </Container>
     </section>
+    </>
   );
 }

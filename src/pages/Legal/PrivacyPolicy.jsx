@@ -1,9 +1,11 @@
 import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import SEO from "../../components/common/SEO";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 import ContactCTA from "../../components/sections/home/ContactCTA";
 
 export default function PrivacyPolicy() {
+  const settings = useSiteSettings();
   return (
     <>
       <SEO
@@ -92,11 +94,7 @@ export default function PrivacyPolicy() {
               <p>
                 You have the right to request access to the personal data we hold about
                 you, ask for corrections, or request deletion of your contact records.
-                To exercise any of these rights, please reach out to us at{" "}
-                <a href="mailto:info@rccinfrastructure.com" className="text-red">
-                  info@rccinfrastructure.com
-                </a>
-                .
+                To exercise these rights, use the contact details listed below.
               </p>
             </article>
 
@@ -109,8 +107,8 @@ export default function PrivacyPolicy() {
               <div className="legal-contact-box">
                 <p><strong>RCC Infrastructure</strong></p>
                 <p>Mangalore, Karnataka, India</p>
-                <p>Email: <a href="mailto:info@rccinfrastructure.com">info@rccinfrastructure.com</a></p>
-                <p>Phone: <a href="tel:+919876543210">+91 98765 43210</a></p>
+                {settings.email && <p>Email: <a href={`mailto:${settings.email}`}>{settings.email}</a></p>}
+                {settings.phone && <p>Phone: <a href={`tel:${settings.phone.replace(/[^0-9+]/g, "")}`}>{settings.phone}</a></p>}
               </div>
             </article>
           </div>

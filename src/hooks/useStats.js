@@ -1,19 +1,13 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 
-const STATS_DEFAULTS = [
-  { value: "15+", label: "Years Experience" },
-  { value: "250+", label: "Projects Completed" },
-  { value: "100%", label: "Quality Commitment" },
-  { value: "180+", label: "Satisfied Clients" },
-];
-
 let cachedStats = null;
 let fetchPromise = null;
 
 export function useStats() {
-  const [stats, setStats] = useState(cachedStats || STATS_DEFAULTS);
+  const [stats, setStats] = useState(cachedStats || []);
   const [loading, setLoading] = useState(!cachedStats);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -25,29 +19,24 @@ export function useStats() {
     }
 
     if (!fetchPromise) {
-      fetchPromise = api
-        .get("/public/stats")
-        .then((res) => {
-          if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-            cachedStats = res.data;
-          } else {
-            cachedStats = STATS_DEFAULTS;
-          }
-          return cachedStats;
-        })
-        .catch(() => {
-          cachedStats = STATS_DEFAULTS;
-          return cachedStats;
-        })
-        .finally(() => {
-          fetchPromise = null;
-        });
+      fetchPromise = api.getStats().then((data) => {
+        cachedStats = data;
+        return cachedStats;
+      }).finally(() => {
+        fetchPromise = null;
+      });
     }
 
     fetchPromise.then((data) => {
       if (isMounted) {
         setStats(data);
         setLoading(false);
+      }
+    }).catch((loadError) => {
+      if (isMounted) {
+        setError(loadError);
+        setLoading(false);
+        console.error("Failed to load site statistics.", loadError);
       }
     });
 
@@ -56,7 +45,7 @@ export function useStats() {
     };
   }, []);
 
-  return { stats, loading };
+  return { stats, loading, error };
 }
 
 export default useStats;

@@ -12,12 +12,11 @@ export default function Contact() {
   const navigate = useNavigate();
   const settings = useSiteSettings();
 
-  const phone = settings.phone || "+91 98765 43210";
+  const phone = settings.phone || "";
   const phoneClean = phone.replace(/[^0-9+]/g, "");
-  const email = settings.email || "info@rccinfrastructure.com";
+  const email = settings.email || "";
   const address = settings.address || "Mangaluru, Karnataka, India";
-  const whatsappUrl =
-    settings.socialLinks?.whatsapp || `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
+  const whatsappUrl = settings.socialLinks?.whatsapp || "";
   const mapEmbedUrl =
     settings.mapEmbedUrl ||
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124442.27439162986!2d74.78201948956942!3d12.922983196901844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba35a4c37bf488f%3A0x827bbc7a74fcfe15!2sMangaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin";
@@ -53,7 +52,7 @@ export default function Contact() {
     setStatusMessage({ type: "", text: "" });
 
     try {
-      await api.submitEnquiry({
+      const response = await api.submitEnquiry({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -65,14 +64,15 @@ export default function Contact() {
       navigate("/thank-you", {
         state: {
           title: "Thank You for Contacting Us",
-          message:
-            "Your enquiry has been recorded successfully. Our team will review your project requirements and reach out to you within 24 to 48 hours.",
+          message: response?.notificationSent === false
+            ? "Your enquiry has been recorded, but email confirmation is temporarily unavailable. Please use the contact details on this page if your request is urgent."
+            : "Your enquiry has been recorded successfully. Our team will review your project requirements and reach out to you within 24 to 48 hours.",
         },
       });
     } catch (err) {
       setStatusMessage({
         type: "error",
-        text: `Unable to submit enquiry: ${err.message || "Network error"}. Please reach us directly at ${phone} or via WhatsApp.`,
+        text: `Unable to submit enquiry: ${err.message || "Network error"}. Please try again later.`,
       });
     } finally {
       setSubmitting(false);
@@ -133,45 +133,45 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Email */}
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <Icon name="mail" size={20} />
+                {email && (
+                  <div className="contact-info-item">
+                    <div className="contact-info-icon">
+                      <Icon name="mail" size={20} />
+                    </div>
+                    <div className="contact-info-content">
+                      <h3>Email Us</h3>
+                      <a href={`mailto:${email}`}>{email}</a>
+                    </div>
                   </div>
+                )}
 
-                  <div className="contact-info-content">
-                    <h3>Email Us</h3>
-                    <a href={`mailto:${email}`}>
-                      {email}
-                    </a>
+                {phone && (
+                  <div className="contact-info-item">
+                    <div className="contact-info-icon">
+                      <Icon name="phone" size={20} />
+                    </div>
+                    <div className="contact-info-content">
+                      <h3>Call Us</h3>
+                      <a href={`tel:${phoneClean}`}>{phone}</a>
+                    </div>
                   </div>
-                </div>
-
-                {/* Phone */}
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <Icon name="phone" size={20} />
-                  </div>
-
-                  <div className="contact-info-content">
-                    <h3>Call Us</h3>
-                    <a href={`tel:${phoneClean}`}>{phone}</a>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Separate WhatsApp Button */}
-              <div className="contact-whatsapp-wrapper">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-whatsapp-btn"
-                >
-                  <Icon name="whatsapp" size={20} />
-                  <span>Chat on WhatsApp</span>
-                </a>
-              </div>
+              {whatsappUrl && (
+                <div className="contact-whatsapp-wrapper">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="contact-whatsapp-btn"
+                  >
+                    <Icon name="whatsapp" size={20} />
+                    <span>Chat on WhatsApp</span>
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Contact Form */}

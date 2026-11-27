@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../../services/api";
 import Icon from "../../components/common/Icon";
 import HowToUse from "../components/HowToUse";
@@ -15,7 +15,7 @@ export default function EnquiriesManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const loadEnquiries = async () => {
+  const loadEnquiries = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.adminGetEnquiries({ status: statusFilter, search });
@@ -27,12 +27,12 @@ export default function EnquiriesManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, search]);
 
   useEffect(() => {
     setCurrentPage(1);
     loadEnquiries();
-  }, [statusFilter, search]);
+  }, [loadEnquiries]);
 
   const totalPages = Math.ceil(enquiries.length / pageSize) || 1;
   const visibleEnquiries = enquiries.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -138,6 +138,7 @@ export default function EnquiriesManager() {
           </div>
         </div>
 
+        {loading && <p role="status">Loading enquiries...</p>}
         <div className="admin-table-responsive">
           <table className="admin-table">
             <thead>

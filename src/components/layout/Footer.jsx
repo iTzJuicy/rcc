@@ -5,13 +5,6 @@ import { useSiteSettings } from "../../context/SiteSettingsContext";
 import api from "../../services/api";
 import useReveal from "../../hooks/useReveal";
 
-const defaultServices = [
-  { label: "Residential Construction", slug: "residential-construction" },
-  { label: "Commercial Construction", slug: "commercial-construction" },
-  { label: "Renovation & Remodelling", slug: "renovation-remodelling" },
-  { label: "Project Management", slug: "project-management" },
-];
-
 const quickLinks = [
   { label: "Home", to: "/" },
   { label: "About Us", to: "/about" },
@@ -22,34 +15,30 @@ const quickLinks = [
 
 export default function Footer() {
   const settings = useSiteSettings();
-  const [services, setServices] = useState(defaultServices);
+  const [services, setServices] = useState([]);
   const { ref, isVisible } = useReveal();
 
   useEffect(() => {
     async function loadServices() {
       try {
         const data = await api.getServices();
-        if (data && data.length > 0) {
-          const active = data.filter((s) => s.active !== false).slice(0, 5);
-          if (active.length > 0) {
-            setServices(
-              active.map((s) => ({
-                label: s.title || s.name,
-                slug: s.slug || String(s.id || s._id),
-              }))
-            );
-          }
+        if (data) {
+          const active = data.filter((s) => s.isActive !== false).slice(0, 5);
+          setServices(active.map((s) => ({
+            label: s.title || s.name,
+            slug: s.slug || String(s.id || s._id),
+          })));
         }
-      } catch (e) {
-        // Fallback already set
+      } catch (error) {
+        console.error("Failed to load footer services.", error);
       }
     }
     loadServices();
   }, []);
 
-  const phone = settings.phone || "+91 98765 43210";
+  const phone = settings.phone || "";
   const phoneClean = phone.replace(/[^0-9+]/g, "");
-  const email = settings.email || "info@rccinfrastructure.com";
+  const email = settings.email || "";
   const address = settings.address || "Mangaluru, Karnataka, India";
   const socials = settings.socialLinks || {};
 
@@ -120,15 +109,15 @@ export default function Footer() {
         <div className="site-footer-column site-footer-contact">
           <h3>Get in Touch</h3>
 
-          <a href={`tel:${phoneClean}`} className="site-footer-contact-item">
+          {phone && <a href={`tel:${phoneClean}`} className="site-footer-contact-item">
             <Icon name="phone" size={17} />
             <span>{phone}</span>
-          </a>
+          </a>}
 
-          <a href={`mailto:${email}`} className="site-footer-contact-item">
+          {email && <a href={`mailto:${email}`} className="site-footer-contact-item">
             <Icon name="mail" size={17} />
             <span>{email}</span>
-          </a>
+          </a>}
 
           <div className="site-footer-contact-item">
             <Icon name="mapPin" size={18} />

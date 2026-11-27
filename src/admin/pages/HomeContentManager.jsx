@@ -29,7 +29,7 @@ export default function HomeContentManager() {
           });
         }
       } catch (err) {
-        setToast({ type: "error", message: "Failed to load Home content" });
+        setToast({ type: "error", message: err.message || "Failed to load Home content" });
       } finally {
         setLoading(false);
       }

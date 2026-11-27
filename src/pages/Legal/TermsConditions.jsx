@@ -87,11 +87,7 @@ export default function TermsConditions() {
             <article className="legal-section">
               <h2>7. Inquiries & Contact</h2>
               <p>
-                For any clarifications or legal inquiries regarding these terms, reach us at{" "}
-                <a href="mailto:info@rccinfrastructure.com" className="text-red">
-                  info@rccinfrastructure.com
-                </a>
-                .
+                For clarifications or legal inquiries, use the contact details listed on our Contact page.
               </p>
             </article>
           </div>

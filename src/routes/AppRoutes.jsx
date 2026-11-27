@@ -1,48 +1,48 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
 import Layout from "../components/layout/Layout";
 
-// Public pages
-import Home from "../pages/Home/Home";
-import About from "../pages/About/About";
-import Services from "../pages/Services/Services";
-import ServiceDetails from "../pages/Services/ServiceDetails";
-import Projects from "../pages/Projects/Projects";
-import ProjectDetails from "../pages/Projects/ProjectDetails";
-import Expertise from "../pages/Expertise/Expertise";
-import Process from "../pages/Process/Process";
-import Contact from "../pages/Contact/Contact";
-import PrivacyPolicy from "../pages/Legal/PrivacyPolicy";
-import TermsConditions from "../pages/Legal/TermsConditions";
-import ThankYou from "../pages/ThankYou/ThankYou";
-import NotFound from "../pages/NotFound/NotFound";
+const Home = lazy(() => import("../pages/Home/Home"));
+const About = lazy(() => import("../pages/About/About"));
+const Services = lazy(() => import("../pages/Services/Services"));
+const ServiceDetails = lazy(() => import("../pages/Services/ServiceDetails"));
+const Projects = lazy(() => import("../pages/Projects/Projects"));
+const ProjectDetails = lazy(() => import("../pages/Projects/ProjectDetails"));
+const Expertise = lazy(() => import("../pages/Expertise/Expertise"));
+const Process = lazy(() => import("../pages/Process/Process"));
+const Contact = lazy(() => import("../pages/Contact/Contact"));
+const PrivacyPolicy = lazy(() => import("../pages/Legal/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("../pages/Legal/TermsConditions"));
+const ThankYou = lazy(() => import("../pages/ThankYou/ThankYou"));
+const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
 
-// Admin pages
-import Login from "../admin/pages/Login";
-import ProtectedRoute from "../admin/components/ProtectedRoute";
-import AdminLayout from "../admin/components/AdminLayout";
-import Dashboard from "../admin/pages/Dashboard";
-import HomeContentManager from "../admin/pages/HomeContentManager";
-import AboutContentManager from "../admin/pages/AboutContentManager";
-import ServicesList from "../admin/pages/ServicesList";
-import ServiceEdit from "../admin/pages/ServiceEdit";
-import ProjectsList from "../admin/pages/ProjectsList";
-import ProjectEdit from "../admin/pages/ProjectEdit";
-import CategoriesManager from "../admin/pages/CategoriesManager";
-import TestimonialsManager from "../admin/pages/TestimonialsManager";
-import StatsManager from "../admin/pages/StatsManager";
-import ExpertiseManager from "../admin/pages/ExpertiseManager";
-import ProcessFaqManager from "../admin/pages/ProcessFaqManager";
-import PageBannersManager from "../admin/pages/PageBannersManager";
-import EnquiriesManager from "../admin/pages/EnquiriesManager";
-import MediaLibrary from "../admin/pages/MediaLibrary";
-import SiteSettings from "../admin/pages/SiteSettings";
-import UsersManager from "../admin/pages/UsersManager";
-import ChangePasswordPage from "../admin/pages/ChangePasswordPage";
-import HelpPage from "../admin/pages/HelpPage";
+const Login = lazy(() => import("../admin/pages/Login"));
+const ProtectedRoute = lazy(() => import("../admin/components/ProtectedRoute"));
+const AdminLayout = lazy(() => import("../admin/components/AdminLayout"));
+const Dashboard = lazy(() => import("../admin/pages/Dashboard"));
+const HomeContentManager = lazy(() => import("../admin/pages/HomeContentManager"));
+const AboutContentManager = lazy(() => import("../admin/pages/AboutContentManager"));
+const ServicesList = lazy(() => import("../admin/pages/ServicesList"));
+const ServiceEdit = lazy(() => import("../admin/pages/ServiceEdit"));
+const ProjectsList = lazy(() => import("../admin/pages/ProjectsList"));
+const ProjectEdit = lazy(() => import("../admin/pages/ProjectEdit"));
+const CategoriesManager = lazy(() => import("../admin/pages/CategoriesManager"));
+const TestimonialsManager = lazy(() => import("../admin/pages/TestimonialsManager"));
+const StatsManager = lazy(() => import("../admin/pages/StatsManager"));
+const ExpertiseManager = lazy(() => import("../admin/pages/ExpertiseManager"));
+const ProcessFaqManager = lazy(() => import("../admin/pages/ProcessFaqManager"));
+const PageBannersManager = lazy(() => import("../admin/pages/PageBannersManager"));
+const EnquiriesManager = lazy(() => import("../admin/pages/EnquiriesManager"));
+const MediaLibrary = lazy(() => import("../admin/pages/MediaLibrary"));
+const SiteSettings = lazy(() => import("../admin/pages/SiteSettings"));
+const UsersManager = lazy(() => import("../admin/pages/UsersManager"));
+const ChangePasswordPage = lazy(() => import("../admin/pages/ChangePasswordPage"));
+const HelpPage = lazy(() => import("../admin/pages/HelpPage"));
 
 export default function AppRoutes() {
   return (
+    <Suspense fallback={<div className="route-loading" role="status">Loading page...</div>}>
     <Routes>
       {/* Public Pages with main site Layout */}
       <Route element={<Layout />}>
@@ -109,5 +109,6 @@ export default function AppRoutes() {
         </Route>
       </Route>
     </Routes>
+    </Suspense>
   );
 }

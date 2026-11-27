@@ -6,18 +6,12 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem("rcc_admin_user");
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    localStorage.removeItem("rcc_admin_token");
     const handleSessionExpired = () => {
       setAuthenticated(false);
       setUser(null);
@@ -37,7 +31,6 @@ export function AuthProvider({ children }) {
         if (res?.data) {
           setUser(res.data);
           setAuthenticated(true);
-          localStorage.setItem("rcc_admin_user", JSON.stringify(res.data));
         }
       } catch (err) {
         console.warn("Session check failed or expired:", err.message);
@@ -51,21 +44,20 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await api.adminLogin(email, password);
-    if (!res?.user || !res?.token) {
+    if (!res?.user) {
       throw new Error("Sign-in response was incomplete. Please try again.");
     }
 
     setUser(res.user);
     setAuthenticated(true);
-    localStorage.setItem("rcc_admin_user", JSON.stringify(res.user));
     return res;
   };
 
   const logout = async () => {
     try {
       await api.adminLogout();
-    } catch {
-      // Ignore network errors during logout
+    } catch (error) {
+      console.error("Could not confirm server logout.", error);
     }
     setAuthenticated(false);
     setUser(null);

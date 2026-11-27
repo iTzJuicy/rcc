@@ -53,7 +53,8 @@ export default function StatsManager() {
         sortableInstance.current.destroy();
         sortableInstance.current = null;
       }
-    } catch {
+    } catch (error) {
+      console.error("Could not dispose of the previous stats sorter.", error);
       sortableInstance.current = null;
     }
 
@@ -74,13 +75,13 @@ export default function StatsManager() {
             const orderedIds = current.map((s) => s._id);
             await api.adminReorderStats(orderedIds);
             setToast({ type: "success", message: "Stats order updated everywhere!" });
-          } catch (err) {
-            setToast({ type: "error", message: "Failed to persist order" });
+          } catch (error) {
+            setToast({ type: "error", message: error.message || "Failed to persist order" });
           }
         },
       });
-    } catch {
-      // ignore init error
+    } catch (error) {
+      console.error("Could not initialize stats reordering.", error);
     }
 
     return () => {
@@ -89,7 +90,8 @@ export default function StatsManager() {
           sortableInstance.current.destroy();
           sortableInstance.current = null;
         }
-      } catch {
+      } catch (error) {
+        console.error("Could not clean up stats reordering.", error);
         sortableInstance.current = null;
       }
     };
@@ -117,8 +119,8 @@ export default function StatsManager() {
       await api.adminDeleteStat(id);
       setToast({ type: "success", message: "Stat deleted." });
       setStats((prev) => prev.filter((s) => s._id !== id));
-    } catch (err) {
-      setToast({ type: "error", message: "Delete failed" });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Delete failed" });
     }
   };
 

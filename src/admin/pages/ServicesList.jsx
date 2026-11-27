@@ -51,7 +51,8 @@ export default function ServicesList() {
         sortableInstance.current.destroy();
         sortableInstance.current = null;
       }
-    } catch {
+    } catch (error) {
+      console.error("Could not dispose of the previous service sorter.", error);
       sortableInstance.current = null;
     }
 
@@ -73,13 +74,13 @@ export default function ServicesList() {
             const orderedIds = current.map((s) => s._id);
             await api.post("/admin/services/reorder", { orderedIds });
             setToast({ type: "success", message: "Services reorder saved automatically!" });
-          } catch (err) {
-            setToast({ type: "error", message: "Failed to persist new order" });
+          } catch (error) {
+            setToast({ type: "error", message: error.message || "Failed to persist new order" });
           }
         },
       });
-    } catch {
-      // ignore init error
+    } catch (error) {
+      console.error("Could not initialize service reordering.", error);
     }
 
     return () => {
@@ -88,7 +89,8 @@ export default function ServicesList() {
           sortableInstance.current.destroy();
           sortableInstance.current = null;
         }
-      } catch {
+      } catch (error) {
+        console.error("Could not clean up service reordering.", error);
         sortableInstance.current = null;
       }
     };
@@ -107,8 +109,8 @@ export default function ServicesList() {
           ? `"${service.title}" will appear on the home page (first 4 displayed).`
           : `"${service.title}" hidden from home page.`,
       });
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to update home visibility." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to update home visibility." });
     }
   };
 
@@ -123,8 +125,8 @@ export default function ServicesList() {
         type: "success",
         message: newVal ? "Service marked Active." : "Service marked Inactive.",
       });
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to update status." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to update status." });
     }
   };
 

@@ -7,44 +7,51 @@ import ContactCTA from "../../components/sections/home/ContactCTA";
 import Icon from "../../components/common/Icon";
 import SEO from "../../components/common/SEO";
 import api from "../../services/api";
-import staticProjects from "../../data/projects";
 import "../../styles/projects.css";
 
 const PAGE_SIZE = 6;
-const STATUS_OPTIONS = ["All", "Completed", "Ongoing", "Upcoming"];
-
 export default function Projects() {
-  const [projectList, setProjectList] = useState(staticProjects);
+  const [projectList, setProjectList] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [categoryChips, setCategoryChips] = useState(["All"]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+
     async function load() {
-      try {
-        const [resProjects, resCats] = await Promise.all([
-          api.getProjects(),
-          api.get("/public/categories?activeOnly=true"),
-        ]);
+      const [projectsResult, categoriesResult] = await Promise.allSettled([
+        api.getProjects(),
+        api.get("/public/categories?activeOnly=true"),
+      ]);
+      if (!active) return;
 
-        if (resProjects?.data && resProjects.data.length > 0) {
-          setProjectList(resProjects.data);
-        }
-
-        if (resCats?.data && Array.isArray(resCats.data)) {
-          const names = resCats.data.map((c) => c.name);
-          setCategoryChips(["All", ...names]);
-        }
-      } catch (err) {
-        console.warn("Using local project list:", err.message);
-      } finally {
-        setLoading(false);
+      if (projectsResult.status === "rejected") {
+        setError("Projects are temporarily unavailable. Please try again.");
+        console.error("Failed to load projects.", projectsResult.reason);
+      } else {
+        const projects = projectsResult.value?.data;
+        if (Array.isArray(projects)) setProjectList(projects);
       }
+
+      if (categoriesResult.status === "fulfilled" && Array.isArray(categoriesResult.value?.data)) {
+        setCategoryChips(["All", ...categoriesResult.value.data.map((category) => category.name)]);
+      } else if (categoriesResult.status === "rejected") {
+        console.error("Failed to load project categories.", categoriesResult.reason);
+      }
+      setLoading(false);
     }
     load();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
 
   const categories = useMemo(() => {
     if (categoryChips.length > 1) return categoryChips;
@@ -180,7 +187,16 @@ export default function Projects() {
             )}
           </div>
 
-          {displayedProjects.length > 0 ? (
+          {loading ? (
+            <p role="status" aria-live="polite">Loading projects...</p>
+          ) : error ? (
+            <div className="projects-empty" role="alert">
+              <h3>{error}</h3>
+              <button type="button" className="btn" onClick={() => setReloadKey((key) => key + 1)}>
+                Try Again
+              </button>
+            </div>
+          ) : displayedProjects.length > 0 ? (
             <>
               <div className="projects-grid">
                 {displayedProjects.map((project) => (

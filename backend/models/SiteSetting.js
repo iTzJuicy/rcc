@@ -24,11 +24,11 @@ const siteSettingSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      default: "+91 98765 43210",
+      default: "",
     },
     email: {
       type: String,
-      default: "info@rccinfrastructure.com",
+      default: "",
     },
     address: {
       type: String,
@@ -40,10 +40,10 @@ const siteSettingSchema = new mongoose.Schema(
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124442.27439162986!2d74.78201948956942!3d12.922983196901844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba35a4c37bf488f%3A0x827bbc7a74fcfe15!2sMangaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
     },
     socialLinks: {
-      facebook: { type: String, default: "https://www.facebook.com/" },
-      instagram: { type: String, default: "https://www.instagram.com/" },
-      linkedin: { type: String, default: "https://www.linkedin.com/" },
-      whatsapp: { type: String, default: "https://wa.me/919876543210" },
+      facebook: { type: String, default: "" },
+      instagram: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      whatsapp: { type: String, default: "" },
     },
     heroHeadline: {
       type: String,

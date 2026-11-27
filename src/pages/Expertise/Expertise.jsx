@@ -4,6 +4,7 @@ import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import SectionHeading from "../../components/common/SectionHeading";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import SEO from "../../components/common/SEO";
 import { CONTENT_FALLBACKS, useSiteContent } from "../../hooks/useSiteContent";
 import "../../styles/expertise.css";
 
@@ -24,6 +25,7 @@ export default function Expertise() {
 
   return (
     <main className="expertise-page">
+      <SEO title="Our Expertise" description="Explore RCC Infrastructure's expertise in construction, development, and project delivery." />
       <PageHero
         pageKey="expertise"
         eyebrow={expertise.hero.eyebrow}

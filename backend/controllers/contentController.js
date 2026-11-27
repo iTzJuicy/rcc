@@ -251,6 +251,14 @@ export const updateContentByKey = async (req, res) => {
     const { key } = req.params;
     const payload = req.body;
 
+    if (!Object.prototype.hasOwnProperty.call(DEFAULT_CONTENT, key)) {
+      return res.status(404).json({ success: false, message: "Content section not found." });
+    }
+
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({ success: false, message: "Content payload must be an object or array." });
+    }
+
     const validationError = validateContentSection(key, payload);
     if (validationError) {
       return res.status(400).json({ success: false, message: validationError });

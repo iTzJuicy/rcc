@@ -1,17 +1,38 @@
 /**
  * API Service for RCC Infrastructure
  * Handles both public endpoints and admin endpoints with JWT authentication.
- * Includes graceful fallback to local data when backend is starting or offline.
+ * Reports API failures explicitly rather than substituting stale sample records.
  */
-
-import fallbackProjects from "../data/projects";
-import fallbackServices from "../data/services";
-import fallbackStats from "../data/statistics";
-import fallbackTestimonials from "../data/testimonials";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
+const REQUEST_TIMEOUT_MS = 40_000;
+
+const delay = (milliseconds) =>
+  new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+
+async function fetchWithRetry(url, config) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(url, { ...config, signal: controller.signal });
+      if (attempt === 0 && [502, 503, 504].includes(response.status)) {
+        await response.body?.cancel();
+        await delay(800);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      if (attempt === 1) throw error;
+      await delay(800);
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+  throw new Error("The server is temporarily unavailable. Please try again.");
+}
 
 function normalizeMediaRecord(record) {
   if (!record || typeof record !== "object") return record;
@@ -36,14 +57,6 @@ async function request(endpoint, options = {}) {
     "Content-Type": "application/json",
     ...fetchOptions.headers,
   };
-  const isProtectedEndpoint =
-    endpoint.startsWith("/admin") ||
-    ["/auth/profile", "/auth/change-password"].includes(endpoint);
-  const token = isProtectedEndpoint ? localStorage.getItem("rcc_admin_token") : null;
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
   // If sending FormData (file uploads), let the browser set Content-Type with boundary
   if (fetchOptions.body instanceof FormData) {
     delete headers["Content-Type"];
@@ -55,10 +68,9 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(url, config);
+  const response = await fetchWithRetry(url, config);
 
   if (response.status === 401 && endpoint.startsWith("/admin")) {
-    localStorage.removeItem("rcc_admin_token");
     localStorage.removeItem("rcc_admin_user");
     if (window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
       window.dispatchEvent(new Event("rcc:session-expired"));
@@ -107,101 +119,47 @@ export const api = {
   },
 
   // ==========================================
-  // PUBLIC ENDPOINTS (fallback only on network error)
+  // PUBLIC ENDPOINTS
   // ==========================================
 
   async getServices() {
-    try {
-      const res = await request("/public/services");
-      return Array.isArray(res.data) ? res.data.map(normalizeMediaRecord) : fallbackServices;
-    } catch (e) {
-      console.warn("Using fallback services data:", e.message);
-      return fallbackServices;
-    }
+    const res = await request("/public/services");
+    if (!Array.isArray(res.data)) throw new Error("Public services response was invalid.");
+    return res.data.map(normalizeMediaRecord);
   },
 
   async getServiceBySlug(slug) {
-    try {
-      const res = await request(`/public/services/${slug}`);
-      return normalizeMediaRecord(res.data);
-    } catch (e) {
-      console.warn("Using fallback service lookup for slug:", slug);
-      return fallbackServices.find((s) => s.slug === slug || String(s.id) === String(slug));
-    }
+    const res = await request(`/public/services/${encodeURIComponent(slug)}`);
+    return normalizeMediaRecord(res.data);
   },
 
   async getProjects(params = {}) {
-    try {
-      const query = new URLSearchParams(params).toString();
-      const res = await request(`/public/projects${query ? `?${query}` : ""}`);
-      return { ...res, data: Array.isArray(res.data) ? res.data.map(normalizeMediaRecord) : res.data };
-    } catch (e) {
-      console.warn("Using fallback projects data:", e.message);
-      let list = [...fallbackProjects];
-      if (params.category && params.category !== "All") {
-        list = list.filter((p) => p.category.toLowerCase() === params.category.toLowerCase());
-      }
-      if (params.status && params.status !== "All") {
-        list = list.filter((p) => (p.status || "Completed").toLowerCase() === params.status.toLowerCase());
-      }
-      if (params.search) {
-        const q = params.search.toLowerCase();
-        list = list.filter(
-          (p) =>
-            p.title.toLowerCase().includes(q) ||
-            p.description.toLowerCase().includes(q) ||
-            (p.location && p.location.toLowerCase().includes(q))
-        );
-      }
-      return {
-        success: true,
-        data: list,
-        total: list.length,
-        page: 1,
-        pages: 1,
-      };
-    }
+    const query = new URLSearchParams(params).toString();
+    const res = await request(`/public/projects${query ? `?${query}` : ""}`);
+    if (!Array.isArray(res.data)) throw new Error("Public projects response was invalid.");
+    return { ...res, data: res.data.map(normalizeMediaRecord) };
   },
 
   async getProjectBySlug(slug) {
-    try {
-      const res = await request(`/public/projects/${slug}`);
-      return normalizeMediaRecord(res.data);
-    } catch (e) {
-      console.warn("Using fallback project lookup for slug:", slug);
-      return fallbackProjects.find((p) => p.slug === slug || String(p.id) === String(slug));
-    }
+    const res = await request(`/public/projects/${encodeURIComponent(slug)}`);
+    return normalizeMediaRecord(res.data);
   },
 
   async getCategories(type = "project") {
-    try {
-      const res = await request(`/public/categories?type=${type}`);
-      return res.data;
-    } catch (e) {
-      if (type === "project") {
-        const unique = Array.from(new Set(fallbackProjects.map((p) => p.category).filter(Boolean)));
-        return unique.map((c) => ({ name: c, slug: c.toLowerCase().replace(/\s+/g, "-") }));
-      }
-      return [];
-    }
+    const res = await request(`/public/categories?type=${encodeURIComponent(type)}`);
+    return res.data;
   },
 
   async getStats() {
-    try {
-      const res = await request("/public/stats");
-      return Array.isArray(res.data) ? res.data : fallbackStats;
-    } catch (e) {
-      return fallbackStats;
-    }
+    const res = await request("/public/stats");
+    if (!Array.isArray(res.data)) throw new Error("Public statistics response was invalid.");
+    return res.data;
   },
 
   async getTestimonials() {
-    try {
-      const res = await request("/public/testimonials");
-      return Array.isArray(res.data) ? res.data : fallbackTestimonials;
-    } catch (e) {
-      return fallbackTestimonials;
-    }
+    const res = await request("/public/testimonials");
+    if (!Array.isArray(res.data)) throw new Error("Public testimonials response was invalid.");
+    return res.data;
   },
 
   async getSiteSettings() {
@@ -209,13 +167,14 @@ export const api = {
       const res = await request("/public/settings");
       return res.data;
     } catch (e) {
+      console.error("Failed to load public site settings; showing non-contact defaults.", e);
       return {
         siteName: "RCC Infrastructure",
-        phone: "+91 98765 43210",
-        email: "info@rccinfrastructure.com",
+        phone: "",
+        email: "",
         address: "Mangalore, Karnataka, India",
         heroHeadline: "Designing & Building Spaces that Inspire",
-        heroSubtext: "Over 15+ years of excellence in architectural design, residential construction, commercial spaces, and infrastructure development in Mangaluru.",
+        heroSubtext: "We deliver architectural design, residential construction, commercial spaces, and infrastructure development in Mangaluru.",
         heroButtonLabel: "Explore Projects",
         contactCtaTitle: "Ready to Build Your Dream Project?",
         contactCtaDescription: "Let's bring your vision to reality with RCC Infrastructure's proven expertise, transparent process, and premium craftsmanship.",
@@ -225,7 +184,7 @@ export const api = {
           facebook: "https://www.facebook.com/",
           instagram: "https://www.instagram.com/",
           linkedin: "https://www.linkedin.com/",
-          whatsapp: "https://wa.me/919876543210",
+          whatsapp: "",
         },
       };
     }
@@ -243,21 +202,17 @@ export const api = {
   // ==========================================
 
   async adminLogin(email, password) {
-    const res = await request("/auth/login", {
+    return request("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
-    if (res?.token) {
-      localStorage.setItem("rcc_admin_token", res.token);
-    }
-    return res;
   },
 
   async adminLogout() {
     try {
       await request("/auth/logout", { method: "POST" });
-    } catch (e) {
-      // Ignore network errors during logout
+    } catch (error) {
+      console.error("Could not confirm server logout.", error);
     } finally {
       localStorage.removeItem("rcc_admin_user");
     }
@@ -268,14 +223,10 @@ export const api = {
   },
 
   async adminChangePassword(currentPassword, newPassword) {
-    const res = await request("/auth/change-password", {
+    return request("/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword }),
     });
-    if (res?.token) {
-      localStorage.setItem("rcc_admin_token", res.token);
-    }
-    return res;
   },
 
   // ==========================================
@@ -553,6 +504,12 @@ export const api = {
 
   async adminGetModels() {
     return request("/admin/media/models");
+  },
+
+  async adminDeleteModel(id) {
+    return request(`/admin/media/models/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
   },
 
   async adminDeleteMedia(id) {

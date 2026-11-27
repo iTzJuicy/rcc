@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -37,8 +36,18 @@ async function seed() {
     console.log("[Seed] Connected.");
 
     // 1. Create default admin user
-    const defaultEmail = (process.env.DEFAULT_ADMIN_EMAIL || "admin@rcc.com").toLowerCase().trim();
-    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || "adminpassword123";
+    const defaultEmail = process.env.DEFAULT_ADMIN_EMAIL?.toLowerCase().trim();
+    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD;
+    if (!defaultEmail || !defaultPassword) {
+      throw new Error("Set DEFAULT_ADMIN_EMAIL and DEFAULT_ADMIN_PASSWORD before seeding.");
+    }
+    if (
+      defaultEmail === "admin@rcc.com" ||
+      defaultPassword.length < 16 ||
+      defaultPassword === "adminpassword123"
+    ) {
+      throw new Error("Use a new admin email and a unique password with at least 16 characters.");
+    }
 
     const allPermissions = {
       services: true,
@@ -52,7 +61,12 @@ async function seed() {
       users: true,
     };
 
-    let admin = await User.findOne({ email: defaultEmail });
+    const configuredAdmin = await User.findOne({ email: defaultEmail });
+    const legacyAdmin = await User.findOne({ email: "admin@rcc.com" });
+    if (configuredAdmin && legacyAdmin && String(configuredAdmin._id) !== String(legacyAdmin._id)) {
+      throw new Error("Both the configured and legacy admin accounts exist; resolve the duplicate account before seeding.");
+    }
+    let admin = configuredAdmin || legacyAdmin;
     if (!admin) {
       admin = new User({
         name: "RCC Super Admin",
@@ -64,6 +78,9 @@ async function seed() {
       await admin.save();
       console.log(`[Seed] Default superadmin created: ${defaultEmail}`);
     } else {
+      admin.email = defaultEmail;
+      admin.password = defaultPassword;
+      admin.tokenVersion = (admin.tokenVersion || 0) + 1;
       admin.role = "superadmin";
       admin.permissions = allPermissions;
       await admin.save();
@@ -296,16 +313,16 @@ async function seed() {
         tagline: "Quality Construction & Development",
         logo: "/images/logo.webp",
         favicon: "/images/logo.webp",
-        phone: "+91 98765 43210",
-        email: "info@rccinfrastructure.com",
+        phone: "",
+        email: "",
         address: "Mangalore, Karnataka, India",
         mapEmbedUrl:
           "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124442.27439162986!2d74.78201948956942!3d12.922983196901844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba35a4c37bf488f%3A0x827bbc7a74fcfe15!2sMangaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
         socialLinks: {
-          facebook: "https://www.facebook.com/",
-          instagram: "https://www.instagram.com/",
-          linkedin: "https://www.linkedin.com/",
-          whatsapp: "https://wa.me/919876543210",
+          facebook: "",
+          instagram: "",
+          linkedin: "",
+          whatsapp: "",
         },
       });
       console.log("[Seed] Seeded default site settings.");

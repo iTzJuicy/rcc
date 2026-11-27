@@ -22,7 +22,6 @@ import { notFoundHandler, globalErrorHandler } from "./middleware/errorHandler.j
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const startTime = Date.now();
 
 function getTrustProxySetting(value) {
   if (!value) return 1;
@@ -35,7 +34,7 @@ function getTrustProxySetting(value) {
 app.set("trust proxy", getTrustProxySetting(process.env.TRUST_PROXY));
 
 // Initialize Sentry
-initSentry(app);
+initSentry();
 
 // Security HTTP headers with strict CSP
 app.use(
@@ -60,22 +59,26 @@ app.use(compression());
 
 // Strict CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "https://rcc-ruddy.vercel.app",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+  ...(process.env.NODE_ENV === "production"
+    ? []
+    : ["http://localhost:5173", "http://localhost:3000", "http://localhost:5000"]),
+  ...(process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
+
+app.use((req, res, next) => {
+  const origin = req.get("origin");
+  if (origin && !allowedOrigins.includes(origin)) {
+    return res.status(403).json({ success: false, message: "Origin is not allowed." });
+  }
+  next();
+});
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (curl, mobile apps) or matching allowed origins
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error(`CORS blocked request from origin: ${origin}`), false);
-    },
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -137,26 +140,17 @@ app.get("/api/uptime", async (req, res) => {
     try {
       await mongoose.connection.db.admin().ping();
       dbPingMs = Date.now() - t0;
-    } catch {
+    } catch (error) {
+      console.error("Health check database ping failed.", error);
       dbPingMs = -1;
     }
   }
 
-  const memory = process.memoryUsage();
   res.json({
     status: "healthy",
-    uptimeSeconds: Math.floor((Date.now() - startTime) / 1000),
-    timestamp: new Date().toISOString(),
     database: {
       status: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
       pingMs: dbPingMs,
-    },
-    system: {
-      nodeVersion: process.version,
-      memoryUsageMB: {
-        rss: (memory.rss / (1024 * 1024)).toFixed(2),
-        heapUsed: (memory.heapUsed / (1024 * 1024)).toFixed(2),
-      },
     },
   });
 });

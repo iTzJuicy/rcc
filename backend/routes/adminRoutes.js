@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import process from "node:process";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
 import { cloudinary, isConfigured } from "../config/cloudinary.js";
@@ -59,6 +60,11 @@ import {
   adminUploadMedia,
   adminDeleteMedia,
 } from "../controllers/mediaController.js";
+import {
+  adminDeleteModelAsset,
+  adminGetModelAssets,
+} from "../controllers/modelAssetController.js";
+import ModelAsset from "../models/ModelAsset.js";
 
 import {
   adminGetSettings,
@@ -72,6 +78,22 @@ import {
 
 const router = express.Router();
 
+function requireMediaOrProjectPermission(req, res, next) {
+  const role = req.user?.role;
+  const permissions = req.user?.permissions || {};
+  if (role === "admin" || role === "superadmin") return next();
+
+  const canManage = ["media", "projects"].some((key) => (
+    (role === "editor" && permissions[key] === undefined) || permissions[key] === true
+  ));
+  if (canManage) return next();
+
+  return res.status(403).json({
+    success: false,
+    message: "Access denied. You need media or project management permission.",
+  });
+}
+
 // ── 3D Model Upload (local storage, GLB/GLTF only) ──────────────────────────
 const model3dUploadDir = path.resolve("public/uploads/models");
 if (!fs.existsSync(model3dUploadDir)) {
@@ -81,23 +103,27 @@ if (!fs.existsSync(model3dUploadDir)) {
 const model3dStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, model3dUploadDir),
   filename: (_req, _file, cb) => {
-    const ext = path.extname(_file.originalname).toLowerCase();
-    cb(null, `${crypto.randomUUID()}${ext}`);
+    const ext = path.extname(_file.originalname).toLowerCase() === ".gltf" ? ".gltf" : ".glb";
+    const originalBase = path.basename(_file.originalname, ext)
+      .normalize("NFKC")
+      .replace(/[^a-zA-Z0-9._-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 100) || "model";
+    cb(null, `${crypto.randomUUID()}-${originalBase}${ext}`);
   },
 });
 
-const MODEL_MIME_TYPES = [
-  "model/gltf-binary",
-  "model/gltf+json",
-  "application/octet-stream", // GLB is often sent as this
-];
+const MODEL_MIME_TYPES_BY_EXTENSION = {
+  ".glb": ["model/gltf-binary", "application/octet-stream"],
+  ".gltf": ["model/gltf+json", "application/json"],
+};
 
 const upload3dModel = multer({
   storage: model3dStorage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === ".glb" || ext === ".gltf" || MODEL_MIME_TYPES.includes(file.mimetype)) {
+    if (MODEL_MIME_TYPES_BY_EXTENSION[ext]?.includes(file.mimetype)) {
       cb(null, true);
     } else {
       const err = new Error("Only .glb and .gltf files are allowed.");
@@ -159,54 +185,12 @@ router.post("/media/upload", requirePermission("media"), upload.single("file"), 
 router.delete("/media/:id", requirePermission("media"), adminDeleteMedia);
 
 // 3D Model Upload (GLB/GLTF, max 50 MB)
-router.get("/media/models", requirePermission("projects"), async (_req, res, next) => {
-  try {
-    const models = [];
-    const localFiles = await fs.promises.readdir(model3dUploadDir, { withFileTypes: true });
-
-    for (const file of localFiles) {
-      if (!file.isFile() || ![".glb", ".gltf"].includes(path.extname(file.name).toLowerCase())) continue;
-      models.push({
-        filename: file.name,
-        url: `/uploads/models/${encodeURIComponent(file.name)}`,
-      });
-    }
-
-    if (isConfigured) {
-      let nextCursor;
-      do {
-        const result = await cloudinary.api.resources({
-          resource_type: "raw",
-          type: "upload",
-          prefix: "rcc_infrastructure/models/",
-          max_results: 500,
-          ...(nextCursor ? { next_cursor: nextCursor } : {}),
-        });
-
-        for (const resource of result.resources || []) {
-          const extension = path.extname(resource.public_id).toLowerCase() || `.${resource.format || ""}`;
-          if (![".glb", ".gltf"].includes(extension)) continue;
-          const storedName = resource.original_filename || path.basename(resource.public_id);
-          models.push({
-            filename: path.extname(storedName) ? storedName : `${storedName}${extension}`,
-            url: resource.secure_url,
-          });
-        }
-        nextCursor = result.next_cursor;
-      } while (nextCursor);
-    }
-
-    const uniqueModels = [...new Map(models.map((model) => [model.url, model])).values()]
-      .sort((a, b) => a.filename.localeCompare(b.filename));
-    res.json({ success: true, data: uniqueModels });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/media/models", requireMediaOrProjectPermission, adminGetModelAssets);
+router.delete("/media/models/:id", requireMediaOrProjectPermission, adminDeleteModelAsset);
 
 router.post(
   "/media/upload-model",
-  requirePermission("projects"),
+  requireMediaOrProjectPermission,
   (req, res, next) => {
     if (process.env.NODE_ENV === "production" && !isConfigured) {
       return res.status(503).json({
@@ -223,12 +207,23 @@ router.post(
     }
 
     if (!isConfigured) {
-      const url = `/uploads/models/${req.file.filename}`;
-      return res.json({ success: true, url, filename: req.file.originalname, bytes: req.file.size });
+      try {
+        const url = `/uploads/models/${req.file.filename}`;
+        const asset = await ModelAsset.create({
+          url,
+          filename: req.file.originalname,
+          storage: "local",
+          bytes: req.file.size,
+        });
+        return res.status(201).json({ success: true, data: asset, url, filename: asset.filename, bytes: asset.bytes });
+      } catch (error) {
+        return next(error);
+      }
     }
 
+    let result;
     try {
-      const result = await new Promise((resolve, reject) => {
+      result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_large(
           req.file.path,
           {
@@ -246,25 +241,30 @@ router.post(
         );
       });
 
-      await fs.promises.unlink(req.file.path);
-      return res.json({
-        success: true,
-        url: result.secure_url,
-        filename: req.file.originalname,
-        bytes: req.file.size,
-      });
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.warn(
           `[Storage] Cloudinary model upload failed (${error.http_code || error.message}); using local development storage.`
         );
-        return res.json({
-          success: true,
-          url: `/uploads/models/${req.file.filename}`,
-          filename: req.file.originalname,
-          bytes: req.file.size,
-          storage: "local",
-        });
+        try {
+          const url = `/uploads/models/${req.file.filename}`;
+          const asset = await ModelAsset.create({
+            url,
+            filename: req.file.originalname,
+            storage: "local",
+            bytes: req.file.size,
+          });
+          return res.status(201).json({
+            success: true,
+            data: asset,
+            url: asset.url,
+            filename: asset.filename,
+            bytes: asset.bytes,
+            storage: "local",
+          });
+        } catch (storageError) {
+          return next(storageError);
+        }
       }
 
       try {
@@ -273,6 +273,31 @@ router.post(
         if (cleanupError.code !== "ENOENT") {
           return next(cleanupError);
         }
+      }
+      return next(error);
+    }
+
+    try {
+      await fs.promises.unlink(req.file.path);
+      const asset = await ModelAsset.create({
+        url: result.secure_url,
+        filename: req.file.originalname,
+        public_id: result.public_id,
+        storage: "cloudinary",
+        bytes: req.file.size,
+      });
+      return res.status(201).json({
+        success: true,
+        data: asset,
+        url: asset.url,
+        filename: asset.filename,
+        bytes: asset.bytes,
+      });
+    } catch (error) {
+      try {
+        await cloudinary.uploader.destroy(result.public_id, { resource_type: "raw" });
+      } catch (cleanupError) {
+        console.error("Failed to remove a model from Cloudinary after metadata persistence failed.", cleanupError);
       }
       return next(error);
     }
@@ -285,6 +310,6 @@ router.put("/settings", requirePermission("settings"), adminUpdateSettings);
 
 // Editable Content Sections (Home, About, Expertise, FAQs, Page Banners)
 router.get("/content/:key", getContentByKey);
-router.put("/content/:key", updateContentByKey);
+router.put("/content/:key", requirePermission("settings"), updateContentByKey);
 
 export default router;

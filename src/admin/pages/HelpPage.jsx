@@ -72,6 +72,7 @@ export default function HelpPage() {
         tips={[
           "All changes made in this admin panel take effect on the live website immediately upon saving.",
           "Images uploaded through the Media Library are automatically optimized for web performance.",
+          "Manage reusable 3D models in the Media Library. Original filenames are retained, and assigned models must be removed from their project before deletion.",
           "If you ever need technical assistance, contact the web administration team.",
         ]}
       />

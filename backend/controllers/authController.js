@@ -29,9 +29,10 @@ function setAuthCookie(res, token) {
 
 export async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
+    const body = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const { email, password } = body;
 
-    if (!email || !password) {
+    if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "Please provide both email and password.",
@@ -63,7 +64,6 @@ export async function login(req, res, next) {
 
     res.json({
       success: true,
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -99,19 +99,20 @@ export async function getProfile(req, res) {
 
 export async function changePassword(req, res, next) {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const body = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const { currentPassword, newPassword } = body;
 
-    if (!currentPassword || !newPassword) {
+    if (typeof currentPassword !== "string" || typeof newPassword !== "string" || !currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
         message: "Current password and new password are required.",
       });
     }
 
-    if (newPassword.length < 8) {
+    if (newPassword.length < 12) {
       return res.status(400).json({
         success: false,
-        message: "New password must be at least 8 characters long.",
+        message: "New password must be at least 12 characters long.",
       });
     }
 
@@ -136,7 +137,6 @@ export async function changePassword(req, res, next) {
 
     res.json({
       success: true,
-      token: newToken,
       message: "Password updated successfully. Other active sessions have been invalidated.",
     });
   } catch (error) {
@@ -159,19 +159,23 @@ export async function adminGetUsers(req, res, next) {
 
 export async function adminCreateUser(req, res, next) {
   try {
-    const { name, email, password, role, permissions } = req.body;
+    const body = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const { name, email, password, role, permissions } = body;
 
-    if (!name || !email || !password) {
+    if (
+      typeof name !== "string" || typeof email !== "string" || typeof password !== "string" ||
+      !name.trim() || !email.trim() || !password
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, and password (min 8 chars) are required.",
+        message: "Name, email, and password (min 12 chars) are required.",
       });
     }
 
-    if (password.length < 8) {
+    if (password.length < 12) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters.",
+        message: "Password must be at least 12 characters.",
       });
     }
 
@@ -213,7 +217,8 @@ export async function adminCreateUser(req, res, next) {
 export async function adminUpdateUser(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, email, role, permissions, password } = req.body;
+    const body = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const { name, email, role, permissions, password } = body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -225,7 +230,14 @@ export async function adminUpdateUser(req, res, next) {
     if (role) user.role = role;
     if (permissions) user.permissions = { ...user.permissions, ...permissions };
 
-    if (password && password.length >= 8) {
+    if (password !== undefined && (typeof password !== "string" || password.length < 12)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 12 characters.",
+      });
+    }
+
+    if (password) {
       user.password = password;
       user.tokenVersion = (user.tokenVersion || 0) + 1;
     }

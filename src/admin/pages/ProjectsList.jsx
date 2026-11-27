@@ -52,7 +52,8 @@ export default function ProjectsList() {
         sortableInstance.current.destroy();
         sortableInstance.current = null;
       }
-    } catch {
+    } catch (error) {
+      console.error("Could not dispose of the previous project sorter.", error);
       sortableInstance.current = null;
     }
 
@@ -72,13 +73,13 @@ export default function ProjectsList() {
             const orderedIds = current.map((p) => p._id);
             await api.post("/admin/projects/reorder", { orderedIds });
             setToast({ type: "success", message: "Project order saved automatically!" });
-          } catch (err) {
-            setToast({ type: "error", message: "Failed to persist project order." });
+          } catch (error) {
+            setToast({ type: "error", message: error.message || "Failed to persist project order." });
           }
         },
       });
-    } catch {
-      // ignore init error
+    } catch (error) {
+      console.error("Could not initialize project reordering.", error);
     }
 
     return () => {
@@ -87,7 +88,8 @@ export default function ProjectsList() {
           sortableInstance.current.destroy();
           sortableInstance.current = null;
         }
-      } catch {
+      } catch (error) {
+        console.error("Could not clean up project reordering.", error);
         sortableInstance.current = null;
       }
     };
@@ -106,8 +108,8 @@ export default function ProjectsList() {
           ? `"${project.title}" marked as Featured on Home Page.`
           : `"${project.title}" unfeatured.`,
       });
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to update featured flag." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to update featured flag." });
     }
   };
 

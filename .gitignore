@@ -23,6 +23,11 @@ dist-ssr
 .vercel
 public/uploads/*
 !public/uploads/.gitkeep
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# Database exports contain credentials, user data, and customer enquiries
+backups/
 
 # Editor directories and files
 .vscode/*

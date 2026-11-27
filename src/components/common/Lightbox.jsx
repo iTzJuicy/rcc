@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import Icon from "./Icon";
 
 export default function Lightbox({
@@ -8,6 +8,18 @@ export default function Lightbox({
   onClose,
   onNavigate,
 }) {
+  const handlePrev = useCallback((e) => {
+    e?.stopPropagation();
+    const prev = (currentIndex - 1 + images.length) % images.length;
+    onNavigate(prev);
+  }, [currentIndex, images.length, onNavigate]);
+
+  const handleNext = useCallback((e) => {
+    e?.stopPropagation();
+    const next = (currentIndex + 1) % images.length;
+    onNavigate(next);
+  }, [currentIndex, images.length, onNavigate]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -24,25 +36,13 @@ export default function Lightbox({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, currentIndex, images.length]);
+  }, [isOpen, currentIndex, images.length, onClose, handlePrev, handleNext]);
 
   if (!isOpen || images.length === 0) return null;
 
   const current = images[currentIndex];
   const currentUrl = typeof current === "string" ? current : current?.url || current?.image;
   const currentAlt = typeof current === "string" ? "Gallery image" : current?.alt || current?.caption || "Gallery image";
-
-  const handlePrev = (e) => {
-    e?.stopPropagation();
-    const prev = (currentIndex - 1 + images.length) % images.length;
-    onNavigate(prev);
-  };
-
-  const handleNext = (e) => {
-    e?.stopPropagation();
-    const next = (currentIndex + 1) % images.length;
-    onNavigate(next);
-  };
 
   return (
     <div

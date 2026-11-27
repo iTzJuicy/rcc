@@ -288,6 +288,7 @@ export default function ProjectEdit() {
           "Full description appears on the Project Details page (max 1200 chars).",
           "The project detail page uses the Default Site Banner unless you set an optional custom page banner.",
           "Upload up to 12 gallery photos for the interactive visual tour carousel.",
+          "Uploaded 3D models are reusable from the Media Library; models assigned to a project must be unassigned before deletion.",
         ]}
       />
 

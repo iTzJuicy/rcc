@@ -7,8 +7,8 @@ import useReveal from "../../../hooks/useReveal";
 export default function ContactBanner() {
   const settings = useSiteSettings();
   const { ref, isVisible } = useReveal();
-  const phone = settings.phone || "+91 98765 43210";
-  const email = settings.email || "info@rccinfrastructure.com";
+  const phone = settings.phone || "";
+  const email = settings.email || "";
   const address = settings.address || "Mangaluru, Karnataka";
   const title = settings.contactCtaTitle || "Let's Build Something\nGreat Together.";
   const description =
@@ -52,15 +52,15 @@ export default function ContactBanner() {
         </div>
 
         <div className="contact-banner-details reveal-item">
-          <a href={`tel:${phoneClean}`} className="contact-banner-detail">
+          {phone && <a href={`tel:${phoneClean}`} className="contact-banner-detail">
             <Icon name="phone" size={18} />
             <span>{phone}</span>
-          </a>
+          </a>}
 
-          <a href={`mailto:${email}`} className="contact-banner-detail">
+          {email && <a href={`mailto:${email}`} className="contact-banner-detail">
             <Icon name="mail" size={18} />
             <span>{email}</span>
-          </a>
+          </a>}
 
           <div className="contact-banner-detail">
             <Icon name="mapPin" size={19} />

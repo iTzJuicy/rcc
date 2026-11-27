@@ -9,15 +9,15 @@ export default function SiteSettings() {
     tagline: "Quality Construction & Development",
     logo: "/images/logo.webp",
     favicon: "/images/logo.webp",
-    phone: "+91 98765 43210",
-    email: "info@rccinfrastructure.com",
+    phone: "",
+    email: "",
     address: "Mangalore, Karnataka, India",
     mapEmbedUrl: "",
     socialLinks: {
-      facebook: "https://www.facebook.com/",
-      instagram: "https://www.instagram.com/",
-      linkedin: "https://www.linkedin.com/",
-      whatsapp: "https://wa.me/919876543210",
+      facebook: "",
+      instagram: "",
+      linkedin: "",
+      whatsapp: "",
     },
     defaultSeo: {
       metaTitle: "RCC Infrastructure | Quality Construction & Development",
@@ -74,8 +74,8 @@ export default function SiteSettings() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setPassAlert({ type: "error", text: "Password must be at least 6 characters long." });
+    if (newPassword.length < 12) {
+      setPassAlert({ type: "error", text: "Password must be at least 12 characters long." });
       return;
     }
 

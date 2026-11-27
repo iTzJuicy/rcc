@@ -111,6 +111,7 @@ export default function CategoriesManager() {
           </button>
         </div>
 
+        {loading && <p role="status">Loading categories...</p>}
         <div className="admin-table-responsive">
           <table className="admin-table">
             <thead>

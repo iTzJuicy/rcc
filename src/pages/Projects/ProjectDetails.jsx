@@ -9,9 +9,9 @@ import SEO from "../../components/common/SEO";
 import ContactCTA from "../../components/sections/home/ContactCTA";
 import Model3DViewer from "../../components/common/Model3DViewer";
 
-import staticProjects from "../../data/projects";
 import MODEL_3D_TEMPLATES from "../../data/model3dTemplates";
 import api from "../../services/api";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 import "../../styles/project-details.css";
 import "../../styles/model3d.css";
 
@@ -26,11 +26,11 @@ function isHttpUrl(value) {
 export default function ProjectDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const siteSettings = useSiteSettings();
 
-  const [project, setProject] = useState(() =>
-    staticProjects.find((item) => item.slug === slug)
-  );
-  const [allProjects, setAllProjects] = useState(staticProjects);
+  const [project, setProject] = useState(null);
+  const [projectState, setProjectState] = useState("loading");
+  const [allProjects, setAllProjects] = useState([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -52,24 +52,58 @@ export default function ProjectDetails() {
   const [submittingQuote, setSubmittingQuote] = useState(false);
 
   useEffect(() => {
+    let active = true;
+    setProject(null);
+    setProjectState("loading");
+
     async function fetchProject() {
       try {
         const found = await api.getProjectBySlug(slug);
-        if (found) {
-          setProject(found);
+        if (!active) return;
+        setProject(found);
+        setProjectState("ready");
+        api.getProjects().then((res) => {
+          if (active && res?.data) setAllProjects(res.data);
+        }).catch((error) => {
+          console.error("Failed to load related projects.", error);
+        });
+      } catch (error) {
+        if (!active) return;
+        setProjectState(error.status === 404 ? "not-found" : "error");
+        if (error.status !== 404) {
+          console.error("Failed to load project details.", error);
         }
-        const res = await api.getProjects();
-        if (res?.data) {
-          setAllProjects(res.data);
-        }
-      } catch (err) {
-        console.warn("Using fallback project details:", err.message);
       }
     }
     fetchProject();
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
-  if (!project) {
+  if (projectState === "loading") {
+    return (
+      <div className="project-not-found-container" role="status" aria-live="polite">
+        <Container><p>Loading project...</p></Container>
+      </div>
+    );
+  }
+
+  if (projectState === "error") {
+    return (
+      <div className="project-not-found-container" role="alert">
+        <Container>
+          <h2>Project temporarily unavailable</h2>
+          <p>We could not load this project. Please try again in a moment.</p>
+          <button type="button" className="btn" onClick={() => window.location.reload()}>
+            Try Again
+          </button>
+        </Container>
+      </div>
+    );
+  }
+
+  if (projectState === "not-found" || !project) {
     return (
       <div className="project-not-found-container">
         <Container>
@@ -116,7 +150,7 @@ export default function ProjectDetails() {
     setQuoteError("");
 
     try {
-      await api.submitEnquiry({
+      const response = await api.submitEnquiry({
         name: quoteForm.name,
         email: quoteForm.email,
         phone: quoteForm.phone,
@@ -135,7 +169,9 @@ export default function ProjectDetails() {
       navigate("/thank-you", {
         state: {
           title: "Quotation Request Submitted",
-          message: `Thank you for your interest in ${project.title}. Our estimation team has received your inquiry and will contact you with a preliminary consultation proposal.`,
+          message: response?.notificationSent === false
+            ? `Your request for ${project.title} has been recorded, but email confirmation is temporarily unavailable. Please use the contact details on this page if it is urgent.`
+            : `Thank you for your interest in ${project.title}. Our estimation team has received your inquiry and will contact you with a preliminary consultation proposal.`,
         },
       });
     } catch (err) {
@@ -419,18 +455,19 @@ export default function ProjectDetails() {
                 <p style={{ margin: "0 0 6px", fontWeight: "600" }}>{quoteError}</p>
                 <p style={{ margin: 0, fontSize: "12px" }}>
                   Or reach us directly at{" "}
-                  <a href="tel:+919876543210" style={{ textDecoration: "underline", color: "#b91c1c" }}>
-                    +91 98765 43210
-                  </a>{" "}
-                  /{" "}
-                  <a
-                    href="https://wa.me/919876543210"
+                  {siteSettings.phone && <a href={`tel:${siteSettings.phone.replace(/[^0-9+]/g, "")}`} style={{ textDecoration: "underline", color: "#b91c1c" }}>
+                    {siteSettings.phone}
+                  </a>}
+                  {siteSettings.phone && siteSettings.socialLinks?.whatsapp && " / "}
+                  {siteSettings.socialLinks?.whatsapp && <a
+                    href={siteSettings.socialLinks.whatsapp}
                     target="_blank"
                     rel="noreferrer"
                     style={{ textDecoration: "underline", color: "#16a34a", fontWeight: "600" }}
                   >
                     WhatsApp
-                  </a>
+                  </a>}
+                  {!siteSettings.phone && !siteSettings.socialLinks?.whatsapp && "Please retry submitting your request."}
                 </p>
               </div>
             )}
@@ -483,7 +520,7 @@ export default function ProjectDetails() {
                     name="phone"
                     value={quoteForm.phone}
                     onChange={handleQuoteChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="Your phone number"
                     required
                   />
                 </div>

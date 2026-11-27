@@ -20,7 +20,7 @@ export const publicFormLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many submission attempts. Please try again after some time or contact us by phone.",
+    message: "Too many submission attempts. Please try again later.",
   },
 });
 

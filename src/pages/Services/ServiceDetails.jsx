@@ -8,7 +8,6 @@ import Lightbox from "../../components/common/Lightbox";
 import SEO from "../../components/common/SEO";
 import ContactCTA from "../../components/sections/home/ContactCTA";
 
-import staticServices from "../../data/services";
 import api from "../../services/api";
 import "../../styles/service-details.css";
 
@@ -131,28 +130,57 @@ function RelatedServices({ services }) {
 
 export default function ServiceDetails() {
   const { slug } = useParams();
-  const [service, setService] = useState(() =>
-    staticServices.find((item) => item.slug === slug || String(item.id) === String(slug))
-  );
-  const [allServices, setAllServices] = useState(staticServices);
+  const [service, setService] = useState(null);
+  const [serviceState, setServiceState] = useState("loading");
+  const [allServices, setAllServices] = useState([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    setService(null);
+    setServiceState("loading");
+
     async function load() {
       try {
         const found = await api.getServiceBySlug(slug);
-        if (found) setService(found);
-        const list = await api.getServices();
-        if (list) setAllServices(list);
-      } catch (e) {
-        console.warn("Using fallback service lookup:", e.message);
+        if (!active) return;
+        setService(found);
+        setServiceState("ready");
+        api.getServices().then((list) => {
+          if (active && list) setAllServices(list);
+        }).catch((error) => {
+          console.error("Failed to load related services.", error);
+        });
+      } catch (error) {
+        if (!active) return;
+        setServiceState(error.status === 404 ? "not-found" : "error");
+        if (error.status !== 404) {
+          console.error("Failed to load service details.", error);
+        }
       }
     }
     load();
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
-  if (!service) return <Navigate to="/services" replace />;
+  if (serviceState === "loading") {
+    return <main className="project-not-found-container" role="status" aria-live="polite"><p>Loading service...</p></main>;
+  }
+
+  if (serviceState === "error") {
+    return (
+      <main className="project-not-found-container" role="alert">
+        <h2>Service temporarily unavailable</h2>
+        <p>We could not load this service. Please try again in a moment.</p>
+        <button type="button" className="btn" onClick={() => window.location.reload()}>Try Again</button>
+      </main>
+    );
+  }
+
+  if (serviceState === "not-found" || !service) return <Navigate to="/services" replace />;
 
   const otherServices = allServices
     .filter((item) => item.slug !== service.slug)

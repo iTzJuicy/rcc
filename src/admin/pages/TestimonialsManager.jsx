@@ -64,7 +64,8 @@ export default function TestimonialsManager() {
         sortableInstance.current.destroy();
         sortableInstance.current = null;
       }
-    } catch {
+    } catch (error) {
+      console.error("Could not dispose of the previous testimonial sorter.", error);
       sortableInstance.current = null;
     }
 
@@ -85,13 +86,13 @@ export default function TestimonialsManager() {
             const orderedIds = current.map((t) => t._id);
             await api.post("/admin/testimonials/reorder", { orderedIds });
             setToast({ type: "success", message: "Testimonial order saved automatically!" });
-          } catch (err) {
-            setToast({ type: "error", message: "Failed to save order." });
+          } catch (error) {
+            setToast({ type: "error", message: error.message || "Failed to save order." });
           }
         },
       });
-    } catch {
-      // ignore init error
+    } catch (error) {
+      console.error("Could not initialize testimonial reordering.", error);
     }
 
     return () => {
@@ -100,7 +101,8 @@ export default function TestimonialsManager() {
           sortableInstance.current.destroy();
           sortableInstance.current = null;
         }
-      } catch {
+      } catch (error) {
+        console.error("Could not clean up testimonial reordering.", error);
         sortableInstance.current = null;
       }
     };
@@ -137,8 +139,8 @@ export default function TestimonialsManager() {
         type: "success",
         message: newVal ? "Testimonial approved and visible on site." : "Testimonial hidden.",
       });
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to update approval status." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to update approval status." });
     }
   };
 
@@ -148,8 +150,8 @@ export default function TestimonialsManager() {
       await api.adminDeleteTestimonial(id);
       setToast({ type: "success", message: "Testimonial deleted successfully." });
       setItems((prev) => prev.filter((t) => t._id !== id));
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to delete testimonial." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to delete testimonial." });
     }
   };
 
@@ -166,8 +168,8 @@ export default function TestimonialsManager() {
         setFormData((prev) => ({ ...prev, photo: res.data.url }));
         setToast({ type: "success", message: "Client avatar photo uploaded!" });
       }
-    } catch (err) {
-      setToast({ type: "error", message: "Failed to upload photo" });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Failed to upload photo" });
     } finally {
       setUploadingPhoto(false);
     }

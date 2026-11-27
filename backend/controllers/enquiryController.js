@@ -2,6 +2,8 @@ import Enquiry from "../models/Enquiry.js";
 import Project from "../models/Project.js";
 import Service from "../models/Service.js";
 import Testimonial from "../models/Testimonial.js";
+import { sendEnquiryNotifications } from "../services/enquiryMailer.js";
+import { captureException } from "../config/sentry.js";
 
 // Helper to sanitize Excel / CSV cells against Formula Injection
 function sanitizeExcelCell(val) {
@@ -15,6 +17,10 @@ function sanitizeExcelCell(val) {
 
 export async function submitPublicEnquiry(req, res, next) {
   try {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ success: false, message: "Enquiry body must be an object." });
+    }
+
     // 1. Honeypot check for bots
     if (req.body._gotcha) {
       return res.status(200).json({
@@ -37,6 +43,14 @@ export async function submitPublicEnquiry(req, res, next) {
       carpetArea,
       projectType,
     } = req.body;
+
+    const textFields = {
+      name, email, message, phone, subject, projectTitle, projectSlug,
+      budget, timeline, location, carpetArea, projectType,
+    };
+    if (Object.values(textFields).some((value) => value !== undefined && typeof value !== "string")) {
+      return res.status(400).json({ success: false, message: "Enquiry fields must be text values." });
+    }
 
     // 2. Strict Input validation
     if (!name || !email || !message) {
@@ -68,7 +82,25 @@ export async function submitPublicEnquiry(req, res, next) {
       });
     }
 
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+    const limits = {
+      phone: 40,
+      subject: 200,
+      projectTitle: 120,
+      projectSlug: 120,
+      budget: 80,
+      timeline: 80,
+      location: 160,
+      carpetArea: 80,
+      projectType: 80,
+    };
+    for (const [field, maxLength] of Object.entries(limits)) {
+      if (textFields[field] && textFields[field].length > maxLength) {
+        return res.status(400).json({
+          success: false,
+          message: `${field} cannot exceed ${maxLength} characters.`,
+        });
+      }
+    }
 
     const enquiry = await Enquiry.create({
       name: name.trim(),
@@ -84,13 +116,23 @@ export async function submitPublicEnquiry(req, res, next) {
       carpetArea: (carpetArea || "").trim(),
       projectType: (projectType || "").trim(),
       status: "new",
-      ipAddress: String(ip).split(",")[0].trim(),
+      ipAddress: req.ip || "",
     });
+
+    let notificationSent = true;
+    try {
+      await sendEnquiryNotifications(enquiry);
+    } catch (notificationError) {
+      notificationSent = false;
+      console.error("Enquiry was saved, but email notifications failed.", notificationError);
+      captureException(notificationError, { context: "enquiry-email-notifications" });
+    }
 
     res.status(201).json({
       success: true,
       message: "Enquiry submitted successfully.",
       data: { id: enquiry._id },
+      notificationSent,
     });
   } catch (error) {
     next(error);

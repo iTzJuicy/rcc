@@ -355,6 +355,38 @@
   }
 }
 
+@media (max-width: 640px) {
+  .admin-model3d-tabs {
+    gap: 4px;
+  }
+
+  .admin-model3d-tab {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .admin-model3d-clear-btn {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-model3d-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .admin-model3d-tab {
+    text-align: left;
+  }
+
+  .admin-model3d-current {
+    align-items: flex-start;
+    padding: 10px;
+  }
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .model3d-spinner {

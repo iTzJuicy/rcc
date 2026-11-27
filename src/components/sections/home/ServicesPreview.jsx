@@ -3,23 +3,25 @@ import { Link } from "react-router-dom";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
 import ServiceCard from "../shared/ServiceCard";
-import fallbackServices from "../../../data/services";
 import api from "../../../services/api";
 import useReveal from "../../../hooks/useReveal";
 
 export default function ServicesPreview() {
-  const [servicesList, setServicesList] = useState(fallbackServices);
+  const [servicesList, setServicesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const { ref, isVisible } = useReveal();
 
   useEffect(() => {
     async function load() {
       try {
         const res = await api.get("/public/services?homeOnly=true");
-        if (res && res.data && res.data.length > 0) {
-          setServicesList(res.data.slice(0, 4));
-        }
-      } catch {
-        // Fallback already set
+        if (Array.isArray(res?.data)) setServicesList(res.data.slice(0, 4));
+      } catch (error) {
+        setLoadError(true);
+        console.error("Failed to load homepage services.", error);
+      } finally {
+        setLoading(false);
       }
     }
     load();
@@ -58,7 +60,11 @@ export default function ServicesPreview() {
 
         <div className="services-preview-content">
           <div className="services-grid">
-            {featuredServices.map((service, idx) => (
+            {loadError ? (
+              <p role="alert">Services are temporarily unavailable.</p>
+            ) : loading ? (
+              <p role="status" aria-live="polite">Loading services...</p>
+            ) : featuredServices.map((service, idx) => (
               <div className="reveal-item" style={{ "--reveal-index": idx }} key={service.id || service._id || service.slug}>
                 <ServiceCard service={service} />
               </div>

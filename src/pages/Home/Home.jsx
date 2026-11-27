@@ -8,10 +8,12 @@ import ProcessPreview from "../../components/sections/home/ProcessPreview";
 import Testimonials from "../../components/sections/home/Testimonials";
 import WhyChooseUs from "../../components/sections/home/WhyChooseUs";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import SEO from "../../components/common/SEO";
 
 export default function Home() {
   return (
     <div className="home-page-wrapper">
+      <SEO title="Home" description="RCC Infrastructure delivers construction and development solutions across Mangaluru." />
       <Hero />
       <Impact />
       <FeaturedProjects />

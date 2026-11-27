@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import PageHero from "../../components/common/PageHero";
 import Container from "../../components/common/Container";
 import ContactCTA from "../../components/sections/home/ContactCTA";
+import SEO from "../../components/common/SEO";
 import { CONTENT_FALLBACKS, useSiteContent } from "../../hooks/useSiteContent";
 import "../../styles/process.css";
 
@@ -27,6 +28,7 @@ export default function Process() {
 
   return (
     <>
+      <SEO title="Our Process" description="Learn how RCC Infrastructure plans, manages, and delivers construction projects." />
       <PageHero
         pageKey="process"
         eyebrow={process.hero.eyebrow}

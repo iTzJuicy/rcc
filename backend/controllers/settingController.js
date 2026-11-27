@@ -18,6 +18,16 @@ function getSettingsUpdates(body) {
   return updates;
 }
 
+function sanitizeLegacyContactDetails(settings) {
+  const data = settings.toObject();
+  if (data.phone === "+91 98765 43210") data.phone = "";
+  if (data.email === "info@rccinfrastructure.com") data.email = "";
+  if (data.socialLinks?.whatsapp === "https://wa.me/919876543210") {
+    data.socialLinks.whatsapp = "";
+  }
+  return data;
+}
+
 async function getSingletonSettings(updates = {}) {
   let settings = await SiteSetting.findOne({ singleton: true });
 
@@ -56,7 +66,7 @@ async function getSingletonSettings(updates = {}) {
 export async function getPublicSettings(req, res, next) {
   try {
     const settings = await getSingletonSettings();
-    res.json({ success: true, data: settings });
+    res.json({ success: true, data: sanitizeLegacyContactDetails(settings) });
   } catch (error) {
     next(error);
   }
@@ -65,7 +75,7 @@ export async function getPublicSettings(req, res, next) {
 export async function adminGetSettings(req, res, next) {
   try {
     const settings = await getSingletonSettings();
-    res.json({ success: true, data: settings });
+    res.json({ success: true, data: sanitizeLegacyContactDetails(settings) });
   } catch (error) {
     next(error);
   }
@@ -75,7 +85,7 @@ export async function adminUpdateSettings(req, res, next) {
   try {
     const updates = getSettingsUpdates(req.body);
     const settings = await getSingletonSettings(updates);
-    res.json({ success: true, data: settings });
+    res.json({ success: true, data: sanitizeLegacyContactDetails(settings) });
   } catch (error) {
     next(error);
   }

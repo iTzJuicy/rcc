@@ -2,8 +2,10 @@ import { Link, useLocation } from "react-router-dom";
 import Container from "../../components/common/Container";
 import Icon from "../../components/common/Icon";
 import SEO from "../../components/common/SEO";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 
 export default function ThankYou() {
+  const settings = useSiteSettings();
   const location = useLocation();
   const state = location.state || {};
   const { title = "Thank You for Reaching Out", message = "We have received your enquiry. Our team will review the details and get back to you within 24 to 48 business hours." } = state;
@@ -26,14 +28,14 @@ export default function ThankYou() {
             <p className="thank-you-text">{message}</p>
 
             <div className="thank-you-details">
-              <div className="thank-you-info-item">
+              {settings.phone && <div className="thank-you-info-item">
                 <Icon name="phone" size={18} />
-                <span>Quick assistance: +91 98765 43210</span>
-              </div>
-              <div className="thank-you-info-item">
+                <span>Quick assistance: {settings.phone}</span>
+              </div>}
+              {settings.email && <div className="thank-you-info-item">
                 <Icon name="mail" size={18} />
-                <span>info@rccinfrastructure.com</span>
-              </div>
+                <span>{settings.email}</span>
+              </div>}
             </div>
 
             <div className="thank-you-actions">

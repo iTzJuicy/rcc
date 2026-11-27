@@ -16,7 +16,12 @@ export async function getSitemapXml(req, res, next) {
 
     if (!sitemapPromise) {
       sitemapPromise = (async () => {
-        const baseUrl = process.env.SITE_URL || "https://rccinfrastructure.com";
+        if (process.env.NODE_ENV === "production" && !process.env.SITE_URL) {
+          throw new Error("SITE_URL must be configured in production before generating a sitemap.");
+        }
+        const baseUrl = process.env.SITE_URL
+          ? new URL(process.env.SITE_URL).origin
+          : new URL(`${req.protocol}://${req.get("host")}`).origin;
         const staticRoutes = [
           { loc: "/", changefreq: "weekly", priority: "1.0" },
           { loc: "/about", changefreq: "monthly", priority: "0.8" },

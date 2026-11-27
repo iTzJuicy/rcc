@@ -32,7 +32,7 @@ const defaultIcons = [
 ];
 
 export default function Impact() {
-  const { stats } = useStats();
+  const { stats, loading, error } = useStats();
   const { ref, isVisible } = useReveal();
 
   return (
@@ -57,7 +57,11 @@ export default function Impact() {
         </div>
 
         <div className="impact-stats">
-          {stats.map((stat, idx) => {
+          {loading ? (
+            <p role="status" aria-live="polite">Loading impact statistics...</p>
+          ) : error ? (
+            <p role="alert">Impact statistics are temporarily unavailable.</p>
+          ) : stats.map((stat, idx) => {
             const displayValue = stat.suffix ? `${stat.value}${stat.suffix}` : stat.value;
             return (
               <div className="impact-stat reveal-item" key={stat.id || stat.label || idx} style={{ "--reveal-index": idx }}>

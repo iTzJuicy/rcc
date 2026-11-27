@@ -5,77 +5,49 @@ import Icon from "../../common/Icon";
 import api from "../../../services/api";
 import useReveal from "../../../hooks/useReveal";
 
-const initialProjects = [
-  {
-    id: 1,
-    title: "Residential Apartments",
-    category: "Residential",
-    status: "Completed",
-    location: "Mangaluru",
-    image: "/images/card1.webp",
-    slug: "residential-apartments",
-  },
-  {
-    id: 2,
-    title: "Commercial Complex",
-    category: "Commercial",
-    status: "Ongoing",
-    location: "Mangaluru",
-    image: "/images/card2.webp",
-    slug: "commercial-complex",
-  },
-  {
-    id: 3,
-    title: "Infrastructure Project",
-    category: "Infrastructure",
-    status: "Ongoing",
-    location: "Mangaluru",
-    image: "/images/impact.webp",
-    slug: "infrastructure-project",
-  },
-  {
-    id: 4,
-    title: "Villa Project",
-    category: "Residential",
-    status: "Upcoming",
-    location: "Mangaluru",
-    image: "/images/card4.webp",
-    slug: "villa-project",
-  },
-];
-
 const filters = ["All", "Residential", "Commercial", "Renovation", "Construction"];
 const projectStatusOrder = { upcoming: 0, planned: 0, ongoing: 1, completed: 2 };
 
 export default function FeaturedProjects() {
-  const [projectList, setProjectList] = useState(initialProjects);
+  const [projectList, setProjectList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
   const [filterChanging, setFilterChanging] = useState(false);
   const { ref, isVisible } = useReveal();
 
   useEffect(() => {
+    let active = true;
     async function load() {
       try {
         const res = await api.getProjects({ limit: 12 });
         const data = res?.data || res;
-        if (Array.isArray(data) && data.length > 0) {
+        if (active && Array.isArray(data)) {
           const normalized = data.map((p) => ({
             id: p.id || p._id,
             title: p.title,
-            category: p.category || "Residential",
-            status: p.status || "Completed",
-            location: p.location || "Mangaluru",
+            category: p.category || "",
+            status: p.status || "",
+            location: p.location || "",
             image: p.coverImage || p.image || "/images/card1.webp",
             slug: p.slug || String(p.id || p._id),
             featured: p.featured,
           }));
           setProjectList(normalized);
         }
-      } catch {
-        // Fallback already initialized
+      } catch (error) {
+        if (active) {
+          setLoadError(true);
+          console.error("Failed to load featured projects.", error);
+        }
+      } finally {
+        if (active) setLoading(false);
       }
     }
     load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const filteredProjects = [...projectList]
@@ -144,7 +116,11 @@ export default function FeaturedProjects() {
           </div>
 
           <div className={`featured-projects-grid ${filterChanging ? "filter-changing" : ""}`}>
-            {filteredProjects.map((project, idx) => (
+            {loadError ? (
+              <p role="alert">Featured projects are temporarily unavailable.</p>
+            ) : loading ? (
+              <p role="status" aria-live="polite">Loading featured projects...</p>
+            ) : filteredProjects.map((project, idx) => (
               <article className="featured-project-card reveal-item" style={{ "--reveal-index": idx }} key={`${activeFilter}-${project.id}`}>
                 <Link
                   to={`/projects/${project.slug}`}
@@ -164,10 +140,10 @@ export default function FeaturedProjects() {
                   <div className="featured-project-details">
                     <h3>{project.title}</h3>
 
-                    <p>
+                    {project.location && <p>
                       <span className="featured-project-location-dot" />
                       {project.location}
-                    </p>
+                    </p>}
                   </div>
 
                   <Link

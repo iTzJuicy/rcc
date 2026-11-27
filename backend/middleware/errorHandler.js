@@ -6,7 +6,7 @@ export function notFoundHandler(req, res, next) {
   next(error);
 }
 
-export function globalErrorHandler(err, req, res, next) {
+export function globalErrorHandler(err, req, res, _next) {
   let statusCode = err.status || (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message || "An unexpected server error occurred.";
 
