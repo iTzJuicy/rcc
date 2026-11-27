@@ -46,6 +46,70 @@
   height: 100% !important;
 }
 
+.project-model3d-launcher {
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(24px, 6vw, 96px);
+}
+
+.model3d-launcher-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+  padding: clamp(24px, 4vw, 56px);
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(17, 19, 21, .94), rgba(17, 19, 21, .56) 52%, rgba(17, 19, 21, .22)),
+    linear-gradient(0deg, rgba(17, 19, 21, .64), transparent 70%);
+}
+
+.model3d-launcher-image {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .48;
+  filter: saturate(.72);
+}
+
+.model3d-launch-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 20px 0 14px;
+  border: 1px solid rgba(255, 255, 255, .54);
+  border-radius: 999px;
+  background: rgba(18, 20, 22, .28);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .025em;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+
+.model3d-launch-button:hover,
+.model3d-launch-button:focus-visible {
+  border-color: #fff;
+  background: rgba(255, 255, 255, .12);
+  outline: none;
+}
+
+.model3d-launch-button svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
 .model3d-stage {
   position: relative;
   width: 100%;
@@ -471,6 +535,14 @@
   .project-model3d-canvas {
     height: min(78vh, 680px);
     min-height: 480px;
+  }
+
+  .project-model3d-launcher {
+    padding: 16px;
+  }
+
+  .model3d-launcher-content {
+    padding: 22px;
   }
 
   .model3d-fullscreen-control {

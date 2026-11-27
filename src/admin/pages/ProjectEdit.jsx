@@ -212,7 +212,7 @@ export default function ProjectEdit() {
         setToast({
           type: "success",
           message: res.storage === "local"
-            ? "Model saved locally because Cloudinary rejected the file size. It is available only on this development server."
+            ? "Model uploaded to server local storage. Render may clear it after a redeploy or restart."
             : "3D building model uploaded successfully!",
         });
       }

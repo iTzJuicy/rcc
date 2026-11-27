@@ -30,6 +30,7 @@ export default function ProjectDetails() {
   const [project, setProject] = useState(null);
   const [projectState, setProjectState] = useState("loading");
   const [allProjects, setAllProjects] = useState([]);
+  const [modelViewerOpen, setModelViewerOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -54,6 +55,7 @@ export default function ProjectDetails() {
     let active = true;
     setProject(null);
     setProjectState("loading");
+    setModelViewerOpen(false);
 
     async function fetchProject() {
       try {
@@ -363,13 +365,40 @@ export default function ProjectDetails() {
         return (
           <section className="project-model3d-section">
             <div className="project-model3d-viewer-wrap">
-              <div className="project-model3d-canvas">
-                <Model3DViewer
-                  modelUrl={project.model3dUrl || ""}
-                  template={project.model3dTemplate || ""}
-                  fallbackImageUrl={project.image || ""}
-                  projectTitle={project.title}
-                />
+              <div className={`project-model3d-canvas${modelViewerOpen ? "" : " project-model3d-launcher"}`}>
+                {modelViewerOpen ? (
+                  <Model3DViewer
+                    modelUrl={project.model3dUrl || ""}
+                    template={project.model3dTemplate || ""}
+                    fallbackImageUrl={project.image || ""}
+                    projectTitle={project.title}
+                  />
+                ) : (
+                  <div className="model3d-launcher-content">
+                    {project.image && (
+                      <img
+                        className="model3d-launcher-image"
+                        src={project.image}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                      />
+                    )}
+                    <h2 className="model3d-project-title">{project.title}</h2>
+                    <span className="model3d-title-rule" aria-hidden="true" />
+                    <button
+                      type="button"
+                      className="model3d-launch-button"
+                      onClick={() => setModelViewerOpen(true)}
+                      aria-label={`View ${project.title} in 3D`}
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m9 6 10 6-10 6z" />
+                      </svg>
+                      <span>View in 3D</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </section>

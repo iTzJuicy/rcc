@@ -3,10 +3,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import process from "node:process";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
-import { cloudinary, isConfigured } from "../config/cloudinary.js";
 
 import {
   adminGetDashboard,
@@ -191,99 +189,18 @@ router.delete("/media/models/:id", requireMediaOrProjectPermission, adminDeleteM
 router.post(
   "/media/upload-model",
   requireMediaOrProjectPermission,
-  (req, res, next) => {
-    if (process.env.NODE_ENV === "production" && !isConfigured) {
-      return res.status(503).json({
-        success: false,
-        message: "3D model uploads require persistent Cloudinary storage in production.",
-      });
-    }
-    next();
-  },
   upload3dModel.single("file"),
   async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No file uploaded." });
     }
 
-    if (!isConfigured) {
-      try {
-        const url = `/uploads/models/${req.file.filename}`;
-        const asset = await ModelAsset.create({
-          url,
-          filename: req.file.originalname,
-          storage: "local",
-          bytes: req.file.size,
-        });
-        return res.status(201).json({ success: true, data: asset, url, filename: asset.filename, bytes: asset.bytes });
-      } catch (error) {
-        return next(error);
-      }
-    }
-
-    let result;
+    const url = `/uploads/models/${encodeURIComponent(req.file.filename)}`;
     try {
-      result = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_large(
-          req.file.path,
-          {
-            folder: "rcc_infrastructure/models",
-            public_id: req.file.filename,
-            resource_type: "raw",
-            chunk_size: 6 * 1024 * 1024,
-            use_filename: false,
-            unique_filename: false,
-          },
-          (error, uploaded) => {
-            if (error) return reject(error);
-            resolve(uploaded);
-          }
-        );
-      });
-
-    } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.warn(
-          `[Storage] Cloudinary model upload failed (${error.http_code || error.message}); using local development storage.`
-        );
-        try {
-          const url = `/uploads/models/${req.file.filename}`;
-          const asset = await ModelAsset.create({
-            url,
-            filename: req.file.originalname,
-            storage: "local",
-            bytes: req.file.size,
-          });
-          return res.status(201).json({
-            success: true,
-            data: asset,
-            url: asset.url,
-            filename: asset.filename,
-            bytes: asset.bytes,
-            storage: "local",
-          });
-        } catch (storageError) {
-          return next(storageError);
-        }
-      }
-
-      try {
-        await fs.promises.unlink(req.file.path);
-      } catch (cleanupError) {
-        if (cleanupError.code !== "ENOENT") {
-          return next(cleanupError);
-        }
-      }
-      return next(error);
-    }
-
-    try {
-      await fs.promises.unlink(req.file.path);
       const asset = await ModelAsset.create({
-        url: result.secure_url,
+        url,
         filename: req.file.originalname,
-        public_id: result.public_id,
-        storage: "cloudinary",
+        storage: "local",
         bytes: req.file.size,
       });
       return res.status(201).json({
@@ -292,12 +209,15 @@ router.post(
         url: asset.url,
         filename: asset.filename,
         bytes: asset.bytes,
+        storage: asset.storage,
       });
     } catch (error) {
       try {
-        await cloudinary.uploader.destroy(result.public_id, { resource_type: "raw" });
+        await fs.promises.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error("Failed to remove a model from Cloudinary after metadata persistence failed.", cleanupError);
+        if (cleanupError.code !== "ENOENT") {
+          console.error("Could not remove a model file after its asset record failed to save.", cleanupError);
+        }
       }
       return next(error);
     }

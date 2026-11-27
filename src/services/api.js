@@ -12,10 +12,10 @@ const REQUEST_TIMEOUT_MS = 40_000;
 const delay = (milliseconds) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
-async function fetchWithRetry(url, config) {
+async function fetchWithRetry(url, config, timeoutMs = REQUEST_TIMEOUT_MS) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
       const response = await fetch(url, { ...config, signal: controller.signal });
       if (attempt === 0 && [502, 503, 504].includes(response.status)) {
@@ -52,7 +52,7 @@ function normalizeMediaRecord(record) {
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
-  const { responseType, ...fetchOptions } = options;
+  const { responseType, timeoutMs = REQUEST_TIMEOUT_MS, ...fetchOptions } = options;
   const headers = {
     "Content-Type": "application/json",
     ...fetchOptions.headers,
@@ -68,7 +68,7 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetchWithRetry(url, config);
+  const response = await fetchWithRetry(url, config, timeoutMs);
 
   if (response.status === 401 && endpoint.startsWith("/admin")) {
     localStorage.removeItem("rcc_admin_user");
@@ -499,6 +499,7 @@ export const api = {
     return request("/admin/media/upload-model", {
       method: "POST",
       body: formData,
+      timeoutMs: 120_000,
     });
   },
 
