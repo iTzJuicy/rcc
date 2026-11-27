@@ -121,13 +121,7 @@ app.use(
   (req, res, next) => {
     // Allow cross-origin access so the frontend (on Vercel or any allowed domain)
     // can fetch uploaded 3D models and images directly.
-    const origin = req.get("origin");
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-    } else if (!origin) {
-      // Direct browser navigation or same-origin — allow
-      res.setHeader("Access-Control-Allow-Origin", "*");
-    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Content-Disposition", "inline");

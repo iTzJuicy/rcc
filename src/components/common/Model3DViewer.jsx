@@ -750,10 +750,10 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
   useEffect(() => {
     if (!modelUrl || !mvReady || modelLoaded) return undefined;
     const timeoutId = window.setTimeout(() => {
-      console.warn("3D model did not initialize within 180 seconds. Check model network requests and browser WebGL support.");
+      console.warn("3D model did not initialize within 30 seconds. Check model network requests and browser WebGL support.");
       setModelLoadFailureReason("timeout");
       setModelLoadFailed(true);
-    }, 180000);
+    }, 30000);
     return () => window.clearTimeout(timeoutId);
   }, [modelUrl, mvReady, modelLoaded]);
 
