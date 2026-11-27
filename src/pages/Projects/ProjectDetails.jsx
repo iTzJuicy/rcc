@@ -291,13 +291,9 @@ export default function ProjectDetails() {
           <div
             className="project-details-image"
             onClick={() => openLightbox(0)}
-            title="Click to view full image in lightbox"
             style={{ cursor: "zoom-in" }}
           >
             <img src={project.image} alt={project.title} />
-            <div className="project-image-badge">
-              <Icon name="eye" size={16} /> Click to expand
-            </div>
           </div>
         </div>
       </section>
@@ -313,7 +309,6 @@ export default function ProjectDetails() {
                   Project <span className="text-red">Gallery.</span>
                 </h2>
               </div>
-              <p className="project-gallery-hint">Click any photo to expand.</p>
             </div>
 
             <div className="project-gallery-slider">

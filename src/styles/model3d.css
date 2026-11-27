@@ -52,6 +52,12 @@
   height: 100%;
   overflow: hidden;
   isolation: isolate;
+  touch-action: pan-y;
+}
+
+.model3d-stage canvas,
+.model3d-stage model-viewer {
+  touch-action: pan-y;
 }
 
 .model3d-stage:fullscreen {

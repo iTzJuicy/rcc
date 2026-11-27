@@ -58,7 +58,13 @@ export default function Impact() {
 
         <div className="impact-stats">
           {loading ? (
-            <p role="status" aria-live="polite">Loading impact statistics...</p>
+            Array.from({ length: 4 }, (_, idx) => (
+              <div className="impact-stat rcc-skeleton-stat" key={`stat-skel-${idx}`} aria-hidden="true">
+                <div className="rcc-skeleton-stat-icon rcc-skeleton-shimmer" />
+                <div className="rcc-skeleton-stat-value rcc-skeleton-shimmer" />
+                <div className="rcc-skeleton-stat-label rcc-skeleton-shimmer" />
+              </div>
+            ))
           ) : error ? (
             <p role="alert">Impact statistics are temporarily unavailable.</p>
           ) : stats.map((stat, idx) => {

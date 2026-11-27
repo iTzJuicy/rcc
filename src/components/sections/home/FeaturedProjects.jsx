@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import Container from "../../common/Container";
 import Icon from "../../common/Icon";
 import api from "../../../services/api";
 import useReveal from "../../../hooks/useReveal";
 
-const filters = ["All", "Residential", "Commercial", "Renovation", "Construction"];
+const preferredFilterOrder = ["Residential", "Commercial", "Renovation", "Construction"];
 const projectStatusOrder = { upcoming: 0, planned: 0, ongoing: 1, completed: 2 };
 
 export default function FeaturedProjects() {
@@ -15,6 +15,7 @@ export default function FeaturedProjects() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [filterChanging, setFilterChanging] = useState(false);
   const { ref, isVisible } = useReveal();
+  const sliderRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -50,6 +51,35 @@ export default function FeaturedProjects() {
     };
   }, []);
 
+  const filters = useMemo(() => {
+    const usedCategories = new Map();
+    for (const project of projectList) {
+      const raw = (project.category || "").trim();
+      if (!raw) continue;
+      const key = raw.toLowerCase();
+      if (!usedCategories.has(key)) usedCategories.set(key, raw);
+    }
+
+    const ordered = [];
+    for (const name of preferredFilterOrder) {
+      const key = name.toLowerCase();
+      if (usedCategories.has(key)) {
+        ordered.push(usedCategories.get(key));
+        usedCategories.delete(key);
+      }
+    }
+    for (const remaining of usedCategories.values()) {
+      ordered.push(remaining);
+    }
+    return ["All", ...ordered];
+  }, [projectList]);
+
+  useEffect(() => {
+    if (activeFilter !== "All" && !filters.includes(activeFilter)) {
+      setActiveFilter("All");
+    }
+  }, [activeFilter, filters]);
+
   const filteredProjects = [...projectList]
     .sort((a, b) => {
       const aOrder = projectStatusOrder[a.status?.toLowerCase()] ?? 3;
@@ -65,6 +95,7 @@ export default function FeaturedProjects() {
   const changeFilter = (filter) => {
     setFilterChanging(true);
     setActiveFilter(filter);
+    sliderRef.current?.scrollTo({ left: 0, behavior: "auto" });
     window.setTimeout(() => setFilterChanging(false), 80);
   };
 
@@ -115,11 +146,17 @@ export default function FeaturedProjects() {
             ))}
           </div>
 
-          <div className={`featured-projects-grid ${filterChanging ? "filter-changing" : ""}`}>
+          <div ref={sliderRef} className={`featured-projects-grid ${filterChanging ? "filter-changing" : ""}`}>
             {loadError ? (
               <p role="alert">Featured projects are temporarily unavailable.</p>
             ) : loading ? (
-              <p role="status" aria-live="polite">Loading featured projects...</p>
+              Array.from({ length: 4 }, (_, idx) => (
+                <div className="featured-project-card rcc-skeleton-card" key={`fp-skel-${idx}`} aria-hidden="true">
+                  <div className="rcc-skeleton-media rcc-skeleton-shimmer-dark" />
+                  <div className="rcc-skeleton-line rcc-skeleton-shimmer-dark" />
+                  <div className="rcc-skeleton-line rcc-skeleton-line-short rcc-skeleton-shimmer-dark" />
+                </div>
+              ))
             ) : filteredProjects.map((project, idx) => (
               <article className="featured-project-card reveal-item" style={{ "--reveal-index": idx }} key={`${activeFilter}-${project.id}`}>
                 <Link

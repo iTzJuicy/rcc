@@ -563,11 +563,11 @@
   }
 
   .hero {
-    --hero-line: 260px;
+    --hero-line: 165px;
   }
 
   .hero-container {
-    padding-top: 40px;
+    padding-top: 68px;
     padding-bottom: 40px;
   }
 
@@ -602,7 +602,7 @@
   }
 
   .hero-image-message {
-    top: 15%;
+    top: 28%;
     right: 4%;
     max-width: 100px;
     font-size: 9px;
@@ -1198,7 +1198,23 @@
   }
 
   .services-preview .services-grid {
-    gap: 20px 12px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .services-preview .services-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services-preview .services-grid > * {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
   }
 
   .services-preview .service-card-title {
@@ -1258,7 +1274,23 @@
   }
 
   .services-preview .services-grid {
-    gap: 20px 12px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .services-preview .services-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services-preview .services-grid > * {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
   }
 
   .services-preview .service-card-title {
@@ -1282,8 +1314,8 @@
 }
 
 @media (max-width: 340px) {
-  .services-preview .services-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .services-preview .services-grid > * {
+    flex: 0 0 86%;
   }
 }
 
@@ -1632,11 +1664,27 @@
   }
 
   .featured-projects-grid {
-    gap: 12px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .featured-projects-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featured-projects-grid .featured-project-card {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
   }
 
   .featured-project-image {
-    aspect-ratio: .9 / 1;
+    aspect-ratio: 1.05 / 1;
   }
 
   .featured-project-status {
@@ -1669,12 +1717,12 @@
 }
 
 @media (max-width: 400px) {
-  .featured-projects-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .featured-projects-grid .featured-project-card {
+    flex: 0 0 86%;
   }
 
   .featured-project-image {
-    aspect-ratio: 1.2 / 1;
+    aspect-ratio: 1.1 / 1;
   }
 }
 

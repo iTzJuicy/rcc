@@ -54,10 +54,34 @@ export default function Projects() {
   }, [reloadKey]);
 
   const categories = useMemo(() => {
-    if (categoryChips.length > 1) return categoryChips;
-    const set = new Set(projectList.map((p) => p.category).filter(Boolean));
-    return ["All", ...Array.from(set)];
+    const activeProjectCats = new Set(
+      projectList.map((p) => (p.category || "").trim().toLowerCase()).filter(Boolean)
+    );
+    if (categoryChips.length > 1) {
+      const validChips = categoryChips.filter(
+        (cat) => cat === "All" || activeProjectCats.has(cat.trim().toLowerCase())
+      );
+      if (validChips.length > 1) return validChips;
+    }
+    const uniqueCats = [];
+    const seen = new Set();
+    for (const p of projectList) {
+      const raw = (p.category || "").trim();
+      if (!raw) continue;
+      const key = raw.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueCats.push(raw);
+      }
+    }
+    return ["All", ...uniqueCats];
   }, [categoryChips, projectList]);
+
+  useEffect(() => {
+    if (activeCategory !== "All" && !categories.includes(activeCategory)) {
+      setActiveCategory("All");
+    }
+  }, [activeCategory, categories]);
 
   const filteredProjects = useMemo(() => {
     return projectList.filter((project) => {
@@ -170,13 +194,8 @@ export default function Projects() {
             ))}
           </div>
 
-          {/* Results count indicator */}
-          <div className="projects-results-meta">
-            <span>
-              Showing {displayedProjects.length} of {filteredProjects.length}{" "}
-              {filteredProjects.length === 1 ? "project" : "projects"}
-            </span>
-            {(activeCategory !== "All" || searchTerm) && (
+          {(activeCategory !== "All" || searchTerm) && (
+            <div className="projects-results-meta">
               <button
                 type="button"
                 className="projects-reset-link"
@@ -184,11 +203,19 @@ export default function Projects() {
               >
                 Clear all filters
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
           {loading ? (
-            <p role="status" aria-live="polite">Loading projects...</p>
+            <div className="projects-grid" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, idx) => (
+                <div className="rcc-skeleton-card" key={`proj-skel-${idx}`}>
+                  <div className="rcc-skeleton-media rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-line-short rcc-skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
             <div className="projects-empty" role="alert">
               <h3>{error}</h3>

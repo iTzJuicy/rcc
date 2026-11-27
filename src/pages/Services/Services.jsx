@@ -74,7 +74,15 @@ export default function Services() {
           </header>
 
           {loading ? (
-            <p role="status" aria-live="polite">Loading services...</p>
+            <div className="svc-grid" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, idx) => (
+                <div className="rcc-skeleton-card" key={`svc-skel-${idx}`}>
+                  <div className="rcc-skeleton-media rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-line-short rcc-skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
             <div role="alert">
               <p>{error}</p>

@@ -63,7 +63,13 @@ export default function ServicesPreview() {
             {loadError ? (
               <p role="alert">Services are temporarily unavailable.</p>
             ) : loading ? (
-              <p role="status" aria-live="polite">Loading services...</p>
+              Array.from({ length: 4 }, (_, idx) => (
+                <div className="rcc-skeleton-card" key={`sp-skel-${idx}`} aria-hidden="true">
+                  <div className="rcc-skeleton-media rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-shimmer" />
+                  <div className="rcc-skeleton-line rcc-skeleton-line-short rcc-skeleton-shimmer" />
+                </div>
+              ))
             ) : featuredServices.map((service, idx) => (
               <div className="reveal-item" style={{ "--reveal-index": idx }} key={service.id || service._id || service.slug}>
                 <ServiceCard service={service} />

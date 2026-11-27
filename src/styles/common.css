@@ -527,12 +527,16 @@
   align-items: center;
   justify-content: center;
   background-color: var(--cream);
-  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.45s ease;
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.55s ease;
   overflow: hidden;
 }
 
 .preloader-fade-out {
   opacity: 0;
+  transform: scale(1.035);
   visibility: hidden;
   pointer-events: none;
 }
@@ -550,6 +554,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  animation: preloaderGridIn 0.6s ease-out forwards;
 }
 
 .preloader-blueprint-sketch {
@@ -560,18 +565,53 @@
   pointer-events: none;
 }
 
-.blueprint-wireframe-lines {
-  animation: preloaderBlueprintFade 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Staged Building Blueprint Line-Drawing Animation */
+.bp-draw line,
+.bp-draw path,
+.bp-draw rect,
+.bp-draw circle {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
 }
 
-@keyframes preloaderBlueprintFade {
+.bp-phase-1 line,
+.bp-phase-1 path,
+.bp-phase-1 rect,
+.bp-phase-1 circle {
+  animation: preloaderBlueprintDraw 1.05s cubic-bezier(0.35, 0, 0.15, 1) 0.05s forwards;
+}
+
+.bp-phase-2 line,
+.bp-phase-2 path,
+.bp-phase-2 rect {
+  animation: preloaderBlueprintDraw 1.25s cubic-bezier(0.35, 0, 0.15, 1) 0.45s forwards;
+}
+
+.bp-phase-3 line,
+.bp-phase-3 path {
+  animation: preloaderBlueprintDraw 1.05s cubic-bezier(0.35, 0, 0.15, 1) 1.05s forwards;
+}
+
+.bp-3d-planes {
+  opacity: 0;
+  animation: preloaderGridIn 0.8s ease-out 1.15s forwards;
+}
+
+@keyframes preloaderGridIn {
   from {
     opacity: 0;
-    transform: scale(0.985);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+  }
+}
+
+@keyframes preloaderBlueprintDraw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
@@ -580,9 +620,9 @@
   inset: 0;
   background: radial-gradient(
     circle at 50% 50%,
-    rgba(246, 242, 235, 0.45) 0%,
-    rgba(246, 242, 235, 0.15) 60%,
-    rgba(246, 242, 235, 0.05) 100%
+    rgba(246, 242, 235, 0.55) 0%,
+    rgba(246, 242, 235, 0.18) 58%,
+    rgba(246, 242, 235, 0.04) 100%
   );
   pointer-events: none;
 }
@@ -594,82 +634,172 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 28px;
   text-align: center;
 }
 
-/* Centered Logo Presentation */
+/* Logo pops out after apartment blueprint builds in the background */
 .preloader-logo-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: preloaderLogoEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: scale(0.65);
+  animation: preloaderLogoPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.65s forwards;
+}
+
+.preloader-logo-ring {
+  position: absolute;
+  width: 196px;
+  height: 196px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(229, 36, 43, 0.28);
+  background: radial-gradient(circle, rgba(246, 242, 235, 0.92) 45%, rgba(246, 242, 235, 0) 75%);
+  opacity: 0;
+  transform: scale(0.75);
+  animation: preloaderRingPop 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.72s forwards;
 }
 
 .preloader-logo-img {
-  width: 140px;
-  max-width: 160px;
+  position: relative;
+  z-index: 1;
+  width: 145px;
+  max-width: 165px;
   height: auto;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 4px 12px rgba(11, 22, 38, 0.08));
+  filter: drop-shadow(0 8px 20px rgba(11, 22, 38, 0.12));
 }
 
-/* Builder Skyline Line Animation */
-.preloader-skyline-wrapper {
-  width: min(320px, 80vw);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.preloader-skyline-svg {
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.preloader-skyline-draw {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: drawBuildingSkyline 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-@keyframes drawBuildingSkyline {
-  0% {
-    stroke-dashoffset: 100;
-    opacity: 0.2;
-  }
-  48% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  78% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  100% {
-    stroke-dashoffset: -100;
-    opacity: 0.2;
-  }
-}
-
-@keyframes preloaderLogoEntrance {
+@keyframes preloaderLogoPop {
   0% {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.62) translateY(8px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
   }
   100% {
     opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes preloaderRingPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0.65;
     transform: scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .preloader-skyline-draw,
-  .preloader-logo-wrapper {
+  .bp-draw line,
+  .bp-draw path,
+  .bp-draw rect,
+  .bp-draw circle,
+  .preloader-blueprint-grid,
+  .bp-3d-planes,
+  .preloader-logo-wrapper,
+  .preloader-logo-ring,
+  .rcc-skeleton-shimmer {
     animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
   }
+}
+
+/* ========================================================
+   ANIMATED LOADING SKELETONS (Public Pages)
+======================================================== */
+@keyframes rccSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.rcc-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(11, 22, 38, 0.06) 25%,
+    rgba(11, 22, 38, 0.12) 50%,
+    rgba(11, 22, 38, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: rccSkeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.rcc-skeleton-shimmer-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: rccSkeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.rcc-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.rcc-skeleton-media {
+  width: 100%;
+  aspect-ratio: 1.15 / 1;
+  border-radius: 10px;
+}
+
+.rcc-skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.rcc-skeleton-line-short {
+  width: 62%;
+  height: 11px;
+}
+
+.rcc-skeleton-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 10px;
+}
+
+.rcc-skeleton-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.rcc-skeleton-stat-value {
+  width: 65%;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.rcc-skeleton-stat-label {
+  width: 85%;
+  height: 13px;
+  border-radius: 6px;
 }
 
 /* ========================================================

@@ -537,6 +537,8 @@ function ThreeViewer({ THREE, template, imageUrl, autoRotate, onError, onReady, 
       controls.target.set(0, 1.8, 0);
       controls.autoRotate = autoRotateRef.current;
       controls.autoRotateSpeed = 1.8;
+      // Allow vertical page scrolling on mobile touch devices instead of trapping the finger
+      renderer.domElement.style.touchAction = "pan-y";
       controlsRef.current = controls;
       onControlsReady?.(controls);
     }
@@ -901,6 +903,8 @@ export default function Model3DViewer({ modelUrl, template, fallbackImageUrl, pr
           auto-rotate-delay="0"
           rotation-per-second="20deg"
           camera-controls
+          touch-action="pan-y"
+          disable-pan
           bounds="tight"
           camera-orbit="0deg 80deg 85%"
           min-camera-orbit="auto 70deg 72%"
