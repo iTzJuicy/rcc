@@ -134,6 +134,39 @@ app.use(
   express.static(uploadDir)
 );
 
+// Fallback: serve 3D models stored in MongoDB GridFS (persists across Render restarts and supports >10 MB)
+app.get("/uploads/models/:filename", async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1 || !mongoose.connection.db) {
+      return next();
+    }
+    const filename = decodeURIComponent(req.params.filename);
+    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+      bucketName: "models",
+    });
+    const files = await bucket.find({ filename }).limit(1).toArray();
+    if (!files.length) return next();
+
+    const fileDoc = files[0];
+    const ext = path.extname(filename).toLowerCase();
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Content-Type", ext === ".gltf" ? "model/gltf+json" : "model/gltf-binary");
+    res.setHeader("Content-Length", String(fileDoc.length));
+    res.setHeader("Content-Disposition", "inline");
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+
+    if (req.method === "HEAD") {
+      return res.status(200).end();
+    }
+
+    const stream = bucket.openDownloadStream(fileDoc._id);
+    stream.on("error", next);
+    return stream.pipe(res);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({

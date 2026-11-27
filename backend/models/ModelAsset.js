@@ -17,7 +17,7 @@ const modelAssetSchema = new mongoose.Schema(
     },
     storage: {
       type: String,
-      enum: ["local", "cloudinary"],
+      enum: ["local", "cloudinary", "gridfs"],
       required: true,
     },
     bytes: {

@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import mongoose from "mongoose";
 import { protectAdmin, requirePermission } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
 import { cloudinary, isConfigured } from "../config/cloudinary.js";
@@ -127,7 +128,7 @@ const MODEL_MIME_TYPES_BY_EXTENSION = {
 
 const upload3dModel = multer({
   storage: model3dStorage,
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8 MB safe limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit (Cloudinary raw upload limit)
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (MODEL_MIME_TYPES_BY_EXTENSION[ext]?.includes(file.mimetype)) {
@@ -206,22 +207,43 @@ router.post(
 
     let url = `/uploads/models/${encodeURIComponent(req.file.filename)}`;
     let storage = "local";
+    let publicId = "";
 
     try {
-      if (isConfigured) {
+      const CLOUDINARY_RAW_LIMIT = 10 * 1024 * 1024;
+      if (isConfigured && req.file.size <= CLOUDINARY_RAW_LIMIT) {
         const result = await cloudinary.uploader.upload(req.file.path, {
           folder: "rcc_infrastructure/models",
           resource_type: "raw",
           public_id: path.basename(req.file.filename),
         });
         url = result.secure_url;
+        publicId = result.public_id;
         storage = "cloudinary";
+        await fs.promises.unlink(req.file.path).catch(() => {});
+      } else if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
+        const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+          bucketName: "models",
+        });
+        const uploadStream = bucket.openUploadStream(req.file.filename, {
+          contentType: req.file.mimetype || "model/gltf-binary",
+          metadata: { originalname: req.file.originalname },
+        });
+        await new Promise((resolve, reject) => {
+          fs.createReadStream(req.file.path)
+            .pipe(uploadStream)
+            .on("finish", resolve)
+            .on("error", reject);
+        });
+        publicId = String(uploadStream.id);
+        storage = "gridfs";
         await fs.promises.unlink(req.file.path).catch(() => {});
       }
 
       const asset = await ModelAsset.create({
         url,
         filename: req.file.originalname,
+        public_id: publicId,
         storage,
         bytes: req.file.size,
       });

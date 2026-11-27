@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
 import ModelAsset from "../models/ModelAsset.js";
 import Project from "../models/Project.js";
 import { cloudinary, isConfigured } from "../config/cloudinary.js";
@@ -69,6 +70,9 @@ export async function adminGetModelAssets(req, res, next) {
       } while (nextCursor);
     }
 
+    const gridfsAssets = await ModelAsset.find({ storage: "gridfs" });
+    assets.push(...gridfsAssets);
+
     const uniqueAssets = [...new Map(assets.map((asset) => [asset.url, asset])).values()]
       .sort((a, b) => a.filename.localeCompare(b.filename));
     res.json({ success: true, count: uniqueAssets.length, data: uniqueAssets });
@@ -106,6 +110,17 @@ export async function adminDeleteModelAsset(req, res, next) {
         await fs.promises.unlink(filePath);
       } catch (error) {
         if (error.code !== "ENOENT") throw error;
+      }
+    } else if (asset.storage === "gridfs") {
+      if (asset.public_id && mongoose.connection.db) {
+        const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+          bucketName: "models",
+        });
+        try {
+          await bucket.delete(new mongoose.Types.ObjectId(asset.public_id));
+        } catch (error) {
+          if (!/File not found/i.test(error.message)) throw error;
+        }
       }
     } else {
       const result = await cloudinary.uploader.destroy(asset.public_id, { resource_type: "raw" });

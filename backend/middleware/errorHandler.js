@@ -31,9 +31,8 @@ export function globalErrorHandler(err, req, res, _next) {
   if (err.name === "MulterError") {
     statusCode = 400;
     if (err.code === "LIMIT_FILE_SIZE") {
-      const maxSizeMb = err.limit / (1024 * 1024);
-      message = maxSizeMb >= 10
-        ? `Uploaded file is too large. The maximum size is ${maxSizeMb} MB.`
+      message = req.path.includes("upload-model")
+        ? "3D model file is too large. Please compress your .glb / .gltf file and upload a file below 10 MB."
         : "Image file is too large. The maximum size is 5 MB.";
     }
   }

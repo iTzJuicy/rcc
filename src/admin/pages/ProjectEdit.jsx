@@ -193,6 +193,13 @@ export default function ProjectEdit() {
       setToast({ type: "error", message: "Only .glb and .gltf 3D model formats are accepted." });
       return;
     }
+    if (file.size > 10 * 1024 * 1024) {
+      setToast({
+        type: "error",
+        message: "3D model file is too large. Please compress your .glb / .gltf file and upload a file below 10 MB.",
+      });
+      return;
+    }
     setUploadingModel(true);
     try {
       const res = await api.adminUploadModel(file);
@@ -741,7 +748,7 @@ export default function ProjectEdit() {
             {modelMode === "upload" && (
               <div className="admin-model3d-upload-zone">
                 <p className="admin-input-hint">
-                  Upload a 3D model in GLB (binary glTF) or glTF format. New uploads are saved for reuse across projects. Recommended format is <strong>.glb</strong> optimized for web (under 25MB).
+                  Upload a compressed 3D model in GLB (binary glTF) or glTF format <strong>below 10 MB</strong>. New uploads are saved to cloud storage for reuse across projects.
                 </p>
 
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
